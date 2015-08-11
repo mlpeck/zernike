@@ -1,0 +1,497 @@
+## changelog
+##
+## 20040817
+##  load.images loads images with correct orientation
+##  when plotted by image().
+
+## 20040823
+##  lsfitphase tries to bracket global min by
+##  evaluating sse at a coarse grid of points
+##  before calling R's optimize().
+
+## 20040824
+##  psifit.it corrected weighted sum of squares.
+
+## 20040825
+##  fixed identical bugs in fftfit and fftfit.it
+
+## 20040826
+##  one more bugfix in fft.it - remove DC peak
+##  from final FFT matrix
+
+## 20040827
+##  modalphaseuw streamlined slightly
+
+## 20040830
+##  modalphaseuw changed again per suggestion
+##  by Steve Koehler
+
+## 20040906
+##  fftfit and fftfit.it return raw phase map
+##  for consistency with psifit and psifit.it
+##
+##  load.images now returns a matrix if a single
+##  pair of images are differenced.
+
+## 20041022
+##
+## modalphaseuw
+##  changed sample strategy to square grid
+##  use solve() instead of lm() for least squares fit to gradient
+##
+## pupil2 is dropped and functionality folded into pupil
+##
+## added function .up2 to aid in matrix padding for FFTs
+##
+## wf.net
+##  changed sample strategy to square grid
+##
+## GB.phasest
+##  fixed phase estimation for case of differenced images
+##
+## lsfitpsi
+##  slightly streamlined code
+##
+## drzernike
+##  iterative version of a different recurrence relation
+
+## 20041123
+## modalphaseuw
+##  small changes to logic and array indexing
+##  now always tries a final unwrap
+
+## 20041204
+## foucogram - small bugfix
+##
+## startest
+## can now provide a wavefront as input parameter
+## must still be centered and the same diameter as size
+## of input matrix
+
+## 20050101
+## name of modalphaseuw changed to modalpuw
+## removed removetilt option and instead check for residues
+##
+## added function rmap to calculate residues and optionally plot them
+##
+## added function idiffpuw -- phase unwrapping by Integrating DIFFerences
+##
+## added function brcutpuw -- Branch CUT algorithm for phase unwrapping
+
+## 20050102
+##  assorted minor bugfixes in rmap, modalpuw
+##
+##  psifit, fftfit, etc. can specify phase unwrapping algorithm.
+
+## 20050215
+## error in name of return value in zonalfit.
+## minor fix for fftfit
+
+## 20060107
+## removed fftfit.it
+## added zconic
+
+## 20060114
+## various fixes and improvements to wf.net
+
+## 20060120
+## bug fix in synth.interferogram
+
+## 20060121
+## major changes to lsfitpsi and lsfitphase
+
+## 20060123
+## fixed bug in lsfitpsi caused by 20060121 changes
+
+## 20060125
+## tiny bug fix in rzernike
+
+## 20060605
+## changed default coordinate display in plot.pupil
+## and added option to display in normalized pupil coordinates
+##
+## renamed wf.3dplot to wf3d.pupil, making it a method
+## for objects of class "pupil"
+##
+## efficiency improvements to wf.net. Only does one Zernike fit which
+## is used both to remove nuisance aberrations and estimate smooth
+## wavefront. Now returns net Zernike coefficients.
+##
+## changed psfit, psfit.it, fftfit to return zcoef.net as calculated by wf.net
+
+## 20060610
+##
+## changed parameter order in call to pupil; no internal changes
+##
+## extensive changes to startest to properly treat wavefronts as inputs
+##
+## fixed broken calls of pupil from wf.net, etc.
+
+## 20060714
+##
+## improved plot.cmat
+##  Include optional parameter cp to display spatial frequencies in
+##  cycles/pupil radius on each axis.
+
+## 20071010
+##
+## rmap: slightly better choice for plotting charges.
+##		If plot=TRUE now returns the number of residuals
+## modalpuw: possible improvement in handling case where
+##		unwrap might have failed
+##
+## added lspuw -- phase unwrapping by least squares
+## added congruence -- G&P's congruence operation
+##
+## fftfit, psifit, psifit.it: added option to use
+##   lspuw for phase unwrapping
+##
+## wf.net: possible improvement. Can now ignore SA term (Z8),
+## but result only makes sense if satarget=c(0,0).
+## if satarget != c(0,0) 8 should not be an element of zc0.
+##
+## 20071016
+##
+## brcutpuw: now solves an optimization model for branch cuts.
+##
+## 20071017
+##
+## added qpuw and C code implementing quality guided unwrapping algorithm.
+##
+## 20071018
+##
+## brcutpuw: fixed unlikely bug for case of only positive or negative charges
+##
+## 20071104
+##
+## lspuw: now accepts optional weights
+## changed odd() to .odd() to hide it.
+##
+## fftfit, psifit, psifit.it: qpuw is the default choice for phase unwrapping.
+##   if puw.alg="ls" weighted least squares is used.
+##
+## 20080201
+##
+## removed GB.phasest
+## changed references to .up2 to nextn
+##
+## fftfit: changed filter around DC peak when prefilter>0
+## added parameter uselm to fitzernikes, wf.net, etc.
+## 
+## 20080211
+##
+## removed brcutpuw from this package and created new package lppuw
+## for LP based phase unwrappers
+##
+## 20080308
+##
+## got rid of unused lines in lsfitpsi
+## changed phase difference calculation in psifit.it
+##
+## 20080413
+##
+## added circle.pars to automatically estimate
+## disk parameters
+## 
+## added load.jt to read jpeg or tiff files
+##
+## modified psifit to use circle.pars()
+##
+## changed name of some return values in psifit,
+## psifit.it, fftfit
+##
+## 20080423
+## 
+## changed name of load.jt to load.images; changed load.images to load.pgm
+##
+## 20080508
+##
+## big speed bump in C code for quality guided unwrapper (thanks to Steve K.)
+## changed unwrapper call for psifit, etc. 
+##
+## 20080515
+##
+## Itoh's method for unwrapping is now in C.
+##
+## 20080814
+##
+## fftfit can now calculate circle parameters from modulation
+##
+## image data scaled to range in [0,1] in load.images
+
+## 20090308
+##
+## bug fix in C code: array declarations replaced with calls to malloc
+
+## 20090310
+##
+## load.images now has a scale parameter -- uses imgAverageShrink
+## from biOps if scale <= 0.5
+## Note: the biOps shrink function does not work for 0.5 < scale < 1.
+##
+## default maxorder for makezlist changed to 14 (63 terms)
+
+## 20090311
+##
+## added function crop()
+
+## 20090313
+##
+## increased maxiter and decreased ptol in psifit.it
+##
+## pupil no longer calls fillzm
+
+## 20090410
+##
+## wf3d.pupil can now have different x,y dimensions
+
+## 20091111
+##
+## crop is easier to understand
+##
+## changed pupil.pars to make conditions for retaining
+## elliptical fit more stringent
+
+## 20091120-20091121
+##
+## Added my own readjpeg and readtiff functions,
+## with R and C code adapted from biOps.
+## 
+## Also added utility function rescale() to rescale
+## an image (or any matrix) using bilinear interpolation.
+
+## 20100423
+##
+## localize.sidelobe now finds sidelobe position
+## and amount to filter around DC.
+
+## 20100425
+##
+## added astig.bath
+## added gblur
+## removed extractandpad
+## added astig.bath as parameter to wf.net, etc.
+## fftfit streamlined
+## added smoothing parameter to circle.pars
+## renamed localize.sidelobe to pick.sidelobe
+
+## 20100518
+##
+## psifit, etc. use weights when netflowpuw is
+## called to unwrap phase.
+
+## 20100624
+##
+## added function rygcb to create a rainbow color palette
+## plot.pupil: added parameter cscale to plot the color
+## scale alongside the wavefront plot (similar to
+## R's filled.contour function).
+
+## 20100730
+##
+## New, more efficient lsfitpsi. Renamed to lspsi.
+## Side effect: package tensor is no longer needed.
+
+## 20100803
+##
+## psifit.it: added optional call to nlminb to maybe find optimum.
+##  cp can be NULL
+##  lsfitphase moved inside psifit.it and renamed to pstep.
+
+## 20110322
+##
+## minor efficiency improvements to pupilrms and pupilpv
+##
+## same for wf3d.pupil
+##
+## fftfit and pick.sidelobe: mean is subtracted from imagedata
+##
+## Makevars.win changed for 32/64 bit compilation
+##
+## 20110323
+## load.images: dropped IMDIFF; added FLIP
+##
+
+## 20110330
+## examples updated in .Rd files
+
+## 20110630
+## added options eqa and zlim to plot.pupil
+## eqa provides "equal area" images:
+## each color in the palette is used for the same
+## number of pixels
+##
+## plot.cmat gains option gamma; default palette changed to grayscale
+##
+## all calls to image() have the option useRaster=TRUE added.
+##
+## small improvements to foucogram
+##
+## added useRaster=TRUE to the one image call in psiest.r demo
+
+## 20110701
+##
+## added parameter gamma to pick.sidelobe, with gamma=3 by default
+
+## 20110808
+##
+## wf.net added a sign check comparing satarget with fitted value of SA
+
+## 20110812
+##
+## pcafit added
+##
+## sgs=3 changed to sgs=2 in all ...fit functions
+
+## 20110813
+##
+## fixed bug in wf.net caused by change of 20110808
+
+## 20110814
+##
+## fixed (?) phase shift estimates in pcafit
+
+## 20110908
+##
+## pcafit does svd on crossproduct matrix instead of data.
+## Faster and allows mod to be calculated for entire image.
+## Dropped SCALE option from pcafit.
+##
+## gaussfilter is gone.
+##
+## added convolve2d
+##
+## gblur is based on a convolution kernel. Added "details" to argument list.
+##
+## circle.pars partially implements canny algorithm for edge detection.
+
+## 20110926
+##
+## fixed(?) probable bug that caused image shift in convolve2d
+
+## 20120102
+##
+## wf.net displays graphs side by side
+##
+## psifit.it returns phases[1]=0
+##
+## pcafit returns eigenvalues of crossproduct matrix,
+##		and an estimate of S/N ratio
+##
+## Added namespace file
+
+## 20120110
+##
+## changed name of psifit.it to hkfit
+## added aiafit
+## minor documentation corrections
+
+## 20120111
+##
+## pcaest demo also demos aiafit
+## updated winfit demo
+## removed old psfit_it.rda from demo data directory
+
+## 20120117
+##
+## slightly faster aiafit - now does SVD of (Phi)'Phi
+## instead of Phi
+##
+## added ask parameter to circle.pars for easier sanity checking
+
+## 20120119
+##
+## functions that open graphics windows check platform
+## type and call windows() or x11()
+
+## 20120122
+##
+## small tweaks to demos that may improve usability
+
+
+## 20120719
+##
+## changed default zlist to makezlist() from zlist.fr in various functions
+##
+## renamed fillzm to zpm.arb
+##
+## new function zpm is a wrapper to the C routine zpmatrix
+## fitzernikes has different argument list; calls zpm.
+##
+## pupil() uses zpm.
+
+## 20120722
+##
+## startest() and synth.interferogram() were broken by
+## changes in pupil(). Fixed.
+
+## 20120823
+## modified wf.net to accomodate bug in brcutpuw
+
+## 20121005
+##
+## changed zlist.fr to conform to requirements of zpm.
+##
+## hkfit is now nearly identical to aiafit, except background &
+## modulation aren't discarded at iteration step
+
+## 20121106
+##
+## Added "low level" functions pcapsi, aiapsi, hkpsi, tiltpsi.
+## Dropped "high level" functions hkfit and aiafit;
+## new function itfit uses one of the 3 iterative algorithms.
+## REFINE option in pcafit and itfit will re-run phase
+## computation after edge finding when cp was initially NULL.
+
+## 20121107
+##
+## changed sign convention for rotations (a positive rotation angle
+## will plot as a counterclockwise rotation).
+
+## 20121108
+##
+## Added pupil.arb. This is essentially old pupil with
+## arbitrary Zernike list.
+##
+
+## 20121204
+##
+## Added pxls.c to calculate pixelwise least squares solution
+## to PSI equations. This is called by phaseest() in tiltpsi().
+##
+## Added plotn() for comparison plotting of arbitrary number
+## of wavefronts.
+##
+## Added plotxs(): cross sections through a wavefront.
+
+## 20130423
+##
+## added ... to rmap for passing arguments to image
+
+## 20130624
+## fixed bug in wf.net when using lm() to fit zernikes
+
+## 20130710
+##
+## changed all instances of .find.package() to find.package() in demos
+## for compatibility with R > 3.0.0
+##
+## Makevars.win changed for current Rtools toolset in Windows.
+
+## 20150326
+##
+## added names=files to load.images for compatibility with Shiny version
+##
+## added eqa option to col3d and wf3d.pupil
+
+## 20150329
+##
+## removed lspuw and modalpuw
+## removed options to call these from high level fitting functions
+##
+
+## 20150401
+##
+## removed congruence (no longer called by anything)
+##
+## added hypot, zmoments, addfit, separate.wf

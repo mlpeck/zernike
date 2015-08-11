@@ -1,0 +1,26 @@
+export(rzernike, drzernike, Zernike, DZernike, DTZernike,
+  pupil, pupil.arb, pupilrms, pupilpv, strehlratio,
+  rygcb, rygcbm, grey256, gray256, 
+  zlist.fr, makezlist, zmult,
+  zpm, zpm.arb, filldzm, fillgradientzm,
+  zconic, astig.bath,
+  wftophase, padmatrix, submatrix, fftshift,
+  startest, turbwf, modalfit, zonalfit, foucogram,
+  synth.interferogram, wf3d, wf3d.pupil, col3d, plot.pupil, plotn, plotxs,
+  load.pgm, load.images, rescale, readjpeg, readtiff, crop,
+  pupil.pars, circle.pars,
+  convolve2d, gblur, pupil.rhotheta,
+  fitzernikes, plot.cmat, pick.sidelobe, .fdiff,
+  wrap, rmap,
+  idiffpuw, qpuw,
+  wf.net, lspsi, pcapsi, aiapsi, hkpsi, tiltpsi,
+  psifit, itfit, pcafit, fftfit,
+  hypot, zmoments, addfit, separate.wf
+)
+
+S3method(summary, pupil)
+S3method(plot, pupil)
+S3method(wf3d, pupil)
+
+useDynLib(zernike)
+

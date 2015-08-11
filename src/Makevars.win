@@ -1,0 +1,8 @@
+ifeq "$(WIN)" "64"
+  PKG_CPPFLAGS += -DWIN32 -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK -I"c:/rtools/local300/include"
+  PKG_LIBS += -L"c:/rtools/local300/lib/x64" -llapacke -llapack -lrefblas -lgfortran -ltiff -ljpeg -lz -lm
+else
+  PKG_CPPFLAGS += -DWIN32 -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK -I"c:/rtools/local300/include"
+  PKG_LIBS += -L"c:/rtools/local300/lib/i386" -llapacke -llapack -lrefblas -lgfortran -ltiff -ljpeg -lz -lm
+endif
+

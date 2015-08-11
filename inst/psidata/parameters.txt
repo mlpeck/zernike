@@ -1,0 +1,10 @@
+#
+# Parameters
+#
+wavelength=654 # nm
+diam=152.2         # mm
+roc=1215             # mm
+beam.sep=14       # mm
+frames.per.cycle=6
+ps.dir ="ccw"              # phase change direction
+
