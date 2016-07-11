@@ -219,7 +219,7 @@ plot.pupil <- function(wf, cp=NULL, col=topo.colors(256), addContours=TRUE, csca
 ## comparison plot of n wavefront estimates
 
 plotn <- function(...,
-  labels=NULL,
+  labels=NULL, addContours=FALSE,
   wftype="net", col=rygcb(400), qt=c(.01, .99)) {
 	fits <- list(...)
 	nwf <- length(fits)
@@ -249,7 +249,7 @@ plotn <- function(...,
 	  screen(i)
 	  wfi <- wfs[,,i]
 	  class(wfi) <- "pupil"
-	  plot(wfi, col=col, addContours=FALSE, eqa=(wftype=="net"), axes=FALSE)
+	  plot(wfi, col=col, addContours=addContours, eqa=(wftype=="net"), axes=FALSE)
 	  title(main=paste(labels[i],"rms=",format(pupilrms(wfi),digits=3)))
 	}
 	scr <- nwf+1
@@ -970,7 +970,7 @@ pupil.pars <- function(im=NULL, obstructed=FALSE) {
 	yc <- coef(el)[3]/(2*asp2)
 	rx <- sqrt(coef(el)[1] + xc^2 + yc^2*asp2)
 	ry <- rx / sqrt(asp2)
-	if ((abs(rx-ry)/rx > 0.05) || (summary(el)$coefficients[4,4]>0.01)) {
+	if ((abs(rx-ry)/rx < 0.05) || (summary(el)$coefficients[4,4]>0.01)) {
 		el <- update(el, ~ . - I(y^2))
 		xc <- coef(el)[2]/2
 		yc <- coef(el)[3]/2
@@ -1401,15 +1401,20 @@ lspsi <- function(images, phases, wt=rep(1, length(phases))) {
 
 ## Vargas et al.'s (2011) Principal Components method
 
-pcapsi <- function(im.mat, BGSUB) {
+pcapsi <- function(im.mat, BGSUB=TRUE, diagpos=1) {
 	if (BGSUB) im.mat <- im.mat-rowMeans(im.mat)
 
 	# svd of the crossproduct is faster!
 	
 	svd.cp <- svd(crossprod(im.mat))
-	ph <- atan2(svd.cp$v[,2]*sqrt(svd.cp$d[2]),svd.cp$v[,1]*sqrt(svd.cp$d[1]))
-	ph <- wrap(diffinv(diff(ph)))
-	u <- im.mat %*% (svd.cp$u[,1:2] %*% diag(1/sqrt(svd.cp$d[1:2])))
+        if (diagpos == 1) {
+            ph <- atan2(svd.cp$v[,2]*sqrt(svd.cp$d[2]),svd.cp$v[,1]*sqrt(svd.cp$d[1]))
+            u <- im.mat %*% (svd.cp$u[,1:2] %*% diag(1/sqrt(svd.cp$d[1:2])))
+        } else {
+            ph <- atan2(svd.cp$v[,2],svd.cp$v[,1])
+            u <- im.mat %*% svd.cp$u[,1:2]
+        }
+	ph <- wrap(ph-ph[1])
 	phi <- atan2(-u[,2],u[,1])
 	mod <- sqrt(u[,1]^2+u[,2]^2)
 	r2 <- (svd.cp$d[1]+svd.cp$d[2])/sum(svd.cp$d)
@@ -1717,8 +1722,8 @@ psifit <- function(images, phases, cp=NULL, wt=rep(1,length(phases)),
 ## PSI analysis by principal components (Vargas et al. 2011)
 
 pcafit <- function(images, cp=NULL,
-	BGSUB = TRUE, REFINE = TRUE, 
-    fringescale=1, zlist=makezlist(), zc0=c(1:3, 6:7), 
+	BGSUB = TRUE, diagpos=1, REFINE = TRUE, 
+        fringescale=1, zlist=makezlist(), zc0=c(1:3, 6:7), 
 	satarget=c(0,0), astig.bath=c(0,0), 
 	puw.alg="qual", uselm=FALSE, sgs=1, plots=TRUE, CROP=FALSE) {
 	nr <- dim(images)[1]
@@ -1730,7 +1735,7 @@ pcafit <- function(images, cp=NULL,
 		mask <- as.vector(prt$rho)
 		im.mat <- im.mat[!is.na(mask),]
 	}
-	pcasol <- pcapsi(im.mat, BGSUB)
+	pcasol <- pcapsi(im.mat, BGSUB, diagpos)
 	if (!is.null(cp)) {
 	  phi <- matrix(NA, nr, nc)
 	  mod <- matrix(0, nr, nc)
@@ -1744,7 +1749,7 @@ pcafit <- function(images, cp=NULL,
 		prt <- pupil.rhotheta(nr,nc,cp)
 		mask <- as.vector(prt$rho)
 		im.mat <- im.mat[!is.na(mask),]
-		pcasol <- pcapsi(im.mat, BGSUB)
+		pcasol <- pcapsi(im.mat, BGSUB, diagpos)
 		phi <- matrix(NA, nr, nc)
 		mod <- matrix(0, nr, nc)
 		phi[!is.na(prt$rho)] <- pcasol$phi
@@ -1899,6 +1904,10 @@ fftfit <- function(imagedata, cp=NULL, fringescale=1, sl=c(1,1),
 	nr <- nrow(imagedata)
 	nc <- ncol(imagedata)
 	npad <- nextn(max(nr,nc))
+        if (!is.null(cp)) {
+            prt <- pupil.rhotheta(nr, nc, cp)
+            imagedata[is.na(prt$rho)] <- 0
+        }
 	imagedata <- imagedata-mean(imagedata)
 	im <- padmatrix(imagedata, npad=npad, fill=0)
 	im.fft <- fftshift(fft(im))
@@ -1942,7 +1951,7 @@ fftfit <- function(imagedata, cp=NULL, fringescale=1, sl=c(1,1),
 	ymin <- max(1-sl[2], 1)
 	ymax <- min(npad-sl[2], npad)
 	sl.fft[xmin:xmax, ymin:ymax] <- im.fft[(sl[1]+(xmin:xmax)),(sl[2]+(ymin:ymax))]
-	if (plots) plot.cmat(submatrix(sl.fft, size=npad/2))
+#	if (plots) plot.cmat(submatrix(sl.fft, size=npad/2))
 	cphase <- fft(fftshift(sl.fft), inv=TRUE)[1:nr, 1:nc]
 	phase.raw <- Arg(cphase)
 	mod.raw <- Mod(cphase)

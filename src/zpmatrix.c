@@ -1,7 +1,7 @@
 //
-//	Copyright (C) 2012 Michael Peck <mpeck1 -at- ix.netcom.com>
+//	Copyright (C) 2012-2016 Michael Peck <mpeck1 -at- ix.netcom.com>
 //
-//	License: GPL <http://www.gnu.org/licenses/licenses.html#GPL>
+//	License: MIT <https://opensource.org/licenses/MIT>
 //
 
 // Fill a matrix with Zernike polynomial values
@@ -99,7 +99,10 @@ void zpmatrix(double *rho, double *theta, int *nr, int *maxorder, double *zm) {
 	nn = order;
 	s0 = c0*(*nr);
 	a0 = sqrt(nn+1.);
-	for (n=0; n<(*nr); n++) zm[s0++] = a0*zm[s0];
+	for (n=0; n<(*nr); n++) {
+            zm[s0] *= a0;
+            ++s0;
+        }
 	c0++;
   }
 }

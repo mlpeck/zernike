@@ -16,6 +16,7 @@ pcafit(images, cp=NULL,
   \item{images}{An array containing the interferogram images}
   \item{cp}{A list describing the pupil boundary, as returned by \code{\link{pupil.pars}}}
   \item{BGSUB}{Logical: subtract pixel-wise mean?}
+  \item{diagpos}{controls treatment of singular values of data matrix}
   \item{REFINE}{Logical: calculate phase again after finding interferogram edge?}
   \item{fringescale}{Fringe spacing, in waves. Use 1 for single pass, 0.5 for double pass, etc.}
   \item{zlist}{Indexes of Zernike polynomials to fit to wavefront}

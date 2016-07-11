@@ -6,7 +6,7 @@
 \description{Plot an arbitrary number of wavefronts and all differences.
 }
 \usage{
-plotn(..., labels = NULL, wftype = "net",
+plotn(..., labels = NULL, addContours=FALSE, wftype = "net",
 	col = rygcb(400), qt = c(0.01, 0.99))
 }
 \arguments{
@@ -14,6 +14,7 @@ plotn(..., labels = NULL, wftype = "net",
 }
   \item{labels}{Labels to identify the wavefronts.
 }
+  \item{addContours}{Boolean to add contours to top row plots}
   \item{wftype}{If the inputs are from \code{wf.net}, one of "net", "smooth",
   "residual".
 }

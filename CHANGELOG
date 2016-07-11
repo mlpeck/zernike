@@ -495,3 +495,9 @@
 ## removed congruence (no longer called by anything)
 ##
 ## added hypot, zmoments, addfit, separate.wf
+
+## 20160215
+##
+## pcapsi adds a parameter to control treatment of singular values
+## diagpos = 1 uses my reinterpretation of Vargas' algorithm
+## pcafit adds same parameter
