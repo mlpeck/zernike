@@ -501,3 +501,12 @@
 ## pcapsi adds a parameter to control treatment of singular values
 ## diagpos = 1 uses my reinterpretation of Vargas' algorithm
 ## pcafit adds same parameter
+
+## 20160713
+##
+## replaced zpmatrix.c with zpmC.cpp
+## added Rcpp infrastructure as needed
+## zpm calls zpmC
+## removed some unnecessary return()'s
+## cleaned up some source code formatting
+

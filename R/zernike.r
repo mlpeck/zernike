@@ -19,24 +19,24 @@
 ##radial zernike polynomials - iterative rewrite
 
 rzernike <- function(rho, n, m) {
-	if ((n<0) || (m<0) || (n<m) || (.odd(n,m))) return(0) #this is an error condition
-	if (n==m) return(rho^n)
-	j <- m
-	rj <- rho^j
-	r2 <- rho^2
-	rjm2 <- 0
-	for (j in seq(m,(n-2),by=2)) {
-		c2 <- 4*(j+1)*r2-(j-m+2)^2/(j+2)
-		c4 <- 0
-		if (j != 0) {
-			c2 <- c2 - (j+m)^2/j
-			c4 <- (m^2 - j^2)/j
-		}
-		rjp2 <- (j+2)/((j+2)^2-m^2)*(c2 * rj + c4 * rjm2)
-		rjm2 <- rj
-		rj <- rjp2
-	}
-	return (rj)
+    if ((n<0) || (m<0) || (n<m) || (.odd(n,m))) stop("Bad argument to rzernike")
+    if (n==m) return(rho^n)
+    j <- m
+    rj <- rho^j
+    r2 <- rho^2
+    rjm2 <- 0
+    for (j in seq(m,(n-2),by=2)) {
+        c2 <- 4*(j+1)*r2-(j-m+2)^2/(j+2)
+        c4 <- 0
+        if (j != 0) {
+            c2 <- c2 - (j+m)^2/j
+            c4 <- (m^2 - j^2)/j
+        }
+        rjp2 <- (j+2)/((j+2)^2-m^2)*(c2 * rj + c4 * rjm2)
+        rjm2 <- rj
+        rj <- rjp2
+    }
+    rj
 }
 
 ##derivative (wrt r) of zernike polynomials
@@ -44,36 +44,37 @@ rzernike <- function(rho, n, m) {
 ## given in Eqn. 13 of Mathworld Zernike article.
 
 drzernike <- function(rho, n, m) {
-	if ((n<0) || (m<0) || (n<m) || (.odd(n,m))) return(0)
-	if ((n==0) && (m==0))return(0*rho)
-	if (n==m) return(n*rho^(n-1))
-	if (m==0) dr <- 0*rho else dr <- m*rho^(m-1)
-	for (nn in seq(m+2, n, by=2))
-		dr <- dr + nn*(rzernike(rho,nn-1,abs(m-1))+rzernike(rho,nn-1,m+1))
-	return(dr)
+    if ((n<0) || (m<0) || (n<m) || (.odd(n,m))) stop("Bad argument to drzernike")
+    if ((n==0) && (m==0))return(0*rho)
+    if (n==m) return(n*rho^(n-1))
+    if (m==0) dr <- 0*rho else dr <- m*rho^(m-1)
+    for (nn in seq(m+2, n, by=2)) {
+        dr <- dr + nn*(rzernike(rho,nn-1,abs(m-1))+rzernike(rho,nn-1,m+1))
+    }
+    dr
 }
 
 
 ### Zernike polynomial
 
 Zernike <- function(rho, theta, n, m, t) {
-	return( sqrt(n+1) * rzernike(rho, n, m) * switch(t, n=1, c=sqrt(2)*cos(m*theta),
-	 s=sqrt(2)*sin(m*theta)))
+    sqrt(n+1) * rzernike(rho, n, m) * switch(t, n=1, c=sqrt(2)*cos(m*theta),
+	 s=sqrt(2)*sin(m*theta))
 }
 
 ### Radial derivative of zernike polynomial
 
 DZernike <- function(rho, theta, n, m, t) {
-	return( sqrt(n+1) * drzernike(rho, n, m) * switch(t, n=1, c=sqrt(2)*cos(m*theta),
-	 s=sqrt(2)*sin(m*theta)))
+    sqrt(n+1) * drzernike(rho, n, m) * switch(t, n=1, c=sqrt(2)*cos(m*theta),
+	 s=sqrt(2)*sin(m*theta))
 }
 
 ### Tangential derivative of zernike polynomial
 
 DTZernike <- function(rho, theta, n, m, t) {
-	if (m == 0) return (rho*0) else
-	return( sqrt(n+1) * m * rzernike(rho, n, m) * switch(t, n=0, c= -sqrt(2)*sin(m*theta), 
-	 s = sqrt(2)*cos(m*theta)))
+    if (m == 0) return (rho*0) else
+    sqrt(n+1) * m * rzernike(rho, n, m) * 
+                switch(t, n=0, c= -sqrt(2)*sin(m*theta), s = sqrt(2)*cos(m*theta))
 }
 
 
@@ -85,76 +86,81 @@ pupil <- function(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
 	nrow=256, ncol=nrow, cp=list(xc=128,yc=128,rx=127,ry=127,obstruct=0),
     obstruct=NULL) {
 
-xs <- ((1:nrow)-cp$xc)/cp$rx
-ys <- ((1:ncol)-cp$yc)/cp$ry
+    xs <- ((1:nrow)-cp$xc)/cp$rx
+    ys <- ((1:ncol)-cp$yc)/cp$ry
 
-rhol <- function(x,y) {
- return(sqrt(x^2+y^2))
-}
+    rhol <- function(x,y) {
+        sqrt(x^2+y^2)
+    }
 
-rho <- outer(xs,ys,rhol)
-rho[rho>1] <- NA
-if (is.null(obstruct))
-	rho[rho<cp$obstruct] <- NA
-else rho[rho<obstruct] <- NA
-
-theta <- outer(xs, ys, function(x,y) atan2(y, x))
-rho.v <- rho[!is.na(rho)]
-theta.v <- theta[!is.na(rho)]
-wf.v <- numeric(length(rho.v))
-if (!is.null(zcoef)) wf.v <- zpm(rho.v, theta.v, phi, maxorder= max(zlist$n)) %*% c(0, zcoef)
-wf <- matrix(NA, nrow=nrow, ncol=ncol)
-wf[!is.na(rho)] <- wf.v
-wf <- wf+piston
-class(wf) <- "pupil"
-return(wf)
+    rho <- outer(xs,ys,rhol)
+    rho[rho>1] <- NA
+    if (is.null(obstruct)) {
+        rho[rho<cp$obstruct] <- NA
+    } else {
+        rho[rho<obstruct] <- NA
+    }
+    
+    theta <- outer(xs, ys, function(x,y) atan2(y, x))
+    rho.v <- rho[!is.na(rho)]
+    theta.v <- theta[!is.na(rho)]
+    wf.v <- numeric(length(rho.v))
+    if (!is.null(zcoef)) wf.v <- zpm(rho.v, theta.v, phi, maxorder= max(zlist$n)) %*% 
+                            c(0, zcoef)
+    wf <- matrix(NA, nrow=nrow, ncol=ncol)
+    wf[!is.na(rho)] <- wf.v
+    wf <- wf+piston
+    class(wf) <- "pupil"
+    wf
 }
 
 pupil.arb <- function(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
 	nrow=256, ncol=nrow, cp=list(xc=128,yc=128,rx=127,ry=127,obstruct=0),
     obstruct=NULL) {
 
-xs <- ((1:nrow)-cp$xc)/cp$rx
-ys <- ((1:ncol)-cp$yc)/cp$ry
+    xs <- ((1:nrow)-cp$xc)/cp$rx
+    ys <- ((1:ncol)-cp$yc)/cp$ry
 
-rhol <- function(x,y) {
- return(sqrt(x^2+y^2))
-}
+    rhol <- function(x,y) {
+        sqrt(x^2+y^2)
+    }
 
-rho <- outer(xs,ys,rhol)
-rho[rho>1] <- NA
-if (is.null(obstruct))
-	rho[rho<cp$obstruct] <- NA
-else rho[rho<obstruct] <- NA
+    rho <- outer(xs,ys,rhol)
+    rho[rho>1] <- NA
+    if (is.null(obstruct)) {
+        rho[rho<cp$obstruct] <- NA
+    } else {
+        rho[rho<obstruct] <- NA
+    }
 
-theta <- outer(xs, ys, function(x,y) atan2(y, x))
-rho.v <- rho[!is.na(rho)]
-theta.v <- theta[!is.na(rho)]
-wf.v <- numeric(length(rho.v))
-if (!is.null(zcoef)) wf.v <- zpm.arb(rho.v, theta.v, phi, zlist=zlist) %*% zcoef
-wf <- matrix(NA, nrow=nrow, ncol=ncol)
-wf[!is.na(rho)] <- wf.v
-wf <- wf+piston
-class(wf) <- "pupil"
-return(wf)
+    theta <- outer(xs, ys, function(x,y) atan2(y, x))
+    rho.v <- rho[!is.na(rho)]
+    theta.v <- theta[!is.na(rho)]
+    wf.v <- numeric(length(rho.v))
+    if (!is.null(zcoef)) wf.v <- zpm.arb(rho.v, theta.v, phi, zlist=zlist) %*% zcoef
+    wf <- matrix(NA, nrow=nrow, ncol=ncol)
+    wf[!is.na(rho)] <- wf.v
+    wf <- wf+piston
+    class(wf) <- "pupil"
+    wf
 }
 
 ## estimate of rms over pupil
 
 pupilrms <- function(pupil) {
-	sd(as.vector(pupil), na.rm=TRUE)
+    sd(as.vector(pupil), na.rm=TRUE)
 }
 
 ## estimate of p-v over pupil
 
 pupilpv <- function(pupil) {
-	max(pupil, na.rm=TRUE) - min(pupil, na.rm=TRUE)
+    max(pupil, na.rm=TRUE) - min(pupil, na.rm=TRUE)
 }
 
 ## Mahajan's approximation to Strehl ratio
 
 strehlratio <- function(rms) {
-	return(exp(-(2*pi*rms)^2))
+    exp(-(2*pi*rms)^2)
 }
 
 ## A rainbow that may be better than R's rainbow() color palette
@@ -169,51 +175,56 @@ rygcbm <- colorRampPalette(c("red", "yellow", "green", "cyan", "blue", "magenta"
 
 ## a plot method for pupils
 
-plot.pupil <- function(wf, cp=NULL, col=topo.colors(256), addContours=TRUE, cscale=FALSE, eqa=FALSE, zlim=NULL, ...) {
-	nr <- nrow(wf)
-	nc <- ncol(wf)
-	if(is.null(zlim)) zlim <- range(wf, finite=TRUE)
-	if(eqa) wfcdf <- ecdf(wf[!is.na(wf)])
-	if (cscale) {
-		    mar.orig <- (par.orig <- par(c("mar", "las", "mfrow")))$mar
-			on.exit(par(par.orig))
-			w <- (3 + mar.orig[2]) * par("csi") * 2.54
-			layout(matrix(c(2, 1), ncol = 2), widths = c(1, lcm(w)))
-			par(las = 1)
-			mar <- mar.orig
-			mar[4] <- mar[2]
-			mar[2] <- 1
-			par(mar = mar)
-			levels <- seq(zlim[1], zlim[2], length=length(col)+1)
-			plot.new()
-			plot.window(xlim=c(0,1),ylim=range(levels), xaxs="i", yaxs="i")
-			if (eqa) {
-				vcol <- col[round((length(col)-1)*wfcdf(seq(zlim[1],zlim[2],length=length(col)))+1)]
-			} else vcol <- col
-			rect(0, levels[-length(levels)], 1, levels[-1], col=vcol, density=NA)
-			axis(4)
-			box()
-			mar <- mar.orig
-			mar[4] <- 0
-			par(mar = mar)
- 	}
-	if (is.null(cp)) {
-		axis1 <- 1:nr
-		axis2 <- 1:nc
-	} else {
-		axis1 <- ((1:nr)-cp$xc)/cp$rx
-		axis2 <- ((1:nc)-cp$yc)/cp$ry
-	}
-	if (eqa) {
-		iwf <- wfcdf(wf[!is.na(wf)])
-		iwfm <- wf
-		iwfm[!is.na(iwfm)] <- iwf
-		zlim <- wfcdf(zlim)
-		col1 <- round((length(col)-1)*zlim[1]+1)
-		col2 <- round((length(col)-1)*zlim[2]+1)
-		image(axis1, axis2, iwfm, zlim=zlim, asp=1, col=col[col1:col2], xlab="X", ylab="Y", useRaster=TRUE, ...)
-	} else image(axis1, axis2, wf, zlim=zlim, asp=1, col=col, xlab="X", ylab="Y", useRaster=TRUE, ...)
-	if (addContours) contour(axis1, axis2, wf, add=TRUE)
+plot.pupil <- function(wf, cp=NULL, col=topo.colors(256), addContours=TRUE, 
+                       cscale=FALSE, eqa=FALSE, zlim=NULL, ...) {
+    nr <- nrow(wf)
+    nc <- ncol(wf)
+    if(is.null(zlim)) zlim <- range(wf, finite=TRUE)
+    if(eqa) wfcdf <- ecdf(wf[!is.na(wf)])
+    if (cscale) {
+        mar.orig <- (par.orig <- par(c("mar", "las", "mfrow")))$mar
+        on.exit(par(par.orig))
+        w <- (3 + mar.orig[2]) * par("csi") * 2.54
+        layout(matrix(c(2, 1), ncol = 2), widths = c(1, lcm(w)))
+        par(las = 1)
+        mar <- mar.orig
+        mar[4] <- mar[2]
+        mar[2] <- 1
+        par(mar = mar)
+        levels <- seq(zlim[1], zlim[2], length=length(col)+1)
+        plot.new()
+        plot.window(xlim=c(0,1),ylim=range(levels), xaxs="i", yaxs="i")
+        if (eqa) {
+            vcol <- col[round((length(col)-1)*wfcdf(seq(zlim[1],zlim[2],length=length(col)))+1)]
+        } else vcol <- col
+	rect(0, levels[-length(levels)], 1, levels[-1], col=vcol, density=NA)
+        axis(4)
+        box()
+        mar <- mar.orig
+        mar[4] <- 0
+        par(mar = mar)
+    }
+    if (is.null(cp)) {
+        axis1 <- 1:nr
+        axis2 <- 1:nc
+    } else {
+        axis1 <- ((1:nr)-cp$xc)/cp$rx
+        axis2 <- ((1:nc)-cp$yc)/cp$ry
+    }
+    if (eqa) {
+        iwf <- wfcdf(wf[!is.na(wf)])
+        iwfm <- wf
+        iwfm[!is.na(iwfm)] <- iwf
+        zlim <- wfcdf(zlim)
+        col1 <- round((length(col)-1)*zlim[1]+1)
+        col2 <- round((length(col)-1)*zlim[2]+1)
+        image(axis1, axis2, iwfm, zlim=zlim, asp=1, col=col[col1:col2], 
+              xlab="X", ylab="Y", useRaster=TRUE, ...)
+    } else {
+        image(axis1, axis2, wf, zlim=zlim, asp=1, col=col, 
+                  xlab="X", ylab="Y", useRaster=TRUE, ...)
+    }
+    if (addContours) contour(axis1, axis2, wf, add=TRUE)
 }
 
 ## comparison plot of n wavefront estimates
@@ -305,20 +316,20 @@ summary.pupil <- function(wf) {
 ## make a list of all orders up to maxorder
 
 makezlist <- function(minorder=2, maxorder=14) {
-	n <- numeric()
-	m <- numeric()
-	t <- character(length=0)
+    n <- numeric()
+    m <- numeric()
+    t <- character(length=0)
 
-	for (order in seq(minorder, maxorder, by=2)) {
-		mmax <- order/2
-		mtemp <- numeric()
-		for (j in mmax:1) mtemp <- c(mtemp, c(j, j))
-		mtemp <- c(mtemp, 0)
-		n <- c(n, order-mtemp)
-		m <- c(m, mtemp)
-		t <- c(t, rep(c("c", "s"), mmax), "n")
-	}
-return (list(n=n, m=m, t=t))
+    for (order in seq(minorder, maxorder, by=2)) {
+        mmax <- order/2
+        mtemp <- numeric()
+        for (j in mmax:1) mtemp <- c(mtemp, c(j, j))
+        mtemp <- c(mtemp, 0)
+        n <- c(n, order-mtemp)
+        m <- c(m, mtemp)
+        t <- c(t, rep(c("c", "s"), mmax), "n")
+    }
+    list(n=n, m=m, t=t)
 }
 
 ## Augmented Fringe set
@@ -329,9 +340,9 @@ zlist.fr <- makezlist(2,12)
 ## Vector of factors from conversion between "normalized" and conventional Zernike definitions
 
 zmult <- function(zlist = makezlist()) {
-	mult <- sqrt(zlist$n+1)
-	mult[zlist$m > 0] <- sqrt(2)*mult[zlist$m > 0]
-return(mult)
+    mult <- sqrt(zlist$n+1)
+    mult[zlist$m > 0] <- sqrt(2)*mult[zlist$m > 0]
+    mult
 }
 
 
@@ -345,34 +356,28 @@ zpm.arb <- function(rho, theta, phi=0, zlist=makezlist()) {
 		zm[,i] <- Zernike(rho,theta-pi*phi/180, zlist$n[i], zlist$m[i], zlist$t[i])
 	}
 	colnames(zm) <- colnames(zm, do.NULL=FALSE, prefix="Z")
-	return(zm)
+	zm
 }
 
 ## a faster Zernike matrix fill
 
 zpm <- function(rho, theta, phi=0, maxorder = 14) {
-  nr <- length(rho)
-  ncol <- (maxorder/2+1)^2
-  zm <- numeric(nr*ncol)
   if (phi != 0) theta <- theta - pi*phi/180
-  temp <- .C("zpmatrix", as.double(rho), as.double(theta), as.integer(nr),
-	as.integer(maxorder), as.double(zm), package="zernike")
-  zm <- temp[[5]]
-  dim(zm) <- c(nr, ncol)
-  colnames(zm) <- paste("Z",0:(ncol-1), sep="")
-  return(zm)
+  zm <- zpmC(rho, theta, maxorder)
+  colnames(zm) <- paste("Z",0:(ncol(zm)-1), sep="")
+  zm
 }
 
 
 ## create a matrix of radial derivatives of Zernikes
 
 filldzm <- function(rho, theta, phi=0, zlist=makezlist()) {
-	dzm <- matrix(0, nrow=length(rho), ncol=length(zlist$n))
-	for (i in (1:length(zlist$n))) {
-		dzm[,i] <- DZernike(rho,theta-pi*phi/180, zlist$n[i], zlist$m[i], zlist$t[i])
-	}
-	colnames(dzm) <- colnames(dzm, do.NULL=FALSE, prefix="DZ")
-	return(dzm)
+    dzm <- matrix(0, nrow=length(rho), ncol=length(zlist$n))
+    for (i in (1:length(zlist$n))) {
+            dzm[,i] <- DZernike(rho,theta-pi*phi/180, zlist$n[i], zlist$m[i], zlist$t[i])
+    }
+    colnames(dzm) <- colnames(dzm, do.NULL=FALSE, prefix="DZ")
+    dzm
 }
 
 ## create a matrix of gradient in polar coordinates of zernikes.

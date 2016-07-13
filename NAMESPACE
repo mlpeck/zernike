@@ -2,7 +2,7 @@ export(rzernike, drzernike, Zernike, DZernike, DTZernike,
   pupil, pupil.arb, pupilrms, pupilpv, strehlratio,
   rygcb, rygcbm, grey256, gray256, 
   zlist.fr, makezlist, zmult,
-  zpm, zpm.arb, filldzm, fillgradientzm,
+  zpm, zpm.arb, zpmC, filldzm, fillgradientzm,
   zconic, astig.bath,
   wftophase, padmatrix, submatrix, fftshift,
   startest, turbwf, modalfit, zonalfit, foucogram,
@@ -23,4 +23,5 @@ S3method(plot, pupil)
 S3method(wf3d, pupil)
 
 useDynLib(zernike)
+importFrom(Rcpp, evalCpp)
 
