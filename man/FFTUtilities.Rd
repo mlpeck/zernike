@@ -11,7 +11,7 @@
 }
 \usage{
 wftophase(X, lambda=1)
-padmatrix(X, npad, fill = 0)
+padmatrix(X, npad, fill = mean(X, na.rm=TRUE))
 submatrix(X, size = 255)
 fftshift(X)
 .up2(nr, nc=nr)

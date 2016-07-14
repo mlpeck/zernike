@@ -1,6 +1,7 @@
 \name{zpm}
 \alias{zpm}
 \alias{zpm.arb}
+\alias{zpmC}
 \alias{filldzm}
 \alias{fillgradientzm}
 \title{Matrixes of Zernike polynomials}
@@ -10,6 +11,7 @@
 }
 \usage{
 zpm(rho, theta, phi= 0 , maxorder = 14)
+zpmC(rho, theta, maxorder)
 zpm.arb(rho, theta, phi = 0, zlist = makezlist())
 filldzm(rho, theta, phi = 0, zlist = makezlist())
 fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
@@ -25,11 +27,18 @@ fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
   \code{rho} and \code{theta} must be the same length.
 }
 \value{
-  \code{zpm}, \code{zpm.arb} and \code{filldzm} return a matrix of size
+  \code{zpm.arb} and \code{filldzm} return a matrix of size
   \code{length(rho)} x \code{length(zlist$n)} with values
   of Zernike polynomials or their radial derivatives
   evaluated at the polar coordinates
   \code{(rho, theta-pi*phi/180)}.
+  
+  \code{zpm} and \code{zpmC} return a matrix of size
+  \code{length(rho)} x \code((maxorder/2+1)^2)
+  of Zernike polynomial values including a piston term.
+  
+  \code{zpmC} is the C++ routine that does the computations
+  for \code{zpm}. No column names are returned.
   
   \code{fillgradientzm} returns the gradient, in polar
   coordinates, of Zernikes in a \code{2*length(rho)} x

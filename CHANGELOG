@@ -509,4 +509,5 @@
 ## zpm calls zpmC
 ## removed some unnecessary return()'s
 ## cleaned up some source code formatting
-
+## changed default fill value for padmatrix to mean
+## removed foucault test reduction routines
