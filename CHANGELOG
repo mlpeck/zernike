@@ -511,3 +511,15 @@
 ## cleaned up some source code formatting
 ## changed default fill value for padmatrix to mean
 ## removed foucault test reduction routines
+
+## 20160714
+##
+## fixed line in separate.wf
+## added gpcapsi -- my iterative PCA based algorithm
+## pcafit changes options for diagpos=c("v", "u", "g") and adds trace
+## use pcafit(..., diagpos="g", trace=n, ...) to call gpcapsi
+
+## 20160715
+##
+## pcaest.r demo calls library function plotn instead of custom version
+

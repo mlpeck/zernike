@@ -34,7 +34,7 @@ fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
   \code{(rho, theta-pi*phi/180)}.
   
   \code{zpm} and \code{zpmC} return a matrix of size
-  \code{length(rho)} x \code((maxorder/2+1)^2)
+  \code{length(rho)} x \code{(maxorder/2+1)^2}
   of Zernike polynomial values including a piston term.
   
   \code{zpmC} is the C++ routine that does the computations

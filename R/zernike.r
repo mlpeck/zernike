@@ -491,7 +491,7 @@ wftophase <- function(X, lambda = 1) {
 ## puts matrix X into corner of npadded x npadded matrix
 ## padded with zeroes
 
-padmatrix <- function(X, npad, fill=mean(X, na.rm=TRUE)) {
+padmatrix <- function(X, npad, fill=0) {
     nr <- nrow(X)
     nc <- ncol(X)
     xpad <- matrix(fill, npad, npad)
@@ -1325,91 +1325,141 @@ lspsi <- function(images, phases, wt=rep(1, length(phases))) {
 
 ## Vargas et al.'s (2011) Principal Components method
 
-pcapsi <- function(im.mat, BGSUB=TRUE, diagpos=1) {
-	if (BGSUB) im.mat <- im.mat-rowMeans(im.mat)
+pcapsi <- function(im.mat, BGSUB=TRUE, diagpos="v") {
+    if (BGSUB) im.mat <- im.mat-rowMeans(im.mat)
 
 	# svd of the crossproduct is faster!
 	
-	svd.cp <- svd(crossprod(im.mat))
-        if (diagpos == 1) {
-            ph <- atan2(svd.cp$v[,2]*sqrt(svd.cp$d[2]),svd.cp$v[,1]*sqrt(svd.cp$d[1]))
-            u <- im.mat %*% (svd.cp$u[,1:2] %*% diag(1/sqrt(svd.cp$d[1:2])))
-        } else {
-            ph <- atan2(svd.cp$v[,2],svd.cp$v[,1])
-            u <- im.mat %*% svd.cp$u[,1:2]
-        }
-	ph <- wrap(ph-ph[1])
-	phi <- atan2(-u[,2],u[,1])
-	mod <- sqrt(u[,1]^2+u[,2]^2)
-	r2 <- (svd.cp$d[1]+svd.cp$d[2])/sum(svd.cp$d)
-	list(phi=phi, mod=mod/max(mod), phases=ph, snr=sqrt(r2/(1-r2)), eigen=svd.cp$d)
+    svd.cp <- svd(crossprod(im.mat))
+    if (tolower(diagpos) == "v") {
+        ph <- atan2(svd.cp$v[,2]*sqrt(svd.cp$d[2]),svd.cp$v[,1]*sqrt(svd.cp$d[1]))
+        u <- im.mat %*% (svd.cp$u[,1:2] %*% diag(1/sqrt(svd.cp$d[1:2])))
+    } else {
+        ph <- atan2(svd.cp$v[,2],svd.cp$v[,1])
+        u <- im.mat %*% svd.cp$u[,1:2]
+    }
+    ph <- wrap(ph-ph[1])
+    phi <- atan2(-u[,2],u[,1])
+    mod <- sqrt(u[,1]^2+u[,2]^2)
+    r2 <- (svd.cp$d[1]+svd.cp$d[2])/sum(svd.cp$d)
+    list(phi=phi, mod=mod/max(mod), phases=ph, snr=sqrt(r2/(1-r2)), eigen=svd.cp$d)
 }
+
+## Moore-Penrose generalized inverse (needed for genpca below)
+
+mpinv <- function(X) {
+    S <- svd(X)
+    eps <- .Machine$double.eps * max(dim(X)) * S$d[1]
+    dinv <- numeric(length(S$d))
+    dinv[S$d >= eps] <- 1/S$d[S$d >= eps]
+    tcrossprod(S$v %*% diag(dinv), S$u)
+}
+
+## my variation on a PCA based algorithm
+
+gpcapsi <- function(im.mat, trace=1) {
+    M <- nrow(im.mat)
+    nf <- ncol(im.mat)
+    svd.im <- svd(im.mat)
+    V <- svd.im$v[,1:3]
+    Phi <- svd.im$u[,1:3] %*% diag(svd.im$d[1:3])
+    phases <- atan2(V[,3], V[,2])
+    phases <- wrap(phases-phases[1])
+    S <- cbind(rep(1,nf), cos(phases), sin(phases))
+    P <- crossprod(V, S)
+    fn <- function(par, V, nf) {
+        phases <- par[1:nf]
+        phases <- wrap(phases-phases[1])
+        P <- matrix(par[(nf+1):(nf+9)], 3, 3)
+        S <- cbind(rep(1, nf), cos(phases), sin(phases))
+        norm(V %*% P - S, "F")
+    }
+    sdmin <- Rsolnp::solnp(pars=c(phases, as.vector(P)), fun=fn,
+                           LB=c(rep(-pi,nf),rep(-Inf,9)),
+                           UB=c(rep(pi,nf), rep(Inf, 9)), 
+                           control=list(trace=trace, tol=1.e-10),
+                           V=V, nf=nf)
+    par <- sdmin$par
+    phases <- par[1:nf]
+    phases <- wrap(phases-phases[1])
+    P <- matrix(par[(nf+1):(nf+9)], 3, 3)
+    Phi <- Phi %*% mpinv(t(P))
+    V <- V %*% P
+    phi <- atan2(-Phi[,3], Phi[,2])
+    mod <- sqrt(Phi[,2]^2+Phi[,3]^2)
+    r2 <- sum(svd.im$d[1:3]^2)/sum(svd.im$d^2)
+    list(Phi=Phi, phi=phi, mod=mod/max(mod), 
+         phases=phases, V=V, P=P, nlmin=sdmin,
+         snr=sqrt(r2/(1-r2)), eigen=svd.im$d^2
+        )
+}
+
 
 ## The "advanced iterative algorithm" of Wang & Han (2004)
 
 aiapsi <- function(im.mat, phases,
 		maxiter=20, ptol=0.001, trace=1, plotprogress=TRUE) {
-	.meps <- sqrt(.Machine$double.eps)
-	M <- nrow(im.mat)
-	nf <- ncol(im.mat)
-	phases <- wrap(phases-phases[1])
-	S <- rbind(rep(1,nf), cos(phases), sin(phases))
-	sse <- numeric(maxiter+1)
-	for (i in 1:maxiter) {
+    .meps <- sqrt(.Machine$double.eps)
+    M <- nrow(im.mat)
+    nf <- ncol(im.mat)
+    phases <- wrap(phases-phases[1])
+    S <- rbind(rep(1,nf), cos(phases), sin(phases))
+    sse <- numeric(maxiter+1)
+    for (i in 1:maxiter) {
 
-		# get the phase estimate from phase shifts
+            # get the phase estimate from phase shifts
 		
-		phases.last <- phases
-		SD <- svd(S)
-		dp <- SD$d
-		dp[dp>.meps] <- 1/dp[dp>.meps]
-		dp[dp <= .meps] <- 0
-		Phi <- tcrossprod(im.mat %*% (SD$v %*% diag(dp)), SD$u)
-		sse[i] <- crossprod(as.vector(im.mat)-as.vector(Phi %*% S))
-		if (i == 1) sse.1 <- sse[i]
+        phases.last <- phases
+        SD <- svd(S)
+        dp <- SD$d
+        dp[dp>.meps] <- 1/dp[dp>.meps]
+        dp[dp <= .meps] <- 0
+        Phi <- tcrossprod(im.mat %*% (SD$v %*% diag(dp)), SD$u)
+        sse[i] <- crossprod(as.vector(im.mat)-as.vector(Phi %*% S))
+        if (i == 1) sse.1 <- sse[i]
 
-		# toss the background and modulation portion of the ls solution
+            # toss the background and modulation portion of the ls solution
 		
-		phi <- atan2(-Phi[,3], Phi[,2])
-		Phi <- cbind(rep(1,M), cos(phi), -sin(phi))
+        phi <- atan2(-Phi[,3], Phi[,2])
+        Phi <- cbind(rep(1,M), cos(phi), -sin(phi))
 
-		# get phase shifts from the phase. Note use crossproduct for speed.
+            # get phase shifts from the phase. Note use crossproduct for speed.
 		
-		PD <- svd(crossprod(Phi))
-		dp <- PD$d
-		dp[dp>.meps] <- 1/dp[dp>.meps]
-		dp[dp <= .meps] <- 0
-		S <- (PD$u %*% diag(dp) %*% t(PD$v)) %*% crossprod(Phi, im.mat)
-		phases <- atan2(S[3,], S[2,])
-		dphases <- sd(wrap(phases-phases.last))
-		if (plotprogress) {
-			if (i ==1)
-				plot(1:maxiter, 1:maxiter, ylim=c(ptol, 1), type="n",
-				  xlab="Iteration", ylab="", log="y")
-			points(i, sse[i]/sse.1, pch=1)
-			points(i, dphases, pch=2, col="green")
-		}
-		if ((trace > 0) && ((i-1)%%trace == 0)) {
-		  cat(paste(i, ":", format(sse[i], digits=2), ":"), format(phases,digits=3), "\n")
-		  flush.console()
-		}
-		if (dphases < ptol) break
-		S <- rbind(rep(1,nf), cos(phases), sin(phases))
-	}
+        PD <- svd(crossprod(Phi))
+        dp <- PD$d
+        dp[dp>.meps] <- 1/dp[dp>.meps]
+        dp[dp <= .meps] <- 0
+        S <- (PD$u %*% diag(dp) %*% t(PD$v)) %*% crossprod(Phi, im.mat)
+        phases <- atan2(S[3,], S[2,])
+        dphases <- sd(wrap(phases-phases.last))
+        if (plotprogress) {
+            if (i ==1)
+            plot(1:maxiter, 1:maxiter, ylim=c(ptol, 1), type="n",
+                xlab="Iteration", ylab="", log="y")
+            points(i, sse[i]/sse.1, pch=1)
+            points(i, dphases, pch=2, col="green")
+        }
+        if ((trace > 0) && ((i-1)%%trace == 0)) {
+            cat(paste(i, ":", format(sse[i], digits=2), ":"), format(phases,digits=3), "\n")
+            flush.console()
+        }
+        if (dphases < ptol) break
+        S <- rbind(rep(1,nf), cos(phases), sin(phases))
+    }
 
 	#final estimate of phase
 	
-	phases <- wrap(phases-phases[1])
-	S <- rbind(rep(1,nf), cos(phases), sin(phases))
-	SD <- svd(S)
-	dp <- SD$d
-	dp[dp>.meps] <- 1/dp[dp>.meps]
-	dp[dp <= .meps] <- 0
-	Phi <- tcrossprod(im.mat %*% (SD$v %*% diag(dp)), SD$u)
-	sse[i+1] <- crossprod(as.vector(im.mat)-as.vector(Phi %*% S))
-	phi <- atan2(-Phi[,3], Phi[,2])
-	mod <- sqrt(Phi[,2]^2+Phi[,3]^2)
-	return(list(phi=phi, mod=mod/max(mod), phases=phases, iter=i, sse=sse))
+    phases <- wrap(phases-phases[1])
+    S <- rbind(rep(1,nf), cos(phases), sin(phases))
+    SD <- svd(S)
+    dp <- SD$d
+    dp[dp>.meps] <- 1/dp[dp>.meps]
+    dp[dp <= .meps] <- 0
+    Phi <- tcrossprod(im.mat %*% (SD$v %*% diag(dp)), SD$u)
+    sse[i+1] <- crossprod(as.vector(im.mat)-as.vector(Phi %*% S))
+    phi <- atan2(-Phi[,3], Phi[,2])
+    mod <- sqrt(Phi[,2]^2+Phi[,3]^2)
+    list(phi=phi, mod=mod/max(mod), phases=phases, iter=i, sse=sse)
 }
 
 
@@ -1455,7 +1505,8 @@ hkpsi <- function(im.mat, phases,
 			points(i, dphases, pch=2, col="green")
 		}
 		if ((trace > 0) && ((i-1)%%trace == 0)) {
-		  cat(paste(i, ":", format(sse[i], digits=2), ":"), format(phases,digits=3), "\n")
+		  cat(paste(i, ":", format(sse[i], digits=2), ":"), 
+                      format(phases,digits=3), "\n")
 		  flush.console()
 		}
 		if (dphases < ptol) break
@@ -1474,7 +1525,7 @@ hkpsi <- function(im.mat, phases,
 	sse[i+1] <- crossprod(as.vector(im.mat)-as.vector(Phi %*% S))
 	phi <- atan2(-Phi[,3], Phi[,2])
 	mod <- sqrt(Phi[,2]^2+Phi[,3]^2)
-	return(list(phi=phi, mod=mod/max(mod), phases=phases, iter=i, sse=sse))
+	list(phi=phi, mod=mod/max(mod), phases=phases, iter=i, sse=sse)
 }
 
 ## PSI with variable tilt
@@ -1516,7 +1567,7 @@ tiltpsi <- function(im.mat, phases, x, y, tilts = NULL,
 
   sseframe <- function(pt, im, phi, x, y, abar, bbar) {
 	ph.xy <- pt[1] + 4*pi*(pt[2]*x+pt[3]*y)
-	return(crossprod(im-abar-bbar*cos(phi+ph.xy)))
+	crossprod(im-abar-bbar*cos(phi+ph.xy))
   }
 
   # gradient of the above function. used by nlminb
@@ -1529,7 +1580,7 @@ tiltpsi <- function(im.mat, phases, x, y, tilts = NULL,
 	grads[1] <- 2*bbar*(-abar*sum(spt)+crossprod(im,spt)-bbar*crossprod(cpt,spt))
 	grads[2] <- 8*pi*bbar*(-abar*crossprod(x,spt)+crossprod((im*x),spt)-bbar*crossprod((x*cpt),spt))
 	grads[3] <- 8*pi*bbar*(-abar*crossprod(y,spt)+crossprod((im*y),spt)-bbar*crossprod((y*cpt),spt))
-	return(grads)
+	grads
   }
 
 
@@ -1602,7 +1653,7 @@ tiltpsi <- function(im.mat, phases, x, y, tilts = NULL,
   B <- phaseest(im.mat, phases, tilts)
   phi <- atan2(-B[,3], B[,2])
   mod <- sqrt(B[,2]^2+B[,3]^2)
-  return(list(phi=phi,mod=mod/max(mod),phases=phases,tilts=tilts,iter=i,sse=sse))
+  list(phi=phi,mod=mod/max(mod),phases=phases,tilts=tilts,iter=i,sse=sse)
 
 }
 
@@ -1613,96 +1664,107 @@ psifit <- function(images, phases, cp=NULL, wt=rep(1,length(phases)),
 		fringescale=1, zlist=makezlist(), zc0=c(1:3, 6:7), 
 		satarget=c(0,0), astig.bath=c(0,0),
 		puw.alg = "qual", uselm=FALSE, sgs=1, plots=TRUE, CROP=FALSE) {
-	lsfit <- lspsi(images, phases, wt)
-	phase.raw <- lsfit$phi
-	mod.raw <- sqrt(lsfit$B[,,2]^2+lsfit$B[,,3]^2)
-	mod.raw <- mod.raw/max(mod.raw)
-	if (is.null(cp)) cp <- circle.pars(mod.raw, plot=plots, ask=FALSE)
-	cp.orig <- cp
-	if (CROP) {
-	  mod.raw <- crop(mod.raw, cp)$im
-	  phase.raw <- crop(phase.raw, cp)
-	  cp <- phase.raw$cp
-	  phase.raw <- phase.raw$im
-	}
-	nr <- nrow(phase.raw)
-	nc <- ncol(phase.raw)
-	prt <- pupil.rhotheta(nr, nc, cp)
-	phase.raw[is.na(prt$rho)] <- NA
-	class(phase.raw) <- "pupil"
-	wf.raw <- switch(puw.alg,
+    lsfit <- lspsi(images, phases, wt)
+    phase.raw <- lsfit$phi
+    mod.raw <- sqrt(lsfit$B[,,2]^2+lsfit$B[,,3]^2)
+    mod.raw <- mod.raw/max(mod.raw)
+    if (is.null(cp)) cp <- circle.pars(mod.raw, plot=plots, ask=FALSE)
+    cp.orig <- cp
+    if (CROP) {
+        mod.raw <- crop(mod.raw, cp)$im
+        phase.raw <- crop(phase.raw, cp)
+        cp <- phase.raw$cp
+        phase.raw <- phase.raw$im
+    }
+    nr <- nrow(phase.raw)
+    nc <- ncol(phase.raw)
+    prt <- pupil.rhotheta(nr, nc, cp)
+    phase.raw[is.na(prt$rho)] <- NA
+    class(phase.raw) <- "pupil"
+    wf.raw <- switch(puw.alg,
 	  qual = qpuw(phase.raw, mod.raw),
 	  brcut = {require(lppuw); brcutpuw(phase.raw)},
-	  lp = {require(lppuw); netflowpuw(phase.raw, mod.raw)})
-	wf.raw <- fringescale*wf.raw
-	class(wf.raw) <- "pupil"
-	wf.nets <- wf.net(wf.raw, prt$rho, prt$theta, cp, sgs, zlist, zc0, satarget, astig.bath, uselm, plots)
-	return(list(phase=phase.raw, mod=mod.raw, cp=cp,cp.orig=cp.orig,
-	  wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
-	  wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net))
+	  lp = {require(lppuw); netflowpuw(phase.raw, mod.raw)}
+    )
+    wf.raw <- fringescale*wf.raw
+    class(wf.raw) <- "pupil"
+    wf.nets <- wf.net(wf.raw, prt$rho, prt$theta, cp, sgs, 
+                      zlist, zc0, satarget, astig.bath, uselm, plots)
+    list(phase=phase.raw, mod=mod.raw, cp=cp,cp.orig=cp.orig,
+         wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
+	 wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net)
 }
 
 
 ## PSI analysis by principal components (Vargas et al. 2011)
 
 pcafit <- function(images, cp=NULL,
-	BGSUB = TRUE, diagpos=1, REFINE = TRUE, 
-        fringescale=1, zlist=makezlist(), zc0=c(1:3, 6:7), 
-	satarget=c(0,0), astig.bath=c(0,0), 
-	puw.alg="qual", uselm=FALSE, sgs=1, plots=TRUE, CROP=FALSE) {
-	nr <- dim(images)[1]
-	nc <- dim(images)[2]
-	nf <- dim(images)[3]
-	im.mat <- matrix(images,nr*nc,nf)
-	if (!is.null(cp)) {
-		prt <- pupil.rhotheta(nr,nc,cp)
-		mask <- as.vector(prt$rho)
-		im.mat <- im.mat[!is.na(mask),]
-	}
-	pcasol <- pcapsi(im.mat, BGSUB, diagpos)
-	if (!is.null(cp)) {
-	  phi <- matrix(NA, nr, nc)
-	  mod <- matrix(0, nr, nc)
-	  phi[!is.na(prt$rho)] <- pcasol$phi
-	  mod[!is.na(prt$rho)] <- pcasol$mod
-	} else {
-	  phi <- matrix(pcasol$phi, nr, nc)
-	  mod <- matrix(pcasol$mod, nr, nc)
-	  cp <- circle.pars(mod, plot=plots, ask=FALSE)
-	  if (REFINE) {
-		prt <- pupil.rhotheta(nr,nc,cp)
-		mask <- as.vector(prt$rho)
-		im.mat <- im.mat[!is.na(mask),]
-		pcasol <- pcapsi(im.mat, BGSUB, diagpos)
-		phi <- matrix(NA, nr, nc)
-		mod <- matrix(0, nr, nc)
-		phi[!is.na(prt$rho)] <- pcasol$phi
-		mod[!is.na(prt$rho)] <- pcasol$mod
-	  }
-	}
-	class(phi) <- "pupil"
-	cp.orig <- cp
-	if (CROP) {
-	  mod <- crop(mod, cp)$im
-	  phi <- crop(phi, cp)
-	  cp <- phi$cp
-	  phi <- phi$im
-	}
-	nr <- nrow(phi)
-	nc <- ncol(phi)
-	prt <- pupil.rhotheta(nr,nc,cp)
-	phi[is.na(prt$rho)] <- NA
+            BGSUB = TRUE, diagpos="v", trace=1, REFINE = TRUE, 
+            fringescale=1, zlist=makezlist(), zc0=c(1:3, 6:7), 
+            satarget=c(0,0), astig.bath=c(0,0), 
+            puw.alg="qual", uselm=FALSE, sgs=1, plots=TRUE, CROP=FALSE) {
+    nr <- dim(images)[1]
+    nc <- dim(images)[2]
+    nf <- dim(images)[3]
+    im.mat <- matrix(images,nr*nc,nf)
+    if (!is.null(cp)) {
+        prt <- pupil.rhotheta(nr,nc,cp)
+        mask <- as.vector(prt$rho)
+        im.mat <- im.mat[!is.na(mask),]
+    }
+    pcasol <- switch(tolower(diagpos),
+                     "g" = gpcapsi(im.mat, trace),
+                     pcapsi(im.mat, BGSUB, diagpos)
+    )
+    if (!is.null(cp)) {
+        phi <- matrix(NA, nr, nc)
+        mod <- matrix(0, nr, nc)
+        phi[!is.na(prt$rho)] <- pcasol$phi
+        mod[!is.na(prt$rho)] <- pcasol$mod
+    } else {
+        phi <- matrix(pcasol$phi, nr, nc)
+        mod <- matrix(pcasol$mod, nr, nc)
+        cp <- circle.pars(mod, plot=plots, ask=FALSE)
+        if (REFINE) {
+            prt <- pupil.rhotheta(nr,nc,cp)
+            mask <- as.vector(prt$rho)
+            im.mat <- im.mat[!is.na(mask),]
+            pcasol <- switch(tolower(diagpos),
+                             "g" = gpcapsi(im.mat, trace),
+                             pcapsi(im.mat, BGSUB, diagpos)
+            )
+            phi <- matrix(NA, nr, nc)
+            mod <- matrix(0, nr, nc)
+            phi[!is.na(prt$rho)] <- pcasol$phi
+            mod[!is.na(prt$rho)] <- pcasol$mod
+        }
+    }
+    class(phi) <- "pupil"
+    cp.orig <- cp
+    if (CROP) {
+        mod <- crop(mod, cp)$im
+        phi <- crop(phi, cp)
+        cp <- phi$cp
+        phi <- phi$im
+    }
+    nr <- nrow(phi)
+    nc <- ncol(phi)
+    prt <- pupil.rhotheta(nr,nc,cp)
+    phi[is.na(prt$rho)] <- NA
     wf.raw <- switch(puw.alg,
-      qual = qpuw(phi, mod),
-      brcut = {require(lppuw); brcutpuw(phi)},
-      lp = {require(lppuw); netflowpuw(phi, mod)})
-	wf.raw <- fringescale*wf.raw
-	class(wf.raw) <- "pupil"
-	wf.nets <- wf.net(wf.raw, prt$rho, prt$theta, cp, sgs, zlist, zc0, satarget, 
+                qual = qpuw(phi, mod),
+                brcut = {require(lppuw); brcutpuw(phi)},
+                lp = {require(lppuw); netflowpuw(phi, mod)}
+    )
+    wf.raw <- fringescale*wf.raw
+    class(wf.raw) <- "pupil"
+    wf.nets <- wf.net(wf.raw, prt$rho, prt$theta, cp, sgs, zlist, zc0, satarget, 
 	  astig.bath, uselm=uselm, plots=plots)
-	return(list(phase=phi, mod=mod, phases=pcasol$phases, cp=cp, cp.orig=cp.orig,
+    list(phase=phi, mod=mod, phases=pcasol$phases, cp=cp, cp.orig=cp.orig,
 	  wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth,
-	  wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net, snr=pcasol$snr, eigen=pcasol$eigen))
+	  wf.residual=wf.nets$wf.residual, 
+          fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net, 
+          snr=pcasol$snr, eigen=pcasol$eigen)
 }
 
 ## High level call for any of the iterative algorithms
@@ -1714,80 +1776,88 @@ itfit <- function(images, phases, cp=NULL,
 		fringescale=1, zlist=makezlist(), zc0=c(1:3, 6:7),
 		satarget=c(0,0), astig.bath=c(0,0),
 		puw.alg = "qual", uselm=FALSE, sgs=1, plots=TRUE, CROP=FALSE) {
-	nr <- dim(images)[1]
-	nc <- dim(images)[2]
-	nf <- dim(images)[3]
-	im.mat <- matrix(images,nr*nc,nf)
-	if (!is.null(cp)) {
-		prt <- pupil.rhotheta(nr,nc,cp)
-		mask <- as.vector(prt$rho)
-		im.mat <- im.mat[!is.na(mask),]
-	} else {
-	  if (it.alg == "tilt") stop("Variable tilt algorithm must have non-null cp")
-	}
-	itsol <- switch(it.alg,
-	  aia = aiapsi(im.mat, phases, maxiter=maxiter, ptol=ptol, trace=trace, plotprogress=plotprogress),
-	  hk = hkpsi(im.mat, phases, maxiter=maxiter, ptol=ptol, trace=trace, plotprogress=plotprogress),
-	  tilt = {x <- as.vector((prt$rho*cos(prt$theta))[!is.na(prt$rho)]);
-			  y <- as.vector((prt$rho*sin(prt$theta))[!is.na(prt$rho)]);
-			  tiltpsi(im.mat, phases, x, y, tilts=tilts, nlpref=nlpref, tlim=tlim,
-			    maxiter=maxiter, ptol=ptol, trace=trace-1, plotprogress=plotprogress)
-			 }
-	)
-	if (!is.null(cp)) {
-	  phi <- matrix(NA, nr, nc)
-	  mod <- matrix(0, nr, nc)
-	  phi[!is.na(prt$rho)] <- itsol$phi
-	  mod[!is.na(prt$rho)] <- itsol$mod
-	} else {
-	  phi <- matrix(itsol$phi, nr, nc)
-	  mod <- matrix(itsol$mod, nr, nc)
-	  cp <- circle.pars(mod, plot=plots, ask=FALSE)
-	  if (REFINE) {
-		prt <- pupil.rhotheta(nr,nc,cp)
-		mask <- as.vector(prt$rho)
-		im.mat <- im.mat[!is.na(mask),]
-		itsol <- switch(it.alg,
-	      aia = aiapsi(im.mat, phases, maxiter=maxiter, ptol=ptol, trace=trace, plotprogress=plotprogress),
-	      hk = hkpsi(im.mat, phases, maxiter=maxiter, ptol=ptol, trace=trace, plotprogress=plotprogress)
-		)
-		phi <- matrix(NA, nr, nc)
-		mod <- matrix(0, nr, nc)
-		phi[!is.na(prt$rho)] <- itsol$phi
-		mod[!is.na(prt$rho)] <- itsol$mod
-	  }
-	}
-	cp.orig <- cp
-	if (CROP) {
-	  mod <- crop(mod, cp)$im
-	  phi <- crop(phi, cp)
-	  cp <- phi$cp
-	  phi <- phi$im
-	}
-	nr <- nrow(phi)
-	nc <- ncol(phi)
-	prt <- pupil.rhotheta(nr,nc,cp)
-	phi[is.na(prt$rho)] <- NA
+	
+    nr <- dim(images)[1]
+    nc <- dim(images)[2]
+    nf <- dim(images)[3]
+    im.mat <- matrix(images,nr*nc,nf)
+    if (!is.null(cp)) {
+        prt <- pupil.rhotheta(nr,nc,cp)
+        mask <- as.vector(prt$rho)
+        im.mat <- im.mat[!is.na(mask),]
+    } else {
+        if (it.alg == "tilt") stop("Variable tilt algorithm must have non-null cp")
+    }
+    itsol <- switch(it.alg,
+            aia = aiapsi(im.mat, phases, maxiter=maxiter, 
+                         ptol=ptol, trace=trace, plotprogress=plotprogress),
+            hk = hkpsi(im.mat, phases, maxiter=maxiter, 
+                       ptol=ptol, trace=trace, plotprogress=plotprogress),
+            tilt = {x <- as.vector((prt$rho*cos(prt$theta))[!is.na(prt$rho)]);
+                    y <- as.vector((prt$rho*sin(prt$theta))[!is.na(prt$rho)]);
+                    tiltpsi(im.mat, phases, x, y, tilts=tilts, nlpref=nlpref, tlim=tlim,
+			    maxiter=maxiter, ptol=ptol, 
+                            trace=trace-1, plotprogress=plotprogress)
+                    }
+    )
+    if (!is.null(cp)) {
+        phi <- matrix(NA, nr, nc)
+        mod <- matrix(0, nr, nc)
+        phi[!is.na(prt$rho)] <- itsol$phi
+        mod[!is.na(prt$rho)] <- itsol$mod
+    } else {
+        phi <- matrix(itsol$phi, nr, nc)
+        mod <- matrix(itsol$mod, nr, nc)
+        cp <- circle.pars(mod, plot=plots, ask=FALSE)
+        if (REFINE) {
+            prt <- pupil.rhotheta(nr,nc,cp)
+            mask <- as.vector(prt$rho)
+            im.mat <- im.mat[!is.na(mask),]
+            itsol <- switch(it.alg,
+                    aia = aiapsi(im.mat, phases, maxiter=maxiter, 
+                                 ptol=ptol, trace=trace, plotprogress=plotprogress),
+                    hk = hkpsi(im.mat, phases, maxiter=maxiter, 
+                               ptol=ptol, trace=trace, plotprogress=plotprogress)
+            )
+            phi <- matrix(NA, nr, nc)
+            mod <- matrix(0, nr, nc)
+            phi[!is.na(prt$rho)] <- itsol$phi
+            mod[!is.na(prt$rho)] <- itsol$mod
+        }
+    }
+    cp.orig <- cp
+    if (CROP) {
+        mod <- crop(mod, cp)$im
+        phi <- crop(phi, cp)
+        cp <- phi$cp
+        phi <- phi$im
+    }
+    nr <- nrow(phi)
+    nc <- ncol(phi)
+    prt <- pupil.rhotheta(nr,nc,cp)
+    phi[is.na(prt$rho)] <- NA
     wf.raw <- switch(puw.alg,
-      qual = qpuw(phi, mod),
-      brcut = {require(lppuw); brcutpuw(phi)},
-      lp = {require(lppuw); netflowpuw(phi, mod)})
-	wf.raw <- fringescale*wf.raw
-	class(wf.raw) <- "pupil"
-	wf.nets <- wf.net(wf.raw, prt$rho, prt$theta, cp, sgs, zlist, zc0, satarget,
+                qual = qpuw(phi, mod),
+                brcut = {require(lppuw); brcutpuw(phi)},
+                lp = {require(lppuw); netflowpuw(phi, mod)}
+    )
+    wf.raw <- fringescale*wf.raw
+    class(wf.raw) <- "pupil"
+    wf.nets <- wf.net(wf.raw, prt$rho, prt$theta, cp, sgs, zlist, zc0, satarget,
 	  astig.bath, uselm=uselm, plots=plots)
 
-	if(it.alg=="tilt") {
-	  return(list(phase=phi, mod=mod, phases=itsol$phases, tilts=itsol$tilts, cp=cp, cp.orig=cp.orig,
+    if(it.alg=="tilt") {
+        return(list(phase=phi, mod=mod, phases=itsol$phases, 
+                tilts=itsol$tilts, cp=cp, cp.orig=cp.orig,
 		wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth,
 		wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net,
 		iter=itsol$iter, sse=itsol$sse))
-	} else {
-	  return(list(phase=phi, mod=mod, phases=itsol$phases, cp=cp, cp.orig=cp.orig,
+    } else {
+        return(list(phase=phi, mod=mod, phases=itsol$phases, cp=cp, cp.orig=cp.orig,
 		wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth,
 		wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net,
 		iter=itsol$iter, sse=itsol$sse))
-	}
+    }
 }
 
 
@@ -1820,44 +1890,41 @@ itfit <- function(images, phases, cp=NULL,
 
 
 fftfit <- function(imagedata, cp=NULL, fringescale=1, sl=c(1,1), 
-  filter=NULL, taper=2, 
-  zlist=makezlist(), zc0=c(1:3, 6:7), 
-  satarget=c(0,0), astig.bath=c(0,0),
-  puw.alg = "qual", uselm=FALSE, sgs=2, plots=TRUE, CROP=FALSE) {
+                   filter=NULL, taper=2, 
+                   zlist=makezlist(), zc0=c(1:3, 6:7), 
+                   satarget=c(0,0), astig.bath=c(0,0),
+                   puw.alg = "qual", uselm=FALSE, sgs=2, plots=TRUE, CROP=FALSE) {
 	
-	nr <- nrow(imagedata)
-	nc <- ncol(imagedata)
-	npad <- nextn(max(nr,nc))
-        if (!is.null(cp)) {
-            prt <- pupil.rhotheta(nr, nc, cp)
-            imagedata[is.na(prt$rho)] <- 0
-        }
-	imagedata <- imagedata-mean(imagedata)
-	im <- padmatrix(imagedata, npad=npad, fill=0)
-	im.fft <- fftshift(fft(im))
-	if (is.null(filter)) {
-	  sldata <- pick.sidelobe(imagedata)
-	  sl <- sldata$sl
-	  filter <- sldata$filter
-	}
-	if (filter > 0) {
-		xs <- 2*(-(npad/2):(npad/2-1))/filter
-		rho2 <- outer(xs, xs, function(x,y) x^2+y^2)
-		im.fft <- im.fft*(1-exp(-rho2/2))
-	}
-	sl <- round(sl) #round sidelobe position to integer values
+    nr <- nrow(imagedata)
+    nc <- ncol(imagedata)
+    npad <- nextn(max(nr,nc))
+    if (!is.null(cp)) {
+        prt <- pupil.rhotheta(nr, nc, cp)
+        imagedata[is.na(prt$rho)] <- 0
+    }
+    imagedata <- imagedata-mean(imagedata)
+    im <- padmatrix(imagedata, npad=npad, fill=0)
+    im.fft <- fftshift(fft(im))
+    if (is.null(filter)) {
+        sldata <- pick.sidelobe(imagedata)
+        sl <- sldata$sl
+        filter <- sldata$filter
+    }
+    if (filter > 0) {
+        xs <- 2*(-(npad/2):(npad/2-1))/filter
+        rho2 <- outer(xs, xs, function(x,y) x^2+y^2)
+        im.fft <- im.fft*(1-exp(-rho2/2))
+    }
+    sl <- round(sl) #round sidelobe position to integer values
 	## decide which half plane to 0
-	sfilter <- matrix(1,npad,npad)
-	if (sl[1] == 0) {
-	  if (sl[2] > 0) sfilter[, 1:(npad/2+1)] <- 0
-	  else sfilter[, (npad/2+1):npad] <- 0
-	} else
-	if (sl[2] == 0) {
-	  if (sl[1] > 0) sfilter[1:(npad/2+1),] <- 0
-	  else sfilter[(npad/2+1):npad,] <- 0
-	} 
-	else 
-	{
+    sfilter <- matrix(1,npad,npad)
+    if (sl[1] == 0) {
+        if (sl[2] > 0) sfilter[, 1:(npad/2+1)] <- 0
+        else sfilter[, (npad/2+1):npad] <- 0
+    } else if (sl[2] == 0) {
+        if (sl[1] > 0) sfilter[1:(npad/2+1),] <- 0
+        else sfilter[(npad/2+1):npad,] <- 0
+    } else {
 	  dydx <- -sl[1]/sl[2]
 	  xcut <- (1:npad)-(npad/2+1)
 	  ycut <- (npad/2+1) + round(dydx*xcut)
@@ -1867,42 +1934,44 @@ fftfit <- function(imagedata, cp=NULL, fringescale=1, sl=c(1,1),
 		for (i in 1:npad) sfilter[i, 1:ycut[i]] <- 0
 	  else
 		for (i in 1:npad) sfilter[i, ycut[i]:npad] <- 0
-	}
-	im.fft <- im.fft*gblur(sfilter, fw=taper)
-	sl.fft <- matrix(0, npad, npad)
-	xmin <- max(1-sl[1], 1)
-	xmax <- min(npad-sl[1], npad)
-	ymin <- max(1-sl[2], 1)
-	ymax <- min(npad-sl[2], npad)
-	sl.fft[xmin:xmax, ymin:ymax] <- im.fft[(sl[1]+(xmin:xmax)),(sl[2]+(ymin:ymax))]
-#	if (plots) plot.cmat(submatrix(sl.fft, size=npad/2))
-	cphase <- fft(fftshift(sl.fft), inv=TRUE)[1:nr, 1:nc]
-	phase.raw <- Arg(cphase)
-	mod.raw <- Mod(cphase)
-	mod.raw <- mod.raw/max(mod.raw)
-	if (is.null(cp)) cp <- circle.pars(mod.raw, plot=plots, ask=FALSE)
-	cp.orig <- cp
-	if (CROP) {
-	  mod.raw <- crop(mod.raw, cp)$im
-	  phase.raw <- crop(phase.raw, cp)
-	  cp <- phase.raw$cp
-	  phase.raw <- phase.raw$im
-	}
-	nr <- nrow(phase.raw)
-	nc <- ncol(phase.raw)
-	prt <- pupil.rhotheta(nr, nc, cp)
-	phase.raw[is.na(prt$rho)] <- NA
-	class(phase.raw) <- "pupil"
+    }
+    im.fft <- im.fft*gblur(sfilter, fw=taper)
+    sl.fft <- matrix(0, npad, npad)
+    xmin <- max(1-sl[1], 1)
+    xmax <- min(npad-sl[1], npad)
+    ymin <- max(1-sl[2], 1)
+    ymax <- min(npad-sl[2], npad)
+    sl.fft[xmin:xmax, ymin:ymax] <- im.fft[(sl[1]+(xmin:xmax)),(sl[2]+(ymin:ymax))]
+    if (plots) plot.cmat(submatrix(sl.fft, size=npad/2))
+    cphase <- fft(fftshift(sl.fft), inv=TRUE)[1:nr, 1:nc]
+    phase.raw <- Arg(cphase)
+    mod.raw <- Mod(cphase)
+    mod.raw <- mod.raw/max(mod.raw)
+    if (is.null(cp)) cp <- circle.pars(mod.raw, plot=plots, ask=FALSE)
+    cp.orig <- cp
+    if (CROP) {
+        mod.raw <- crop(mod.raw, cp)$im
+        phase.raw <- crop(phase.raw, cp)
+        cp <- phase.raw$cp
+	phase.raw <- phase.raw$im
+    }
+    nr <- nrow(phase.raw)
+    nc <- ncol(phase.raw)
+    prt <- pupil.rhotheta(nr, nc, cp)
+    phase.raw[is.na(prt$rho)] <- NA
+    class(phase.raw) <- "pupil"
     wf.raw <- switch(puw.alg,
-      qual = qpuw(phase.raw, mod.raw),
-      brcut = {require(lppuw); brcutpuw(phase.raw)},
-      lp = {require(lppuw); netflowpuw(phase.raw, mod.raw)})
-	wf.raw <- fringescale*wf.raw
-	class(wf.raw) <- "pupil"
-	wf.nets <- wf.net(wf.raw, prt$rho, prt$theta, cp, sgs, zlist, zc0, satarget, astig.bath, uselm, plots)
-	return(list(phase=phase.raw, mod=mod.raw, cp=cp,cp.orig=cp.orig,
+                qual = qpuw(phase.raw, mod.raw),
+                brcut = {require(lppuw); brcutpuw(phase.raw)},
+                lp = {require(lppuw); netflowpuw(phase.raw, mod.raw)}
+    )
+    wf.raw <- fringescale*wf.raw
+    class(wf.raw) <- "pupil"
+    wf.nets <- wf.net(wf.raw, prt$rho, prt$theta, 
+                          cp, sgs, zlist, zc0, satarget, astig.bath, uselm, plots)
+    list(phase=phase.raw, mod=mod.raw, cp=cp,cp.orig=cp.orig,
 	  wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
-	  wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net))
+	  wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net)
 }
 
 ## simple utility returns Euclidean length of a vector
@@ -1939,13 +2008,14 @@ zmoments <- function(zcoef, maxorder=14) {
 
 addfit <- function(..., th=0, zcm=NULL, theta=numeric(0)) {
     fits <- list(...)
-    nt <- length(th)
+    nt <- length(fits)
+    if (length(th)==1 && nt>1) th=rep(th, nt)
     theta <- c(theta, th*pi/180)
     nz <- length(fits[[1]]$zcoef.net)
     for (i in 1:nt) {
         zcm <- cbind(zcm, fits[[i]]$zcoef.net[4:nz])
     }
-    return(list(zcm=zcm, theta=theta))
+    list(zcm=zcm, theta=theta)
 }
 
 separate.wf <- function(zcm, theta, maxorder=14) {
@@ -1964,7 +2034,7 @@ separate.wf <- function(zcm, theta, maxorder=14) {
             zcb[i,1] <- mean(zcm[i,])
             zcb[i,3] <- sd(zcm[i,])/sqrt(nt)
             sumstats <- rbind(sumstats, c(zlist$n[i], zlist$m[i], zcb[i,1],
-                                rep(NA, 6)))
+                                NA, zcb[i, 3], rep(NA, 4)))
             i <- i+1
         } else {
             y <- c(zcm[i,],zcm[i+1,])
@@ -1990,6 +2060,6 @@ separate.wf <- function(zcm, theta, maxorder=14) {
     colnames(sumstats)[1:7] <- c("n","m","rms_mirror", "rms_inst", "sigma","R2", "F")
     wf.mirror <- pupil.arb(zcoef=zcb[,1],zlist=zlist)
     wf.inst <- pupil.arb(zcoef=zcb[,2], zlist=zlist)
-    return(list(zcb=data.frame(zcb),sumstats=data.frame(sumstats),
-        wf.mirror=wf.mirror, wf.inst=wf.inst))
+    list(zcb=data.frame(zcb),sumstats=data.frame(sumstats),
+        wf.mirror=wf.mirror, wf.inst=wf.inst)
 }

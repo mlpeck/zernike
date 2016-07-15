@@ -19,6 +19,13 @@ NumericMatrix zpmC(NumericVector rho, NumericVector theta, int maxorder) {
   double a0, a1, a2;
   double cosmtheta[mmax], sinmtheta[mmax];
   NumericMatrix zm(nr, ncol);
+  
+  //do some rudimentary error checking
+  
+  if (rho.size() != theta.size()) stop("Numeric vectors must be same length");
+  if ((maxorder % 2) != 0) stop("maxorder must be even");
+  
+  //good enough
 
   
   for (n=0; n<nr; n++) {

@@ -11,9 +11,9 @@ export(rzernike, drzernike, Zernike, DZernike, DTZernike,
   pupil.pars, circle.pars,
   convolve2d, gblur, pupil.rhotheta,
   fitzernikes, plot.cmat, pick.sidelobe, .fdiff,
-  wrap, rmap,
+  wrap, rmap, mpinv,
   idiffpuw, qpuw,
-  wf.net, lspsi, pcapsi, aiapsi, hkpsi, tiltpsi,
+  wf.net, lspsi, pcapsi, gpcapsi, aiapsi, hkpsi, tiltpsi,
   psifit, itfit, pcafit, fftfit,
   hypot, zmoments, addfit, separate.wf
 )
