@@ -1384,12 +1384,11 @@ gpcapsi <- function(im.mat, trace=1) {
     phases <- wrap(phases-phases[1])
     P <- matrix(par[(nf+1):(nf+9)], 3, 3)
     Phi <- Phi %*% mpinv(t(P))
-    V <- V %*% P
     phi <- atan2(-Phi[,3], Phi[,2])
     mod <- sqrt(Phi[,2]^2+Phi[,3]^2)
     r2 <- sum(svd.im$d[1:3]^2)/sum(svd.im$d^2)
-    list(Phi=Phi, phi=phi, mod=mod/max(mod), 
-         phases=phases, V=V, P=P, nlmin=sdmin,
+    list(phi=phi, mod=mod/max(mod), 
+         phases=phases, nlmin=sdmin,
          snr=sqrt(r2/(1-r2)), eigen=svd.im$d^2
         )
 }
