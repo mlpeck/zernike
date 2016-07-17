@@ -7,8 +7,8 @@
 }
 \usage{
 pcafit(images, cp=NULL,
-	BGSUB = TRUE, REFINE = TRUE, 
-    fringescale=1, zlist=makezlist(), zc0=c(1:3, 6:7), 
+	BGSUB = TRUE, diagpos = c("v", "u", "g"), trace=1, REFINE = TRUE, 
+        fringescale=1, zlist=makezlist(), zc0=c(1:3, 6:7), 
 	satarget=c(0,0), astig.bath=c(0,0), 
 	puw.alg="qual", uselm=FALSE, sgs=1, plots=TRUE, CROP=FALSE)
 }
@@ -16,7 +16,8 @@ pcafit(images, cp=NULL,
   \item{images}{An array containing the interferogram images}
   \item{cp}{A list describing the pupil boundary, as returned by \code{\link{pupil.pars}}}
   \item{BGSUB}{Logical: subtract pixel-wise mean?}
-  \item{diagpos}{controls treatment of singular values of data matrix}
+  \item{diagpos}{Algorithm variant -- see details}
+  \item{trace}{Output summary every trace iterations}
   \item{REFINE}{Logical: calculate phase again after finding interferogram edge?}
   \item{fringescale}{Fringe spacing, in waves. Use 1 for single pass, 0.5 for double pass, etc.}
   \item{zlist}{Indexes of Zernike polynomials to fit to wavefront}
@@ -36,6 +37,13 @@ pcafit(images, cp=NULL,
   
   If \code{cp == NULL} \code{\link{circle.pars}} is called to construct the
   interferogram mask automatically.
+  
+  \code{diagpos} controls the operation of the underlying algorithm. If \code{diagpos = "u"}
+  singular values are ``grouped'' with the matrix \bold{U} in the singular value decomposition
+  of the image data. This is the algorithm as originally described in Vargas et al. \code{diagpos = "v"}
+  groups singular values with the matrix \bold{V} in the SVD. This is the default for
+  consistency with the original implementation by the author. Finally, \code{diagpos = "g"} calls
+  the generalized PCA algorithm \code{\link{gpcapsi}} developed by the author.
 
   If \code{REFINE == TRUE} \code{pcapsi} is called again with the masked image
   data after the calculation of \code{cp}. If \code{!is.null(cp)} in the function
@@ -45,10 +53,8 @@ pcafit(images, cp=NULL,
   smoothed wavefronts from raw unwrapped wavefront maps.
   
   \code{puw.alg} specifies the unwrapping algorithm. You can specify an algorithm
-  by choosing \code{puw.alg=c("brcut", "ls", "lp", "modal", "qual")}.
+  by choosing \code{puw.alg=c("brcut", "lp", "qual")}.
   
-  
-
 }
 \value{
   A list with the following components:
@@ -78,10 +84,45 @@ J. Vargas, J. Antonio Quiroga, and T. Belenguer,
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
 
+\examples{
+    fpath <- file.path(find.package(package="zernike"), "psidata")
+    files <- scan(file.path(fpath, "files_pca.txt"), what="character")
+    for (i in 1:length(files)) files[i] <- file.path(fpath, files[i])
+        
+        # load the images into an array
+        
+    images <- load.images(files)
+
+    # parameters for this run
+        
+    source(file.path(fpath, "parameters.txt"))
+        
+        # target SA coefficients for numerical null.
+        
+    sa.t <- 2*zconic(diam,roc,lambda=wavelength*1e-6)
+        
+      ## default arguments; edge detection works, so use it in subsequent calls
+    
+    pcfit.v <- pcafit(images, satarget=sa.t)
+        
+    ## the other algorithm options
+    
+    pcfit.u <- pcafit(images, cp=pcfit.v$cp, diagpos="u", satarget=sa.t)
+    pcfit.g <- pcafit(images, cp=pcfit.v$cp, diagpos="g", satarget=sa.t)
+    
+    plotn(pcfit.v, pcfit.u, pcfit.g)
+    plotn(pcfit.v, pcfit.u, pcfit.g, wftype="smooth")
+    
+      ## clean up
+    
+    rm(fpath, files, images, sa.t, diam, roc, wavelength, ps.dir, frames.per.cycle,
+       beam.sep, i, pcfit.v, pcfit.u, pcfit.g)
+}
+
 \seealso{
   \code{\link{psifit}},
   \code{\link{itfit}},
   \code{\link{wf.net}},
   \code{\link{circle.pars}}.
 }
-\keyword{mathematics}
+\keyword{models}

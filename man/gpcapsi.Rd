@@ -3,24 +3,29 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Generalized Principal components algorithm for phase shifting interferometry
 }
-\description{
+\description{A generalized principal components algorithm for phase shifting interferometry
+    developed by the author. This is the ``low level'' implementation.
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{gpcapsi(im.mat, trace = 1)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{im.mat}{
-%%     ~~Describe \code{im.mat} here~~
+  \item{im.mat}{Matrix containing the unmasked pixels from a set of interferograms.
 }
-  \item{trace}{
-%%     ~~Describe \code{trace} here~~
+  \item{trace}{Print progress of nonlinear solver every trace iterations.
+      Use trace=0 for silent operation.
 }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{
+\value{A list with the following items:
+    \item{phi}{Estimated wrapped phase.}
+    \item{mod}{Estimated modulation.}
+    \item{phases}{Estimated phase shifts.}
+    \item{nlmin}{Return value from Rsolnp::solnp.}
+    \item{snr}{An estimate of the S/N of the interferograms.}
+    \item{eigen}{Eigenvalues of the crossproduct matrix}
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
@@ -31,57 +36,20 @@
 %% ~put references to the literature/web site here ~
 }
 \author{M. L. Peck}
-\note{
+\note{This is the low level interface to the algorithm. The matrix \code{im.mat} should
+    contain the unmasked pixel values from the input interferogram array. No checks
+    are made for valid data. This should normally be called through the high level
+    function \code{\link{pcafit}}.
 %%  ~~further notes~~
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{\code{\link{pcapsi}}
+        \code{\link{pcafit}}
 }
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
 
-## The function is currently defined as
-function (im.mat, trace = 1) 
-{
-    M <- nrow(im.mat)
-    nf <- ncol(im.mat)
-    svd.im <- svd(im.mat)
-    V <- svd.im$v[, 1:3]
-    Phi <- svd.im$u[, 1:3] \%*\% diag(svd.im$d[1:3])
-    phases <- atan2(V[, 3], V[, 2])
-    phases <- wrap(phases - phases[1])
-    S <- cbind(rep(1, nf), cos(phases), sin(phases))
-    P <- crossprod(V, S)
-    fn <- function(par, V, nf) {
-        phases <- par[1:nf]
-        phases <- wrap(phases - phases[1])
-        P <- matrix(par[(nf + 1):(nf + 9)], 3, 3)
-        S <- cbind(rep(1, nf), cos(phases), sin(phases))
-        norm(V \%*\% P - S, "F")
-    }
-    sdmin <- Rsolnp::solnp(pars = c(phases, as.vector(P)), fun = fn, 
-        LB = c(rep(-pi, nf), rep(-Inf, 9)), UB = c(rep(pi, nf), 
-            rep(Inf, 9)), control = list(trace = trace, tol = 1e-10), 
-        V = V, nf = nf)
-    par <- sdmin$par
-    phases <- par[1:nf]
-    phases <- wrap(phases - phases[1])
-    P <- matrix(par[(nf + 1):(nf + 9)], 3, 3)
-    Phi <- Phi \%*\% mpinv(t(P))
-    V <- V \%*\% P
-    phi <- atan2(-Phi[, 3], Phi[, 2])
-    mod <- sqrt(Phi[, 2]^2 + Phi[, 3]^2)
-    r2 <- sum(svd.im$d[1:3]^2)/sum(svd.im$d^2)
-    list(Phi = Phi, phi = phi, mod = mod/max(mod), phases = phases, 
-        V = V, P = P, nlmin = sdmin, snr = sqrt(r2/(1 - r2)), 
-        eigen = svd.im$d^2)
-  }
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{optimization}
-\keyword{misc}% __ONLY ONE__ keyword per line
+\keyword{models}% __ONLY ONE__ keyword per line

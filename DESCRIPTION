@@ -1,10 +1,10 @@
 Package: zernike
 Title: Zernike Polynomials
-Version: 3.2.7
+Version: 3.3.0
 Author: M.L. Peck <mpeck1@ix.netcom.com>
 Depends: R (>= 3.0.0)
 Suggests: pixmap, rgl, Rsolnp,
-  odesolve, mvtnorm, lppuw
+  mvtnorm, lppuw
 Imports: Rcpp (>= 0.12.0)
 LinkingTo: Rcpp
 Description: Routines for Manipulation of Zernike polynomials and
