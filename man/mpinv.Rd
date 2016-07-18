@@ -36,10 +36,10 @@ mpinv(X)
 }
 \examples{
     X <- matrix(rnorm(18), 6, 3) ## this should be full rank almost always
-    mpinv(X) %*% X
+    mpinv(X) \%*\% X
     
     X <- matrix(1:18, 6, 3)  ## this is not
-    mpinv(X) %*% X
+    mpinv(X) \%*\% X
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
