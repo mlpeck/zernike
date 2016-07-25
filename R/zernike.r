@@ -16,28 +16,6 @@
 	else return(TRUE)
 }
 
-##radial zernike polynomials - iterative rewrite
-
-rzernike <- function(rho, n, m) {
-    if ((n<0) || (m<0) || (n<m) || (.odd(n,m))) stop("Bad argument to rzernike")
-    if (n==m) return(rho^n)
-    j <- m
-    rj <- rho^j
-    r2 <- rho^2
-    rjm2 <- 0
-    for (j in seq(m,(n-2),by=2)) {
-        c2 <- 4*(j+1)*r2-(j-m+2)^2/(j+2)
-        c4 <- 0
-        if (j != 0) {
-            c2 <- c2 - (j+m)^2/j
-            c4 <- (m^2 - j^2)/j
-        }
-        rjp2 <- (j+2)/((j+2)^2-m^2)*(c2 * rj + c4 * rjm2)
-        rjm2 <- rj
-        rj <- rjp2
-    }
-    rj
-}
 
 ##derivative (wrt r) of zernike polynomials
 ## Iterative version of recurrence relation

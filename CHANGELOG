@@ -523,9 +523,11 @@
 ##
 ## pcaest.r demo calls library function plotn instead of custom version
 
-## 20150717
+## 20160717
 ##
 ## updated help files
 ## added example for pcafit (could do this for others someday)
 
-
+## 20160725
+##
+## replace rzernike with C++ version
