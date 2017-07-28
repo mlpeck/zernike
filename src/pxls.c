@@ -1,5 +1,5 @@
 #include <math.h>
-#include <lapacke.h>
+#include <lapacke/lapacke.h>
 
 void pxls(int *nf, int *nr, double *im, double *delta,
 		  double *tx, double *ty, double *x, double *y, double *B, int *info) {
