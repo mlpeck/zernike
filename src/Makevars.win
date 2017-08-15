@@ -1,8 +1,8 @@
 ifeq "$(WIN)" "64"
-  PKG_CPPFLAGS += -DWIN32 -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK -I"c:/rtools/local300/include"
-  PKG_LIBS += -L"c:/rtools/local300/lib/x64" -llapacke -llapack -lrefblas -lgfortran -ltiff -ljpeg -lz -lm
+  PKG_CPPFLAGS += -DWIN32 -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK -I"c:/rtools/local64/include"
+  PKG_LIBS += -L"c:/rtools/local64/lib" -llapacke -llapack -lrefblas -ltiff -ljpeg -lm
 else
-  PKG_CPPFLAGS += -DWIN32 -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK -I"c:/rtools/local300/include"
-  PKG_LIBS += -L"c:/rtools/local300/lib/i386" -llapacke -llapack -lrefblas -lgfortran -ltiff -ljpeg -lz -lm
+  PKG_CPPFLAGS += -DWIN32 -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK -I"c:/rtools/local/include"
+  PKG_LIBS += -L"c:/rtools/local/lib" -llapacke -llapack -lrefblas -ltiff -ljpeg -lm
 endif
 

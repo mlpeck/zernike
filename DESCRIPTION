@@ -1,12 +1,12 @@
 Package: zernike
 Title: Zernike Polynomials
-Version: 3.3.1
+Version: 3.3.2
 Author: M.L. Peck <mpeck1@ix.netcom.com>
 Depends: R (>= 3.0.0)
 Suggests: pixmap, rgl, Rsolnp,
   mvtnorm, lppuw
 Imports: Rcpp (>= 0.12.0)
-LinkingTo: Rcpp
+LinkingTo: Rcpp, RcppArmadillo
 Description: Routines for Manipulation of Zernike polynomials and
   Interferogram fringe analysis
 Maintainer: M.L. Peck <mpeck1@ix.netcom.com>

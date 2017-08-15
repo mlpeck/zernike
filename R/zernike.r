@@ -796,11 +796,11 @@ load.images <- function(files, names=files, channels=c(1,0,0), scale=1, FLIP=FAL
 rescale <- function(im, scale) {
   nr.new <- round(scale*nrow(im))
   nc.new <- round(scale*ncol(im))
-  res <- .C("resize_image", as.double(im), 
+  res <- .C(resize_image, as.double(im), 
 			as.integer(ncol(im)), as.integer(nrow(im)),
 			im.out = double(nr.new*nc.new),
 			as.integer(nc.new), as.integer(nr.new),
-			ret = integer(1), NAOK=TRUE, package="zernike")
+			ret = integer(1), NAOK=TRUE)
   im.out <- matrix(res$im.out, nr.new, nc.new)
   im.out
 }
@@ -808,36 +808,36 @@ rescale <- function(im, scale) {
 ## read a jpeg file
 
 readjpeg <- function(filename, channels){
-    res <- .C("read_jpg_img_info", as.character(filename),
+    res <- .C(read_jpg_img_info, as.character(filename),
 	          width=integer(1), height=integer(1), depth=integer(1),
-	          ret=integer(1), package="zernike")
+	          ret=integer(1))
     if (res$ret < 0) stop(if (res$ret == -1) "Cannot open file." else "Internal error")
     width <- res$width
     height <- res$height
     depth <- res$depth
-    res <- .C("read_jpg_img", as.character(filename),
+    res <- .C(read_jpg_img, as.character(filename),
                   as.integer(width), as.integer(height), as.integer(depth),
                   as.double(channels),
 	          image=double(res$width * res$height),
-	          ret=integer(1), package="zernike")
+	          ret=integer(1))
     image <- matrix(res$image, height, width)
     image
 }
 
 ## read a tiff file
 readtiff <- function(filename, channels){
-    res <- .C("read_tiff_img_info", as.character(filename),
+    res <- .C(read_tiff_img_info, as.character(filename),
 	          width=integer(1), height=integer(1), depth=integer(1),
-	          ret=integer(1), package="zernike")
+	          ret=integer(1))
     if (res$ret < 0) stop(if (res$ret == -1) "Cannot open file." else "Internal error")
     width <- res$width
     height <- res$height
     depth <- res$depth
-    res <- .C("read_tiff_img", as.character(filename),
+    res <- .C(read_tiff_img, as.character(filename),
                   as.integer(width), as.integer(height), as.integer(depth),
                   as.double(channels),
 	          image=double(res$width * res$height),
-	          ret=integer(1), package="zernike")
+	          ret=integer(1))
     image <- matrix(res$image, height, width)
     image
 }
@@ -1172,14 +1172,14 @@ idiffpuw <- function(phase, mask=phase, ucall=TRUE, dx=NULL, dy=NULL) {
 	
     if (ucall) {
         if (is.null(dx)) {
-            b <- .C("id_uw", as.integer(nr), as.integer(nc), as.double(phase/(2*pi)),
-	           as.double(NA*phase), NAOK=TRUE, package="zernike")
+            b <- .C(id_uw, as.integer(nr), as.integer(nc), as.double(phase/(2*pi)),
+	           as.double(NA*phase), NAOK=TRUE)
 	           puw <- matrix(b[[4]], nr, nc)
         } else {
-            b <- .C("id_dxy_uw", as.integer(nr), as.integer(nc), as.double(phase/(2*pi)),
+            b <- .C(id_dxy_uw, as.integer(nr), as.integer(nc), as.double(phase/(2*pi)),
 	         as.double(mask), as.double(dx/(2*pi)), as.double(dy/(2*pi)),
 	         as.double(NA*phase), integer(nr*nc), 
-	         NAOK=TRUE, package="zernike")
+	         NAOK=TRUE)
             puw <- matrix(b[[7]], nr, nc)
         }
         class(puw) <- "pupil"
@@ -1187,10 +1187,10 @@ idiffpuw <- function(phase, mask=phase, ucall=TRUE, dx=NULL, dy=NULL) {
     } else {
         if (is.null(dx)) dx <- wrap(.fdiff(phase))
         if (is.null(dy)) dy <- wrap(t(.fdiff(t(phase))))
-        b <- .C("id_dxy_uw", as.integer(nr), as.integer(nc), as.double(phase/(2*pi)), 
+        b <- .C(id_dxy_uw, as.integer(nr), as.integer(nc), as.double(phase/(2*pi)), 
 	      as.double(mask), as.double(dx/(2*pi)), as.double(dy/(2*pi)), 
 	      as.double(NA*phase), integer(nr*nc), 
-	      NAOK=TRUE, package="zernike")
+	      NAOK=TRUE)
         puw <- matrix(b[[7]], nr, nc)
         uw <- matrix(as.logical(b[[8]]), nr, nc)
         class(puw) <- "pupil"
@@ -1209,8 +1209,8 @@ qpuw <- function(phase, qual) {
     phase <- phase/(2*pi)
     qual[is.na(phase)] <- 0
 	
-    sol <- .C("q_uw", as.integer(nr), as.integer(nc), as.double(phase), as.double(qual),
-		as.double(NA*phase), NAOK=TRUE, PACKAGE="zernike")
+    sol <- .C(q_uw, as.integer(nr), as.integer(nc), as.double(phase), as.double(qual),
+		as.double(NA*phase), NAOK=TRUE)
     puw <- matrix(sol[[5]], nr, nc)
     class(puw) <- "pupil"
     puw
@@ -1518,46 +1518,34 @@ tiltpsi <- function(im.mat, phases, x, y, tilts = NULL,
   # if no guess at tilts set them to 0 and calculate the phase the fast way
   
   if (is.null(tilts)) {
-	tilts <- matrix(0, nf, 2)
-	X <- cbind(rep(1,nf), cos(phases), sin(phases))
-	X <- X %*% solve(crossprod(X))
-	B <- im.mat %*% X
-	gotfirst <- TRUE
+    tilts <- matrix(0, nf, 2)
+    X <- cbind(rep(1,nf), cos(phases), sin(phases))
+    X <- X %*% solve(crossprod(X))
+    B <- im.mat %*% X
+    gotfirst <- TRUE
   }
   tilts[,1] <- tilts[,1]-tilts[1,1]
   tilts[,2] <- tilts[,2]-tilts[1,2]
 
-  # function that calculates phase given phase shifts and tilts
   
-  phaseest <- function(im, phases, tilts) {
-	M <- nrow(im)
-	B <- numeric(3*M)
-	lasol <- .C("pxls", as.integer(nf), as.integer(M), as.double(t(im)), as.double(phases),
-	  as.double(tilts[,1]), as.double(tilts[,2]), as.double(x), as.double(y),
-	  B=as.double(B), la.info=integer(1), package="zernike")
-	B <- matrix(lasol$B, 3, M)
-	if (lasol$la.info > 0) warning(paste("la.info =",lasol$la.info))
-	return(t(B))
-  }
-
   # this is the function minimized at the phase shift/tilt estimation step
 
   sseframe <- function(pt, im, phi, x, y, abar, bbar) {
-	ph.xy <- pt[1] + 4*pi*(pt[2]*x+pt[3]*y)
-	crossprod(im-abar-bbar*cos(phi+ph.xy))
+    ph.xy <- pt[1] + 4*pi*(pt[2]*x+pt[3]*y)
+    crossprod(im-abar-bbar*cos(phi+ph.xy))
   }
 
   # gradient of the above function. used by nlminb
 
   gradsse <- function(pt, im, phi, x, y, abar, bbar) {
-	ph.xy <- phi+pt[1]+4*pi*(pt[2]*x+pt[3]*y)
-	cpt <- cos(ph.xy)
-	spt <- sin(ph.xy)
-	grads <- numeric(3)
-	grads[1] <- 2*bbar*(-abar*sum(spt)+crossprod(im,spt)-bbar*crossprod(cpt,spt))
-	grads[2] <- 8*pi*bbar*(-abar*crossprod(x,spt)+crossprod((im*x),spt)-bbar*crossprod((x*cpt),spt))
-	grads[3] <- 8*pi*bbar*(-abar*crossprod(y,spt)+crossprod((im*y),spt)-bbar*crossprod((y*cpt),spt))
-	grads
+    ph.xy <- phi+pt[1]+4*pi*(pt[2]*x+pt[3]*y)
+    cpt <- cos(ph.xy)
+    spt <- sin(ph.xy)
+    grads <- numeric(3)
+    grads[1] <- 2*bbar*(-abar*sum(spt)+crossprod(im,spt)-bbar*crossprod(cpt,spt))
+    grads[2] <- 8*pi*bbar*(-abar*crossprod(x,spt)+crossprod((im*x),spt)-bbar*crossprod((x*cpt),spt))
+    grads[3] <- 8*pi*bbar*(-abar*crossprod(y,spt)+crossprod((im*y),spt)-bbar*crossprod((y*cpt),spt))
+    grads
   }
 
 
@@ -1567,67 +1555,67 @@ tiltpsi <- function(im.mat, phases, x, y, tilts = NULL,
   sse.last <- 0
 
   for (i in 1:maxiter) {
-	if ((i>1) || !gotfirst) B <- phaseest(im.mat, phases, tilts)
+    if ((i>1) || !gotfirst) B <- pxls(im.mat, phases, tilts, x, y)
 
-	# first column of B contains the background estimate; next two the components of phase
-	# note: either mean or median seem to work here
+    # first column of B contains the background estimate; next two the components of phase
+    # note: either mean or median seem to work here
 
-	abar <- mean(B[,1])
-	bbar <- mean(sqrt(B[,2]^2+B[,3]^2))
-	phi <- atan2(-B[,3], B[,2])
-	sse[i] <- 0
+    abar <- mean(B[,1])
+    bbar <- mean(sqrt(B[,2]^2+B[,3]^2))
+    phi <- atan2(-B[,3], B[,2])
+    sse[i] <- 0
 
-	# use one of two nonlinear optimizers for the tilt and phase shift
-	# estimation step
-	
-	for (n in 1:nf) {
-	  if (nlpref == 1) {
-		smin <- nlminb(start=c(phases[n], tilts[n,]), objective=sseframe,
-		  gradient=gradsse,
-		  im=im.mat[,n], phi=phi, x=x, y=y, abar=abar, bbar=bbar,
-		  control = list(trace=nltrace, abs.tol=1e-20),
-		  lower=c(-2*pi, -tlim, -tlim), upper=c(+2*pi, tlim, tlim))
-		sse[i] <- sse[i] + smin$objective
-	  } else {
-		smin <- solnp(pars=c(phases[n], tilts[n,]), fun=sseframe,
-		  LB=c(-2*pi, -tlim, -tlim), UB=c(+2*pi, tlim, tlim),
-		  control = list(trace=nltrace),
-		  im=im.mat[,n], phi=phi, x=x, y=y, abar=abar, bbar=bbar)
-		sse[i] <- sse[i] + smin$values[length(smin$values)]
-	  }
-	  phases[n] <- smin$par[1]
-	  tilts[n,] <- smin$par[2:3]
-	}
-	if(smin$convergence > 0) warning("Convergence reported failed")
+    # use one of two nonlinear optimizers for the tilt and phase shift
+    # estimation step
+    
+    for (n in 1:nf) {
+      if (nlpref == 1) {
+        smin <- nlminb(start=c(phases[n], tilts[n,]), objective=sseframe,
+          gradient=gradsse,
+          im=im.mat[,n], phi=phi, x=x, y=y, abar=abar, bbar=bbar,
+          control = list(trace=nltrace, abs.tol=1e-20),
+          lower=c(-2*pi, -tlim, -tlim), upper=c(+2*pi, tlim, tlim))
+        sse[i] <- sse[i] + smin$objective
+      } else {
+        smin <- solnp(pars=c(phases[n], tilts[n,]), fun=sseframe,
+          LB=c(-2*pi, -tlim, -tlim), UB=c(+2*pi, tlim, tlim),
+          control = list(trace=nltrace),
+          im=im.mat[,n], phi=phi, x=x, y=y, abar=abar, bbar=bbar)
+        sse[i] <- sse[i] + smin$values[length(smin$values)]
+      }
+      phases[n] <- smin$par[1]
+      tilts[n,] <- smin$par[2:3]
+    }
+    if(smin$convergence > 0) warning("Convergence reported failed")
 
-	# the tilts and phase shifts are offset from frame 1
-	
-	tilts[,1] <- tilts[,1]-tilts[1,1]
-	tilts[,2] <- tilts[,2]-tilts[1,2]
-	phases <- wrap(phases-phases[1])
-	pt <- cbind(phases, 2*pi*tilts)
-	dp <- sqrt(sum(diag(crossprod(pt-pt.last))))/(3*nf)
-	pt.last <- pt
-	if (plotprogress) {
-		if (i ==1) {
-			sse.1 <- sse[1]
-			plot(1:maxiter, 1:maxiter, ylim=c(ptol, 1), type="n",
-			  xlab="Iteration", ylab="", log="y")
-		}
-		points(i, sse[i]/sse.1, pch=1)
-		points(i, dp, pch=2, col="green")
-	}
+    # the tilts and phase shifts are offset from frame 1
+    
+    tilts[,1] <- tilts[,1]-tilts[1,1]
+    tilts[,2] <- tilts[,2]-tilts[1,2]
+    phases <- wrap(phases-phases[1])
+    pt <- cbind(phases, 2*pi*tilts)
+    dp <- sqrt(sum(diag(crossprod(pt-pt.last))))/(3*nf)
+    pt.last <- pt
+    if (plotprogress) {
+        if (i ==1) {
+            sse.1 <- sse[1]
+            plot(1:maxiter, 1:maxiter, ylim=c(ptol, 1), type="n",
+              xlab="Iteration", ylab="", log="y")
+        }
+        points(i, sse[i]/sse.1, pch=1)
+        points(i, dp, pch=2, col="green")
+    }
 
-	# this is slow, so it's best to print out some intermediate results so
-	# the user knows something is happening.
+    # this is slow, so it's best to print out some intermediate results so
+    # the user knows something is happening.
 
-	if (trace >= 0) print(paste("Iteration",i, "sse", format(sse[i], digits=2),
-	  "delta sse",format((sse[i]-sse.last)/sse.last, digits=2),
-	  "dp =", format(dp, digits=3)))
-	if (dp < ptol) break
-	sse.last <- sse[i]
+    if (trace >= 0) print(paste("Iteration",i, "sse", format(sse[i], digits=2),
+      "delta sse",format((sse[i]-sse.last)/sse.last, digits=2),
+      "dp =", format(dp, digits=3)))
+    if (dp < ptol) break
+    sse.last <- sse[i]
   }
-  B <- phaseest(im.mat, phases, tilts)
+  B <- pxls(im.mat, phases, tilts, x, y)
   phi <- atan2(-B[,3], B[,2])
   mod <- sqrt(B[,2]^2+B[,3]^2)
   list(phi=phi,mod=mod/max(mod),phases=phases,tilts=tilts,iter=i,sse=sse)
