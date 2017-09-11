@@ -531,3 +531,13 @@
 ## 20160725
 ##
 ## replace rzernike with C++ version
+
+## 20170910
+##
+## added modified brcutpuw to this package
+## calls to phase unwrapping routines changed
+
+## 20170911
+##
+## added sconic - more accurate wavefront error for testing asphere at coc
+## changed default test wavelength and scaling in zconic

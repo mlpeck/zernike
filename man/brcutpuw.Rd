@@ -45,6 +45,17 @@ M.L. Peck
 \code{\link{idiffpuw}}
 }
 \examples{
+  set.seed(1234)
+  PW <- wrap(matrix((0:100)*pi/10,101,101))
+  ## need a border of NA's
+  PW <- cbind(rep(NA,101), PW, rep(NA,101))
+  PW <- rbind(rep(NA,103), PW, rep(NA,103))
+  PW <- PW + rnorm(103^2)
+  mtext(rmap(PW, plot=TRUE))
+  PU <- brcutpuw(PW, details=TRUE)
+  image(1:103, 1:103, PU$bcuts, col="blue", add=TRUE)
+  X11()
+  image(PU$puw, col=grey256, asp=1, useRaster=TRUE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

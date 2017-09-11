@@ -392,7 +392,7 @@ fitzernikes <- function(wf, rho, theta, phi=0, maxorder = 14 , uselm=FALSE) {
 
 ## Zernike coefficients for a conic
 
-zconic <- function(D, rc, b = -1, lambda = 1E-6, nmax = 6) {
+zconic <- function(D, rc, b = -1, lambda = 632.8, nmax = 6) {
     if ((nmax %%2) != 0) stop("nmax must be even")
     nterms <- nmax/2+1
     sa <- zc <- zs <- numeric(0)
@@ -402,7 +402,7 @@ zconic <- function(D, rc, b = -1, lambda = 1E-6, nmax = 6) {
     na <- (sd/rc)^2
     sa[1] <- sa[2] <- 0
 ## 4th order conic term
-    zs[3] <- (sd/rc)^3*sd/8/lambda
+    zs[3] <- (sd/rc)^3*sd*1e6/8/lambda
     zc[3] <- (1+b)*zs[3]
     sa[3] <- zc[3]-zs[3]
 ## binomial expansion of conic
@@ -1648,8 +1648,8 @@ psifit <- function(images, phases, cp=NULL, wt=rep(1,length(phases)),
     class(phase.raw) <- "pupil"
     wf.raw <- switch(puw.alg,
 	  qual = qpuw(phase.raw, mod.raw),
-	  brcut = {require(lppuw); brcutpuw(phase.raw)},
-	  lp = {require(lppuw); netflowpuw(phase.raw, mod.raw)}
+	  brcut = brcutpuw(phase.raw),
+	  lp = lppuw::netflowpuw(phase.raw, mod.raw)
     )
     wf.raw <- fringescale*wf.raw
     class(wf.raw) <- "pupil"
@@ -1718,8 +1718,8 @@ pcafit <- function(images, cp=NULL,
     phi[is.na(prt$rho)] <- NA
     wf.raw <- switch(puw.alg,
                 qual = qpuw(phi, mod),
-                brcut = {require(lppuw); brcutpuw(phi)},
-                lp = {require(lppuw); netflowpuw(phi, mod)}
+                brcut = brcutpuw(phi),
+                lp = lppuw::netflowpuw(phi, mod)
     )
     wf.raw <- fringescale*wf.raw
     class(wf.raw) <- "pupil"
@@ -1803,8 +1803,8 @@ itfit <- function(images, phases, cp=NULL,
     phi[is.na(prt$rho)] <- NA
     wf.raw <- switch(puw.alg,
                 qual = qpuw(phi, mod),
-                brcut = {require(lppuw); brcutpuw(phi)},
-                lp = {require(lppuw); netflowpuw(phi, mod)}
+                brcut = brcutpuw(phi),
+                lp = lppuw::netflowpuw(phi, mod)
     )
     wf.raw <- fringescale*wf.raw
     class(wf.raw) <- "pupil"
@@ -1927,8 +1927,8 @@ fftfit <- function(imagedata, cp=NULL, fringescale=1, sl=c(1,1),
     class(phase.raw) <- "pupil"
     wf.raw <- switch(puw.alg,
                 qual = qpuw(phase.raw, mod.raw),
-                brcut = {require(lppuw); brcutpuw(phase.raw)},
-                lp = {require(lppuw); netflowpuw(phase.raw, mod.raw)}
+                brcut = brcutpuw(phase.raw),
+                lp = lppuw::netflowpuw(phase.raw, mod.raw)
     )
     wf.raw <- fringescale*wf.raw
     class(wf.raw) <- "pupil"
