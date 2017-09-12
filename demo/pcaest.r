@@ -28,7 +28,7 @@ phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
 
 # target SA coefficients for numerical null.
 
-sa.t <- 2*zconic(diam,roc,lambda=wavelength*1e-6)
+sa.t <- sconic(diam,roc,lambda=wavelength)
 
 
 cat("Performing PSI analysis. Please wait...\n")
