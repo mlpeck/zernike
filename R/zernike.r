@@ -2,10 +2,10 @@
 ## Zernike polynomials, interferogram analysis,
 ## and other forms of optical testing
 
-## Author: M.L. Peck (mpeck1@ix.netcom.com)
+## Author: M.L. Peck (mlpeck54@gmail.com)
 ## Language: R (http://www.r-project.org/)
-## Copyright (c) 2004-2012, M.L. Peck
-## Last mod: November 2012
+## Copyright (c) 2004-2017, M.L. Peck
+
 
 ## This is free software and is offered with no warranty whatsoever.
 
@@ -763,27 +763,33 @@ load.pgm <- function(files, imdiff=NULL) {
 load.images <- function(files, names=files, channels=c(1,0,0), scale=1, FLIP=FALSE) {
     ext <- strsplit(names[1], ".", fixed=TRUE)[[1]]
     ext <- tolower(ext[length(ext)])
-    fn <- switch(ext, jpg = , jpeg = readjpeg, tif = , tiff = readtiff)
-    if (is.null(fn)) stop("Unrecognized file extension")
-    readf <- function(fn, file, channels) {
+    switch(ext, jpg = , jpeg = {fn = readjpeg; fromraw=FALSE}, 
+      tif = , tiff = {fn=readtiff; fromraw=FALSE},
+      {fn = readraw; fromraw=TRUE})
+
+    readf <- function(fn, file, channels, fromraw=FALSE) {
         im <- fn(file, channels)
         if (scale != 1) im <- rescale(im, scale)
-        t(im[nrow(im):1,])
+        if (!fromraw) {
+          t(im[nrow(im):1,])
+        } else {
+          im[, ncol(im):1]
+        }
     }
     if (length(files)==1) {
-        images <- readf(fn, files, channels)
+        images <- readf(fn, files, channels, fromraw)
         ri <- range(images)
         images <- (images-ri[1])/(ri[2]-ri[1])
-        if(FLIP) images <- images[nrow(images):1,]
+        if(FLIP) images <- images[nrow(images):1, ]
         return(images)
     }
-    im1 <- readf(fn, files[1], channels)
+    im1 <- readf(fn, files[1], channels, fromraw)
     nr <- nrow(im1)
     nc <- ncol(im1)
     images <- array(0, dim=c(nr, nc, length(files)))
     images[,,1] <- im1
     for (i in 2:length(files)) {
-        images[,,i] <- readf(fn, files[i], channels)
+        images[,,i] <- readf(fn, files[i], channels, fromraw)
     }
     ri <- range(images)
     images <- (images-ri[1])/(ri[2]-ri[1])

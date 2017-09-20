@@ -541,3 +541,7 @@
 ##
 ## added sconic - more accurate wavefront error for testing asphere at coc
 ## changed default test wavelength and scaling in zconic
+
+## 20170920
+##
+## raw image file support added

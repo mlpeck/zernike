@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // pxls
 arma::mat pxls(arma::mat im, arma::vec delta, arma::mat tilt, arma::vec x, arma::vec y);
-RcppExport SEXP zernike_pxls(SEXP imSEXP, SEXP deltaSEXP, SEXP tiltSEXP, SEXP xSEXP, SEXP ySEXP) {
+RcppExport SEXP _zernike_pxls(SEXP imSEXP, SEXP deltaSEXP, SEXP tiltSEXP, SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,9 +21,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// readraw
+NumericMatrix readraw(CharacterVector fname, NumericVector channels);
+RcppExport SEXP _zernike_readraw(SEXP fnameSEXP, SEXP channelsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type fname(fnameSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type channels(channelsSEXP);
+    rcpp_result_gen = Rcpp::wrap(readraw(fname, channels));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rzernike
 NumericVector rzernike(NumericVector rho, int n, int m);
-RcppExport SEXP zernike_rzernike(SEXP rhoSEXP, SEXP nSEXP, SEXP mSEXP) {
+RcppExport SEXP _zernike_rzernike(SEXP rhoSEXP, SEXP nSEXP, SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -36,7 +48,7 @@ END_RCPP
 }
 // zpmC
 NumericMatrix zpmC(NumericVector rho, NumericVector theta, int maxorder);
-RcppExport SEXP zernike_zpmC(SEXP rhoSEXP, SEXP thetaSEXP, SEXP maxorderSEXP) {
+RcppExport SEXP _zernike_zpmC(SEXP rhoSEXP, SEXP thetaSEXP, SEXP maxorderSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -59,9 +71,10 @@ RcppExport void read_tiff_img_info(void *, void *, void *, void *, void *);
 RcppExport void resize_image(void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"zernike_pxls", (DL_FUNC) &zernike_pxls, 5},
-    {"zernike_rzernike", (DL_FUNC) &zernike_rzernike, 3},
-    {"zernike_zpmC", (DL_FUNC) &zernike_zpmC, 3},
+    {"_zernike_pxls", (DL_FUNC) &_zernike_pxls, 5},
+    {"_zernike_readraw", (DL_FUNC) &_zernike_readraw, 2},
+    {"_zernike_rzernike", (DL_FUNC) &_zernike_rzernike, 3},
+    {"_zernike_zpmC", (DL_FUNC) &_zernike_zpmC, 3},
     {NULL, NULL, 0}
 };
 

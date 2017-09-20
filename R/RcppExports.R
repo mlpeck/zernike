@@ -2,14 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 pxls <- function(im, delta, tilt, x, y) {
-    .Call('zernike_pxls', PACKAGE = 'zernike', im, delta, tilt, x, y)
+    .Call(`_zernike_pxls`, im, delta, tilt, x, y)
+}
+
+readraw <- function(fname, channels) {
+    .Call(`_zernike_readraw`, fname, channels)
 }
 
 rzernike <- function(rho, n, m) {
-    .Call('zernike_rzernike', PACKAGE = 'zernike', rho, n, m)
+    .Call(`_zernike_rzernike`, rho, n, m)
 }
 
 zpmC <- function(rho, theta, maxorder) {
-    .Call('zernike_zpmC', PACKAGE = 'zernike', rho, theta, maxorder)
+    .Call(`_zernike_zpmC`, rho, theta, maxorder)
 }
 
