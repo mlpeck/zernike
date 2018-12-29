@@ -1386,18 +1386,13 @@ aiapsi <- function(im.mat, phases,
     M <- nrow(im.mat)
     nf <- ncol(im.mat)
     phases <- wrap(phases-phases[1])
-    S <- rbind(rep(1,nf), cos(phases), sin(phases))
+    phases.last <- phases
     sse <- numeric(maxiter+1)
     for (i in 1:maxiter) {
 
             # get the phase estimate from phase shifts
-		
-        phases.last <- phases
-        SD <- svd(S)
-        dp <- SD$d
-        dp[dp>.meps] <- 1/dp[dp>.meps]
-        dp[dp <= .meps] <- 0
-        Phi <- tcrossprod(im.mat %*% (SD$v %*% diag(dp)), SD$u)
+        S <- rbind(rep(1,nf), cos(phases), sin(phases))		
+        Phi <- im.mat %*% mpinv(S)
         sse[i] <- crossprod(as.vector(im.mat)-as.vector(Phi %*% S))
         if (i == 1) sse.1 <- sse[i]
 
@@ -1408,11 +1403,7 @@ aiapsi <- function(im.mat, phases,
 
             # get phase shifts from the phase. Note use crossproduct for speed.
 		
-        PD <- svd(crossprod(Phi))
-        dp <- PD$d
-        dp[dp>.meps] <- 1/dp[dp>.meps]
-        dp[dp <= .meps] <- 0
-        S <- (PD$u %*% diag(dp) %*% t(PD$v)) %*% crossprod(Phi, im.mat)
+        S <- mpinv(crossprod(Phi)) %*% crossprod(Phi, im.mat)
         phases <- atan2(S[3,], S[2,])
         dphases <- sd(wrap(phases-phases.last))
         if (plotprogress) {
@@ -1427,18 +1418,14 @@ aiapsi <- function(im.mat, phases,
             flush.console()
         }
         if (dphases < ptol) break
-        S <- rbind(rep(1,nf), cos(phases), sin(phases))
+        phases.last <- phases
     }
 
 	#final estimate of phase
 	
     phases <- wrap(phases-phases[1])
     S <- rbind(rep(1,nf), cos(phases), sin(phases))
-    SD <- svd(S)
-    dp <- SD$d
-    dp[dp>.meps] <- 1/dp[dp>.meps]
-    dp[dp <= .meps] <- 0
-    Phi <- tcrossprod(im.mat %*% (SD$v %*% diag(dp)), SD$u)
+    Phi <- im.mat %*% mpinv(S)
     sse[i+1] <- crossprod(as.vector(im.mat)-as.vector(Phi %*% S))
     phi <- atan2(-Phi[,3], Phi[,2])
     mod <- sqrt(Phi[,2]^2+Phi[,3]^2)
