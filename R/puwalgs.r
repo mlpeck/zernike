@@ -1,3 +1,104 @@
+## Difference that maintains original array size by appending a row
+
+.fdiff <- function(X) rbind(diff(X), rep(NA,ncol(X)))
+
+## Ghiglia and Pritt's wrap operator. Thanks to Steve K.
+
+wrap <- function(phase) (phase+pi)%%(2*pi) - pi
+
+
+## Calculate residue map
+## A "positive" charged residue has value +1
+## A "negative" charge has value -1
+
+rmap <- function(phase, dx=NULL, dy=NULL, plot=FALSE, ...) {
+  nr <- nrow(phase)
+  nc <- ncol(phase)
+
+  if (is.null(dx)) dx <- wrap(.fdiff(phase))
+  if (is.null(dy)) dy <- wrap(t(.fdiff(t(phase))))
+  d2y <- rbind(dy[1:(nr-1),]-dy[2:nr,],rep(NA,nc))
+  d2x <- cbind(dx[,2:nc]-dx[,1:(nc-1)],rep(NA,nr))
+  residues <- round((d2y+d2x)/(2*pi))
+  if (plot) {
+  	## positive charges
+	chp <- which(residues ==1, arr.ind=TRUE)
+	## negative charges
+	chm <- which(residues == -1, arr.ind=TRUE)
+	image(1:nr, 1:nc, phase, col=grey256, asp=1, xlab="X", ylab="Y", useRaster=TRUE, ...)
+	if(length(chp)>0) points(chp, col="green", pch=20)
+	if(length(chm)>0) points(chm, col="red", pch=1)
+	nr <- sum(abs(residues),na.rm=TRUE)
+	return(nr)
+  }
+  else
+  	return(residues)
+}
+
+## "Itoh's" method for phase unwrapping.
+
+## integrate the wrapped phase differences
+## This is called by brcutpuw, or it can be called
+## directly by the user.
+
+## Note: as of 15 May 2008 the unwrapper is written in C.
+## It's fastest to bypass the computation of dx and dy in R
+## and unwrap with a call to id_uw.
+## netflowpuw (in lppuw) passes values of dx and dy with ucall==TRUE.
+## brcutpuw passes dx and dy with ucall==FALSE.
+## The call to id_dxy_uw is slower by about 80%.
+
+idiffpuw <- function(phase, mask=phase, ucall=TRUE, dx=NULL, dy=NULL) {
+
+    nr <- nrow(phase)
+    nc <- ncol(phase)
+	
+    if (ucall) {
+        if (is.null(dx)) {
+            b <- .C(id_uw, as.integer(nr), as.integer(nc), as.double(phase/(2*pi)),
+	           as.double(NA*phase), NAOK=TRUE)
+	           puw <- matrix(b[[4]], nr, nc)
+        } else {
+            b <- .C(id_dxy_uw, as.integer(nr), as.integer(nc), as.double(phase/(2*pi)),
+	         as.double(mask), as.double(dx/(2*pi)), as.double(dy/(2*pi)),
+	         as.double(NA*phase), integer(nr*nc), 
+	         NAOK=TRUE)
+            puw <- matrix(b[[7]], nr, nc)
+        }
+        class(puw) <- "pupil"
+        return(puw)
+    } else {
+        if (is.null(dx)) dx <- wrap(.fdiff(phase))
+        if (is.null(dy)) dy <- wrap(t(.fdiff(t(phase))))
+        b <- .C(id_dxy_uw, as.integer(nr), as.integer(nc), as.double(phase/(2*pi)), 
+	      as.double(mask), as.double(dx/(2*pi)), as.double(dy/(2*pi)), 
+	      as.double(NA*phase), integer(nr*nc), 
+	      NAOK=TRUE)
+        puw <- matrix(b[[7]], nr, nc)
+        uw <- matrix(as.logical(b[[8]]), nr, nc)
+        class(puw) <- "pupil"
+        return(list(puw=2*pi*puw, uw=uw))
+    }
+}
+
+
+## Quality guided unwrapper.
+## This is mostly a wrapper for a call to the C function "q_uw".
+
+qpuw <- function(phase, qual) {
+    nr <- nrow(phase)
+    nc <- ncol(phase)
+	
+    phase <- phase/(2*pi)
+    qual[is.na(phase)] <- 0
+	
+    sol <- .C(q_uw, as.integer(nr), as.integer(nc), as.double(phase), as.double(qual),
+		as.double(NA*phase), NAOK=TRUE)
+    puw <- matrix(sol[[5]], nr, nc)
+    class(puw) <- "pupil"
+    puw
+}
+
 ##
 ##  Branch cut algorithm.
 ## This now solves a variant of the assignment problem to minimize
