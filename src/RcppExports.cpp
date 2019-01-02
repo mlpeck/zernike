@@ -5,18 +5,19 @@
 #include <Rcpp.h>
 
 using namespace Rcpp;
+using namespace arma;
 
 // pxls
-arma::mat pxls(arma::mat im, arma::vec delta, arma::mat tilt, arma::vec x, arma::vec y);
+mat pxls(const mat& im, const vec& delta, const mat& tilt, const vec& x, const vec& y);
 RcppExport SEXP _zernike_pxls(SEXP imSEXP, SEXP deltaSEXP, SEXP tiltSEXP, SEXP xSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type im(imSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type delta(deltaSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type tilt(tiltSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const mat& >::type im(imSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type delta(deltaSEXP);
+    Rcpp::traits::input_parameter< const mat& >::type tilt(tiltSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type y(ySEXP);
     rcpp_result_gen = Rcpp::wrap(pxls(im, delta, tilt, x, y));
     return rcpp_result_gen;
 END_RCPP
@@ -59,7 +60,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-
 
 RcppExport void id_dxy_uw(void *, void *, void *, void *, void *, void *, void *, void *);
 RcppExport void id_uw(void *, void *, void *, void *);
