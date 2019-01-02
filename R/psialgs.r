@@ -7,12 +7,8 @@
 ## least squares fit of phase shifted interferograms with optional weights.
 
 lspsi <- function(images, phases, wt=rep(1, length(phases))) {
-    dims <- dim(images)
-    X <- cbind(rep(1, length(phases)), cos(phases), sin(phases))
-    X <- diag(wt) %*% X %*% solve(crossprod(diag(sqrt(wt)) %*% X))
-    B <- array(matrix(images, dims[1]*dims[2], dims[3]) %*% X, dim=c(dims[1], dims[2], 3))
-    phi <- atan2(-B[,,3], B[,,2])
-    list(phi=phi, B=B)
+  img.mat <- matrix(images, ncol=dim(images)[3])
+  lspsiC(img.mat, phases, wt)
 }
 
 ## Vargas et al.'s (2011) Principal Components method
@@ -89,55 +85,8 @@ gpcapsi <- function(im.mat, trace=1) {
 ## The "advanced iterative algorithm" of Wang & Han (2004)
 
 aiapsi <- function(im.mat, phases,
-		maxiter=20, ptol=0.001, trace=1, plotprogress=TRUE) {
-    .meps <- sqrt(.Machine$double.eps)
-    M <- nrow(im.mat)
-    nf <- ncol(im.mat)
-    phases <- wrap(phases-phases[1])
-    phases.last <- phases
-    sse <- numeric(maxiter+1)
-    for (i in 1:maxiter) {
-
-            # get the phase estimate from phase shifts
-        S <- rbind(rep(1,nf), cos(phases), sin(phases))		
-        Phi <- im.mat %*% mpinv(S)
-        sse[i] <- crossprod(as.vector(im.mat)-as.vector(Phi %*% S))
-        if (i == 1) sse.1 <- sse[i]
-
-            # toss the background and modulation portion of the ls solution
-		
-        phi <- atan2(-Phi[,3], Phi[,2])
-        Phi <- cbind(rep(1,M), cos(phi), -sin(phi))
-
-            # get phase shifts from the phase. Note use crossproduct for speed.
-		
-        S <- mpinv(crossprod(Phi)) %*% crossprod(Phi, im.mat)
-        phases <- atan2(S[3,], S[2,])
-        dphases <- sd(wrap(phases-phases.last))
-        if (plotprogress) {
-            if (i ==1)
-            plot(1:maxiter, 1:maxiter, ylim=c(ptol, 1), type="n",
-                xlab="Iteration", ylab="", log="y")
-            points(i, sse[i]/sse.1, pch=1)
-            points(i, dphases, pch=2, col="green")
-        }
-        if ((trace > 0) && ((i-1)%%trace == 0)) {
-            cat(paste(i, ":", format(sse[i], digits=2), ":"), format(phases,digits=3), "\n")
-            flush.console()
-        }
-        if (dphases < ptol) break
-        phases.last <- phases
-    }
-
-	#final estimate of phase
-	
-    phases <- wrap(phases-phases[1])
-    S <- rbind(rep(1,nf), cos(phases), sin(phases))
-    Phi <- im.mat %*% mpinv(S)
-    sse[i+1] <- crossprod(as.vector(im.mat)-as.vector(Phi %*% S))
-    phi <- atan2(-Phi[,3], Phi[,2])
-    mod <- sqrt(Phi[,2]^2+Phi[,3]^2)
-    list(phi=phi, mod=mod/max(mod), phases=phases, iter=i, sse=sse)
+		   ptol=0.001, maxiter=20, trace=1) {
+  aiapsiC(im.mat, phases, ptol, maxiter, trace)
 }
 
 

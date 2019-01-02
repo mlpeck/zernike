@@ -1009,10 +1009,10 @@ psifit <- function(images, phases, cp=NULL, wt=rep(1,length(phases)),
 		fringescale=1, zlist=makezlist(), zc0=c(1:3, 6:7), 
 		satarget=c(0,0), astig.bath=c(0,0),
 		puw.alg = "qual", uselm=FALSE, sgs=1, plots=TRUE, CROP=FALSE) {
+    dims <- dim(images)
     lsfit <- lspsi(images, phases, wt)
-    phase.raw <- lsfit$phi
-    mod.raw <- sqrt(lsfit$B[,,2]^2+lsfit$B[,,3]^2)
-    mod.raw <- mod.raw/max(mod.raw)
+    phase.raw <- matrix(lsfit$phi, nrow=dims[1], ncol=dims[2])
+    mod.raw <- matrix(lsfit$mod, nrow=dims[1], ncol=dims[2])
     if (is.null(cp)) cp <- circle.pars(mod.raw, plot=plots, ask=FALSE)
     cp.orig <- cp
     if (CROP) {
@@ -1135,7 +1135,7 @@ itfit <- function(images, phases, cp=NULL,
     }
     itsol <- switch(it.alg,
             aia = aiapsi(im.mat, phases, maxiter=maxiter, 
-                         ptol=ptol, trace=trace, plotprogress=plotprogress),
+                         ptol=ptol, trace=trace),
             hk = hkpsi(im.mat, phases, maxiter=maxiter, 
                        ptol=ptol, trace=trace, plotprogress=plotprogress),
             tilt = {x <- as.vector((prt$rho*cos(prt$theta))[!is.na(prt$rho)]);
@@ -1160,7 +1160,7 @@ itfit <- function(images, phases, cp=NULL,
             im.mat <- im.mat[!is.na(mask),]
             itsol <- switch(it.alg,
                     aia = aiapsi(im.mat, phases, maxiter=maxiter, 
-                                 ptol=ptol, trace=trace, plotprogress=plotprogress),
+                                 ptol=ptol, trace=trace),
                     hk = hkpsi(im.mat, phases, maxiter=maxiter, 
                                ptol=ptol, trace=trace, plotprogress=plotprogress)
             )
