@@ -4,33 +4,27 @@
 #include <math.h>
 
 using namespace Rcpp;
+using namespace arma;
 
 //[[Rcpp::export]]
 
-arma::mat pxls(arma::mat im, arma::vec delta, arma::mat tilt,
-                    arma::vec x, arma::vec y) {
-  int nr = im.n_rows;
-  int nf = im.n_cols;
-  int i, m, n;
-  double ph;
-  arma::mat B(nr, 3);
+mat pxls(const mat& im, const vec& delta, const mat& tilt,
+                    const vec& x, const vec& y) {
+  uword nr = im.n_rows;
+  uword nf = im.n_cols;
+
+  colvec ph(nf);
+  mat A(nf, 3);
+  colvec z(nf);
+  colvec b(3);
+  mat B(nr, 3);
   
-  arma::mat A(nf, 3);
-  arma::colvec z(nf);
-  arma::colvec b(3);
-  
-  for (n=0; n<nr; n++) {
-    for (m=0; m<nf; m++) {
-      ph = delta(m) + 4.0*M_PI*(tilt(m, 0)*x(n)+tilt(m, 1)*y(n));
-      A(m, 0) = 1.;
-      A(m, 1) = cos(ph);
-      A(m, 2) = sin(ph);
-      z(m) = im(n, m);
-    }
-    b = arma::solve(A, z);
-    for (i=0; i<3; i++) {
-      B(n, i) = b(i);
-    }
+  for (uword n=0; n<nr; n++) {
+    ph = delta + 4.0 * M_PI * (tilt.col(0) * x(n) + tilt.col(1) * y(n));
+    A = join_rows(join_rows(ones(nf), cos(ph)), sin(ph));
+    z = im.row(n).t();
+    b = pinv(A) * z;
+    B.row(n) = b.t();
   }
   return B;
 }
