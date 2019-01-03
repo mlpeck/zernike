@@ -1058,7 +1058,7 @@ pcafit <- function(images, cp=NULL,
         im.mat <- im.mat[!is.na(mask),]
     }
     pcasol <- switch(tolower(diagpos),
-                     "g" = gpcapsi(im.mat, trace),
+                     "g" = gpcapsi(im.mat, trace=trace),
                      pcapsi(im.mat, BGSUB, diagpos)
     )
     if (!is.null(cp)) {
@@ -1075,7 +1075,7 @@ pcafit <- function(images, cp=NULL,
             mask <- as.vector(prt$rho)
             im.mat <- im.mat[!is.na(mask),]
             pcasol <- switch(tolower(diagpos),
-                             "g" = gpcapsi(im.mat, trace),
+                             "g" = gpcapsi(im.mat, trace=trace),
                              pcapsi(im.mat, BGSUB, diagpos)
             )
             phi <- matrix(NA, nr, nc)

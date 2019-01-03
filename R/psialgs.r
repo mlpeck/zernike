@@ -45,40 +45,8 @@ mpinv <- function(X) {
 
 ## my variation on a PCA based algorithm
 
-gpcapsi <- function(im.mat, trace=1) {
-    M <- nrow(im.mat)
-    nf <- ncol(im.mat)
-    svd.im <- svd(im.mat)
-    V <- svd.im$v[,1:3]
-    Phi <- svd.im$u[,1:3] %*% diag(svd.im$d[1:3])
-    phases <- atan2(V[,3], V[,2])
-    phases <- wrap(phases-phases[1])
-    S <- cbind(rep(1,nf), cos(phases), sin(phases))
-    P <- crossprod(V, S)
-    fn <- function(par, V, nf) {
-        phases <- par[1:nf]
-        phases <- wrap(phases-phases[1])
-        P <- matrix(par[(nf+1):(nf+9)], 3, 3)
-        S <- cbind(rep(1, nf), cos(phases), sin(phases))
-        norm(V %*% P - S, "F")
-    }
-    sdmin <- Rsolnp::solnp(pars=c(phases, as.vector(P)), fun=fn,
-                           LB=c(rep(-pi,nf),rep(-Inf,9)),
-                           UB=c(rep(pi,nf), rep(Inf, 9)), 
-                           control=list(trace=trace, tol=1.e-10),
-                           V=V, nf=nf)
-    par <- sdmin$par
-    phases <- par[1:nf]
-    phases <- wrap(phases-phases[1])
-    P <- matrix(par[(nf+1):(nf+9)], 3, 3)
-    Phi <- Phi %*% mpinv(t(P))
-    phi <- atan2(-Phi[,3], Phi[,2])
-    mod <- sqrt(Phi[,2]^2+Phi[,3]^2)
-    r2 <- sum(svd.im$d[1:3]^2)/sum(svd.im$d^2)
-    list(phi=phi, mod=mod/max(mod), 
-         phases=phases, nlmin=sdmin,
-         snr=sqrt(r2/(1-r2)), eigen=svd.im$d^2
-        )
+gpcapsi <- function(im.mat, ptol=0.001, maxiter=20, trace=1) {
+  gpcapsiC(im.mat, ptol, maxiter, trace)
 }
 
 

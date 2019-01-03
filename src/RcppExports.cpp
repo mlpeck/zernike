@@ -35,6 +35,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// gpcapsiC
+List gpcapsiC(const mat& images, const double& ptol, const int& maxiter, const bool& trace);
+RcppExport SEXP _zernike_gpcapsiC(SEXP imagesSEXP, SEXP ptolSEXP, SEXP maxiterSEXP, SEXP traceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const mat& >::type images(imagesSEXP);
+    Rcpp::traits::input_parameter< const double& >::type ptol(ptolSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type trace(traceSEXP);
+    rcpp_result_gen = Rcpp::wrap(gpcapsiC(images, ptol, maxiter, trace));
+    return rcpp_result_gen;
+END_RCPP
+}
 // pxls
 mat pxls(const mat& im, const vec& delta, const mat& tilt, const vec& x, const vec& y);
 RcppExport SEXP _zernike_pxls(SEXP imSEXP, SEXP deltaSEXP, SEXP tiltSEXP, SEXP xSEXP, SEXP ySEXP) {
@@ -101,6 +115,7 @@ RcppExport void resize_image(void *, void *, void *, void *, void *, void *, voi
 static const R_CallMethodDef CallEntries[] = {
     {"_zernike_lspsiC", (DL_FUNC) &_zernike_lspsiC, 3},
     {"_zernike_aiapsiC", (DL_FUNC) &_zernike_aiapsiC, 5},
+    {"_zernike_gpcapsiC", (DL_FUNC) &_zernike_gpcapsiC, 4},
     {"_zernike_pxls", (DL_FUNC) &_zernike_pxls, 5},
     {"_zernike_readraw", (DL_FUNC) &_zernike_readraw, 2},
     {"_zernike_rzernike", (DL_FUNC) &_zernike_rzernike, 3},

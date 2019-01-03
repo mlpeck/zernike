@@ -558,3 +558,11 @@
 ##
 ## lspsi, aiapsi are wrappers for
 ## lspsiC, aiapsiC
+
+## 20190103
+##
+## gpcapsi is a wrapper for gpcapsiC
+## simplified algorithm structure by
+## replacing nonlinear optimization with
+## iterated linear operations
+

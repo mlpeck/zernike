@@ -9,6 +9,10 @@ aiapsiC <- function(images, phases_init, ptol, maxiter, trace) {
     .Call(`_zernike_aiapsiC`, images, phases_init, ptol, maxiter, trace)
 }
 
+gpcapsiC <- function(images, ptol, maxiter, trace) {
+    .Call(`_zernike_gpcapsiC`, images, ptol, maxiter, trace)
+}
+
 pxls <- function(im, delta, tilt, x, y) {
     .Call(`_zernike_pxls`, im, delta, tilt, x, y)
 }
