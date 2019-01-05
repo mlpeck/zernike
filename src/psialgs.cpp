@@ -176,14 +176,15 @@ List gpcapsiC(const mat& images, const double& ptol, const int& maxiter, const b
 /********************
  * 
  * the c++ part of tiltpsi
+ * now with defocus
  * 
 */
 
 
 //[[Rcpp::export]]
 
-mat pxls(const mat& im, const vec& delta, const mat& tilt,
-                    const vec& x, const vec& y) {
+mat pxls(const mat& im, const vec& delta, const mat& tilt, const vec& df,
+                    const vec& x, const vec& y, const vec& z3) {
   uword nr = im.n_rows;
   uword nf = im.n_cols;
 
@@ -194,7 +195,7 @@ mat pxls(const mat& im, const vec& delta, const mat& tilt,
   mat B(nr, 3);
   
   for (uword n=0; n<nr; n++) {
-    ph = delta + 4.0 * M_PI * (tilt.col(0) * x(n) + tilt.col(1) * y(n));
+    ph = delta + 4.0 * M_PI * (tilt.col(0) * x(n) + tilt.col(1) * y(n)) + 2.0 * M_PI * df * z3(n);
     A = join_rows(join_rows(ones(nf), cos(ph)), sin(ph));
     z = im.row(n).t();
     b = pinv(A) * z;

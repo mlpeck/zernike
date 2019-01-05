@@ -50,17 +50,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // pxls
-mat pxls(const mat& im, const vec& delta, const mat& tilt, const vec& x, const vec& y);
-RcppExport SEXP _zernike_pxls(SEXP imSEXP, SEXP deltaSEXP, SEXP tiltSEXP, SEXP xSEXP, SEXP ySEXP) {
+mat pxls(const mat& im, const vec& delta, const mat& tilt, const vec& df, const vec& x, const vec& y, const vec& z3);
+RcppExport SEXP _zernike_pxls(SEXP imSEXP, SEXP deltaSEXP, SEXP tiltSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP ySEXP, SEXP z3SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const mat& >::type im(imSEXP);
     Rcpp::traits::input_parameter< const vec& >::type delta(deltaSEXP);
     Rcpp::traits::input_parameter< const mat& >::type tilt(tiltSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type df(dfSEXP);
     Rcpp::traits::input_parameter< const vec& >::type x(xSEXP);
     Rcpp::traits::input_parameter< const vec& >::type y(ySEXP);
-    rcpp_result_gen = Rcpp::wrap(pxls(im, delta, tilt, x, y));
+    Rcpp::traits::input_parameter< const vec& >::type z3(z3SEXP);
+    rcpp_result_gen = Rcpp::wrap(pxls(im, delta, tilt, df, x, y, z3));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -116,7 +118,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_zernike_lspsiC", (DL_FUNC) &_zernike_lspsiC, 3},
     {"_zernike_aiapsiC", (DL_FUNC) &_zernike_aiapsiC, 5},
     {"_zernike_gpcapsiC", (DL_FUNC) &_zernike_gpcapsiC, 4},
-    {"_zernike_pxls", (DL_FUNC) &_zernike_pxls, 5},
+    {"_zernike_pxls", (DL_FUNC) &_zernike_pxls, 7},
     {"_zernike_readraw", (DL_FUNC) &_zernike_readraw, 2},
     {"_zernike_rzernike", (DL_FUNC) &_zernike_rzernike, 3},
     {"_zernike_zpmC", (DL_FUNC) &_zernike_zpmC, 3},

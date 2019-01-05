@@ -13,8 +13,8 @@ gpcapsiC <- function(images, ptol, maxiter, trace) {
     .Call(`_zernike_gpcapsiC`, images, ptol, maxiter, trace)
 }
 
-pxls <- function(im, delta, tilt, x, y) {
-    .Call(`_zernike_pxls`, im, delta, tilt, x, y)
+pxls <- function(im, delta, tilt, df, x, y, z3) {
+    .Call(`_zernike_pxls`, im, delta, tilt, df, x, y, z3)
 }
 
 readraw <- function(fname, channels) {

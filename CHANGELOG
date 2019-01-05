@@ -566,3 +566,6 @@
 ## replacing nonlinear optimization with
 ## iterated linear operations
 
+## 20190104
+##
+## added variable defocus to tiltpsi

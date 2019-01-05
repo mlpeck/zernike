@@ -123,14 +123,14 @@ hkpsi <- function(im.mat, phases,
 	list(phi=phi, mod=mod/max(mod), phases=phases, iter=i, sse=sse)
 }
 
-## PSI with variable tilt
+## PSI with variable tilt and defocus
 
-tiltpsi <- function(im.mat, phases, x, y, tilts = NULL,
-              nlpref=1, tlim=0.5, maxiter=20, ptol=0.001, trace=1, plotprogress=TRUE) {
-  if (nlpref>1) require(Rsolnp)
+tiltpsi <- function(im.mat, phases, x, y, rho, tilts = NULL,
+              tlim=0.5, dflim=1., maxiter=20, ptol=0.001, trace=1, plotprogress=TRUE) {
   M <- nrow(im.mat)
   nf <- ncol(im.mat)
   phases <- wrap(phases-phases[1])
+  z3 <- sqrt(2)*(2*rho^2-1)
   gotfirst <- FALSE
 
   # if no guess at tilts set them to 0 and calculate the phase the fast way
@@ -144,36 +144,19 @@ tiltpsi <- function(im.mat, phases, x, y, tilts = NULL,
   }
   tilts[,1] <- tilts[,1]-tilts[1,1]
   tilts[,2] <- tilts[,2]-tilts[1,2]
+  df <- numeric(nf)
 
-  
-  # this is the function minimized at the phase shift/tilt estimation step
-
-  sseframe <- function(pt, im, phi, x, y, abar, bbar) {
-    ph.xy <- pt[1] + 4*pi*(pt[2]*x+pt[3]*y)
-    crossprod(im-abar-bbar*cos(phi+ph.xy))
+  res_frame <- function(pt, im, phi, x, y, z3, abar, bbar) {
+    ph.xy <- pt[1] + 4*pi*(pt[2]*x+pt[3]*y) + 2*pi*pt[4]*z3
+    im-abar-bbar*cos(phi+ph.xy)
   }
-
-  # gradient of the above function. used by nlminb
-
-  gradsse <- function(pt, im, phi, x, y, abar, bbar) {
-    ph.xy <- phi+pt[1]+4*pi*(pt[2]*x+pt[3]*y)
-    cpt <- cos(ph.xy)
-    spt <- sin(ph.xy)
-    grads <- numeric(3)
-    grads[1] <- 2*bbar*(-abar*sum(spt)+crossprod(im,spt)-bbar*crossprod(cpt,spt))
-    grads[2] <- 8*pi*bbar*(-abar*crossprod(x,spt)+crossprod((im*x),spt)-bbar*crossprod((x*cpt),spt))
-    grads[3] <- 8*pi*bbar*(-abar*crossprod(y,spt)+crossprod((im*y),spt)-bbar*crossprod((y*cpt),spt))
-    grads
-  }
-
-
-  pt.last <- cbind(phases, 2*pi*tilts)
-  nltrace <- max(trace, 0)
+ 
+  pt.last <- cbind(phases, 2*pi*tilts, 2*pi*df)
   sse <- numeric(maxiter+1)
   sse.last <- 0
 
   for (i in 1:maxiter) {
-    if ((i>1) || !gotfirst) B <- pxls(im.mat, phases, tilts, x, y)
+    if ((i>1) || !gotfirst) B <- pxls(im.mat, phases, tilts, df, x, y, z3)
 
     # first column of B contains the background estimate; next two the components of phase
     # note: either mean or median seem to work here
@@ -183,35 +166,33 @@ tiltpsi <- function(im.mat, phases, x, y, tilts = NULL,
     phi <- atan2(-B[,3], B[,2])
     sse[i] <- 0
 
-    # use one of two nonlinear optimizers for the tilt and phase shift
-    # estimation step
+    # minpack's Levenberg-Marquardt solver is way faster than general purpose optimizer
     
     for (n in 1:nf) {
-      if (nlpref == 1) {
-        smin <- nlminb(start=c(phases[n], tilts[n,]), objective=sseframe,
-          gradient=gradsse,
-          im=im.mat[,n], phi=phi, x=x, y=y, abar=abar, bbar=bbar,
-          control = list(trace=nltrace, abs.tol=1e-20),
-          lower=c(-2*pi, -tlim, -tlim), upper=c(+2*pi, tlim, tlim))
-        sse[i] <- sse[i] + smin$objective
+      smin <- minpack.lm::nls.lm(par=c(phases[n], tilts[n,], df[n]),
+                                 lower=c(-2*pi, -tlim, -tlim, -dflim),
+                                 upper=c(2*pi, tlim, tlim, dflim),
+                                 fn=res_frame,
+                                 im=im.mat[,n],phi=phi,x=x,y=y,z3=z3,abar=abar,bbar=bbar)
+      if (smin$info >=1 & smin$info <= 3) {
+        smin$convergence <- 0
       } else {
-        smin <- solnp(pars=c(phases[n], tilts[n,]), fun=sseframe,
-          LB=c(-2*pi, -tlim, -tlim), UB=c(+2*pi, tlim, tlim),
-          control = list(trace=nltrace),
-          im=im.mat[,n], phi=phi, x=x, y=y, abar=abar, bbar=bbar)
-        sse[i] <- sse[i] + smin$values[length(smin$values)]
+        smin$convergence <- 1
       }
+      sse[i] <- sse[i] + smin$deviance
       phases[n] <- smin$par[1]
       tilts[n,] <- smin$par[2:3]
+      df[n] <- smin$par[4]
+      if(smin$convergence > 0) warning("Convergence reported failed")
     }
-    if(smin$convergence > 0) warning("Convergence reported failed")
 
     # the tilts and phase shifts are offset from frame 1
     
     tilts[,1] <- tilts[,1]-tilts[1,1]
     tilts[,2] <- tilts[,2]-tilts[1,2]
+    df <- df - df[1]
     phases <- wrap(phases-phases[1])
-    pt <- cbind(phases, 2*pi*tilts)
+    pt <- cbind(phases, 2*pi*tilts, 2*pi*df)
     dp <- sqrt(sum(diag(crossprod(pt-pt.last))))/(3*nf)
     pt.last <- pt
     if (plotprogress) {
@@ -227,16 +208,16 @@ tiltpsi <- function(im.mat, phases, x, y, tilts = NULL,
     # this is slow, so it's best to print out some intermediate results so
     # the user knows something is happening.
 
-    if (trace >= 0) print(paste("Iteration",i, "sse", format(sse[i], digits=2),
+    if (trace != 0) print(paste("Iteration",i, "sse", format(sse[i], digits=2),
       "delta sse",format((sse[i]-sse.last)/sse.last, digits=2),
       "dp =", format(dp, digits=3)))
     if (dp < ptol) break
     sse.last <- sse[i]
   }
-  B <- pxls(im.mat, phases, tilts, x, y)
+  B <- pxls(im.mat, phases, tilts, df, x, y, z3)
   phi <- atan2(-B[,3], B[,2])
   mod <- sqrt(B[,2]^2+B[,3]^2)
-  list(phi=phi,mod=mod/max(mod),phases=phases,tilts=tilts,iter=i,sse=sse)
+  list(phi=phi,mod=mod/max(mod),phases=phases,tilts=tilts,df=df,iter=i,sse=sse)
 
 }
 

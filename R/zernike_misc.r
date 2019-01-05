@@ -1116,7 +1116,7 @@ pcafit <- function(images, cp=NULL,
 
 itfit <- function(images, phases, cp=NULL,
 		maxiter=20, ptol=0.001, trace=1, plotprogress=TRUE, REFINE=TRUE,
-		tilts=NULL, tlim=0.5, nlpref=1,
+		tilts=NULL, tlim=0.5, dflim=1,
 		it.alg="aia",
 		fringescale=1, zlist=makezlist(), zc0=c(1:3, 6:7),
 		satarget=c(0,0), astig.bath=c(0,0),
@@ -1140,7 +1140,9 @@ itfit <- function(images, phases, cp=NULL,
                        ptol=ptol, trace=trace, plotprogress=plotprogress),
             tilt = {x <- as.vector((prt$rho*cos(prt$theta))[!is.na(prt$rho)]);
                     y <- as.vector((prt$rho*sin(prt$theta))[!is.na(prt$rho)]);
-                    tiltpsi(im.mat, phases, x, y, tilts=tilts, nlpref=nlpref, tlim=tlim,
+                    rho <- as.vector(prt$rho[!is.na(prt$rho)]);
+                    tiltpsi(im.mat, phases, x, y, rho,
+                            tilts=tilts, tlim=tlim, dflim=dflim,
 			    maxiter=maxiter, ptol=ptol, 
                             trace=trace-1, plotprogress=plotprogress)
                     }

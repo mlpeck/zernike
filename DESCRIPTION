@@ -4,11 +4,11 @@ Version: 3.4.5
 Author: M.L. Peck <mpeck1@ix.netcom.com>
 Depends: R (>= 3.5.0)
 Suggests: pixmap, rgl, Rsolnp,
-  mvtnorm, lppuw, clue
+  mvtnorm, lppuw, clue, minpack.lm
 Imports: Rcpp (>= 0.12.0)
 LinkingTo: Rcpp, RcppArmadillo
 Description: Routines for Manipulation of Zernike polynomials and
   Interferogram fringe analysis
-Maintainer: M.L. Peck <mpeck1@ix.netcom.com>
+Maintainer: M.L. Peck <mlpeck54@gmail.com>
 License: MIT and GPL
 
