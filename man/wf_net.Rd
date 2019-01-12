@@ -13,7 +13,7 @@ wf_net(wf.raw, cp, options)
 \arguments{
   \item{wf.raw}{Raw wavefront to be processed}
   \item{cp}{a list describing the pupil boundary}
-  \item{options}{a list of options. See \code{\link{psfit_options}}
+  \item{options}{a list of options. See \code{\link{psfit_options}}}
 }
 \details{
 Called by \code{\link{psifit}}

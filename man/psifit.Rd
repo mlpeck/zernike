@@ -25,6 +25,7 @@ psifit(images, phases, cp = NULL, satarget = NULL, psialg = "ls", options = psfi
   
   The current values recognized for \code{psialg} are
   
+  \describe{
   \item{ls}{least squares with known phase shifts}
   \item{aia}{the ``advanced iterative algorithm`` \code{\link{aiapsi}}}
   \item{pc1}{pca with group_diag = "v"}
@@ -32,6 +33,7 @@ psifit(images, phases, cp = NULL, satarget = NULL, psialg = "ls", options = psfi
   \item{gpc}{my generalized PC algorithm in \code{\link{gpcapsi}}}
   \item{gpcthentilt}{first \code{\link{gpcapsi}} the \code{\link{tiltpsi}}}
   \item{tilt}{tiltpsi}
+  }
   
 }
 \value{
@@ -40,7 +42,7 @@ A list with the following components
 \item{mod}{modulation estimate}
 \item{phases}{phase shifts}
 \item{cp}{the interferogram boundary}
-\item{wf.net}{net, unfiltered wavefront (see \code{\link{wf_net}})
+\item{wf.net}{net, unfiltered wavefront (see \code{\link{wf_net}})}
 \item{wf.smooth}{Zernike fit wavefront}
 \item{wf.residual}{the difference}
 \item{fit}{Coefficients of Zernike fit to wavefront}
@@ -64,5 +66,6 @@ A list with the following components
   \code{\link{tiltpsi}},
   \code{\link{gpcapsi}},
   \code{\link{pcapsi}}
+  
 }
 \keyword{Models}

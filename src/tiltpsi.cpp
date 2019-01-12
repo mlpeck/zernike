@@ -146,6 +146,31 @@ mat jac_frame(const vec& pars, const List& adata) {
   return bbar*jac;
 }
 
+/************
+ * 
+ * wrap phase into [-pi, pi)
+ * This is slower than R version
+ * but export it anyway with a different name.
+ * 
+*/
+
+//[[Rcpp::export]]
+
+mat pwrap(const mat& phase) {
+  uword nr = phase.n_rows;
+  uword nc = phase.n_cols;
+  uword ne = phase.n_elem;
+  mat wphase(nr, nc);
+  
+  for (uword i=0; i<ne; i++) {
+    wphase(i) = fmod(phase(i) + M_PI, 2.*M_PI) - M_PI;
+  }
+  
+  return wphase;
+}
+
+
+
 // The main routine. This is what gets called from R
 
 //[[Rcpp::export]]
@@ -223,7 +248,7 @@ List tiltpsiC(const mat& images, const rowvec& phases_init, const mat& coords,
   mod = mod/max(mod);
   return List::create(Named("phi") = phi, 
                       Named("mod") = mod,
-                      Named("phases") = phases,
+                      Named("phases") = pwrap(phases),
                       Named("zcs") = zcs/(2.*M_PI),
                       Named("iter") = i,
                       Named("sse") = sse);

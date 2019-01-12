@@ -10,29 +10,6 @@
 using namespace Rcpp;
 using namespace arma;
 
-/************
- * 
- * wrap phase into [-pi, pi)
- * This is slower than R version
- * but export it anyway with a different name.
- * 
-*/
-
-//[[Rcpp::export]]
-
-mat pwrap(const mat& phase) {
-  uword nr = phase.n_rows;
-  uword nc = phase.n_cols;
-  uword ne = phase.n_elem;
-  mat wphase(nr, nc);
-  
-  for (uword i=0; i<ne; i++) {
-    wphase(i) = fmod(phase(i) + M_PI, 2.*M_PI) - M_PI;
-  }
-  
-  return wphase;
-}
-
 /*********
  * 
  * PSI by least squares with optional per frame weights

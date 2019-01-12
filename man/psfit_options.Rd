@@ -13,8 +13,9 @@ Parameters controlling various aspects of PSI algorithms, Zernike polynomial fit
 }
 \format{
   Default parameter values are in the list \code{psfit_options}:
- \item{refine}     {TRUE}
- \item{puw_alg}    {"qual"}
+  \describe{
+ \item{refine}{TRUE}
+ \item{puw_alg}{"qual"}
  \item{fringescale}{1}
  \item{maxiter    }{20}
  \item{ptol       }{1e-04}
@@ -29,6 +30,7 @@ Parameters controlling various aspects of PSI algorithms, Zernike polynomial fit
  \item{plots      }{TRUE}
  \item{crop       }{FALSE}
  \item{colors     }{topo.colors(256)}
+  }
 }
 \details{
   \code{psfit_options} is defined in the package environment. To retrieve a copy use \code{get_zoptions}.
