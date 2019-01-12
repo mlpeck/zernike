@@ -25,6 +25,9 @@ phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
 # target SA coefficients for numerical null.
 
 sa.t <- sconic(diam,roc,lambda=wavelength)
+zopt <- get_zoptions()
+zopt$plots <- FALSE
+zopt$satarget <- sa.t
 
 # print it
 
@@ -40,7 +43,7 @@ mtext("Sample Interferogram")
 # this does the psi fit, and displays the results
 cat("Performing PSI analysis. Please wait...\n")
 flush.console()
-psfit <- psifit(images,phases,satarget=sa.t,zlist=makezlist(2,14), plots=FALSE)
+psfit <- psifit(images, phases, psialg="ls", options=zopt)
 
 # what's stored in psfit
 
@@ -57,7 +60,7 @@ psfit$fit[-1]*zmult(makezlist(2,14))
 # phase map
 
 if (tolower(.Platform$OS.type) == "windows") windows() else x11()
-mtext(paste("Wrapped phase map -", rmap(psfit$phase, plot=TRUE), "corrupted pixels", sep=" "))
+mtext(paste("Wrapped phase map -", rmap(psfit$phi, plot=TRUE), "corrupted pixels", sep=" "))
 
 # display the smoothed wavefront, and show some summary information
 

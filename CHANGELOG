@@ -569,3 +569,9 @@
 ## 20190104
 ##
 ## added variable defocus to tiltpsi
+
+## 20190110
+##
+## C++ rewrite of tiltpsi
+## new "high level" psi fitting routine
+## one more R source file split

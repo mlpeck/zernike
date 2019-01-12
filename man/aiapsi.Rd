@@ -1,42 +1,42 @@
 \name{aiapsi}
 \alias{aiapsi}
+\alias{aiapsiC}
 \alias{hkpsi}
 \alias{tiltpsi}
+\alias{tiltpsiC}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Iterative algorithms for PSI with unknown phase shifts}
 \description{Three iterative algorithms for PSI with unknown phase shifts.}
 \usage{
-aiapsi(im.mat, phases, maxiter = 20, ptol = 0.001,
-  trace = 1, plotprogress = TRUE)
+aiapsi(im.mat, phases, ptol = 0.001, maxiter=20, trace=1)
+aiapsiC(im.mat, phases_init, ptol, maxiter, trace)
 hkpsi(im.mat, phases, maxiter = 20, ptol = 0.001,
   trace = 1, plotprogress = TRUE)
-tiltpsi(im.mat, phases, x, y, tilts = NULL, nlpref = 1, tlim = 0.5,
-  maxiter = 20, ptol = 0.001, trace = 1, plotprogress=TRUE)
+tiltpsi(im.mat, phases, coords, ptol = 0.01, maxiter = 20, trace = 1)
+tiltpsiC(im.mat, phases, coords, ptol, maxiter, trace)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{im.mat}{a \emph{matrix} of interferogram values}
   \item{phases}{Starting guess for phase shifts}
-  \item{maxiter}{Maximum number of iterations}
   \item{ptol}{Convergence criterion for phase shifts}
-  \item{trace}{Print some summary data every trace'th iteration.}
+  \item{maxiter}{Maximum number of iterations}
+  \item{trace}{Boolean: Print some summary data at each iteration.}
   \item{plotprogress}{Plot some summary data for each iteration?}
 
-  Also, for \code{tiltpsi}
+  Also, for \code{tiltpsi} and \code{tiltpsiC}
+  
+  \item{coords}{Low order Zernike polynomial matrix}
 
-  \item{x}{x coordinate for each pixel.}
-  \item{y}{y coordinate for each pixel.}
-  \item{tilts}{Starting guess for tilts.}
-  \item{nlpref}{Preferred nonlinear optimizer.}
-  \item{tlim}{Maximum tilt difference from overall tilt values.}
 }
 \details{
-The default of \code{tilts = NULL} will set the starting guess
-for all tilts to 0.
-
-\code{nlpref} picks the preferred nonlinear optimizer in function \code{tiltpsi}.
-The default choice uses the base package function \code{nlminb}. If \code{nlpref > 1}
-the function \code{solnp} from package \code{Rsolnp} is used instead.
+  The ``variable tilt`` algorithm now allows an indefinite number of low order Zernike terms to be
+  variable between phase steps. \code{coords} can be created with \code{\link{zpm}} setting \code{maxorder}
+  to a small value, say 4, discarding the first (dc) column and retaining as many as desired. There must be at least
+  two columns for tilts. The third will be defocus, the next two astigmatism, the next two primary coma, ...
+  
+  \code{aiapsi} and \code{tiltpsi} are wrappers for the calls to the C++ code in \code{aiapsiC} and \code{tiltpsiC}
+  with sensible defaults for \code{ptol}, \code{maxiter}, and \code{trace}.
 }
 \value{
 	A list containing the following elements:
@@ -47,7 +47,8 @@ the function \code{solnp} from package \code{Rsolnp} is used instead.
 	\item{sse}{Sum squared error at each iteration.}
 
 	Also, for \code{tiltpsi}
-	\item{tilts}{Final tilt estimates, given as offsets from frame 1 tilts.}
+	\item{zcs}{Matrix of Zernike coefficients, with one row for each column in \code{coords} and number of
+	           columns = number of columns of im.mat.}
 }
 \references{
 Zhaoyang Wang and Bongtae Han,
@@ -65,6 +66,6 @@ OSA conference Optical Fabrication and Testing 2010.
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
 
 \seealso{
-  \code{\link{itfit}}
+  \code{\link{psifit}}
 }
 \keyword{mathematics}

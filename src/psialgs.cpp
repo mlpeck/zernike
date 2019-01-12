@@ -10,6 +10,16 @@
 using namespace Rcpp;
 using namespace arma;
 
+/************
+ * 
+ * wrap phase into [-pi, pi)
+ * This is slower than R version
+ * but export it anyway with a different name.
+ * 
+*/
+
+//[[Rcpp::export]]
+
 mat pwrap(const mat& phase) {
   uword nr = phase.n_rows;
   uword nc = phase.n_cols;
@@ -48,9 +58,10 @@ List lspsiC(const mat& images, const rowvec& phases, const vec& wt) {
 }
 
 /***************
+ * 
  * The "Advanced iterative algorithm of Wang & Han 2004
  * As interpreted by ML Peck
- * License: MIT
+ * 
 */
 
 
@@ -62,6 +73,8 @@ List aiapsiC(const mat& images, const rowvec& phases_init, const double& ptol, c
   
   rowvec phases = phases_init - phases_init(0);
   rowvec phases_last = phases_init - phases_init(0);
+  
+  if (phases.n_elem != N) stop("Dimension mismatch");
   
   mat S(3, N);
   mat Phi(M, 3);
@@ -82,13 +95,17 @@ List aiapsiC(const mat& images, const rowvec& phases_init, const double& ptol, c
     // Estimate phase shifts from current estimate of phase.
     // Solves normal equations for speed
     
-    S = pinv(Phi.t() * Phi) * Phi.t() * images;
+    // S = pinv(Phi.t() * Phi) * Phi.t() * images;
+    
+    // Not any more. There's almost no time penalty for doing it right.
+    
+    S = pinv(Phi) * images;
     phases = atan2(S.row(2), S.row(1));
     phases = phases - phases(0);
     sdp = norm(sin(phases-phases_last), 2);
     
     if (trace) {
-      cout << "iteration: "<< i << "sdp = " << sdp << " Phases = " << phases;
+      cout << "iteration: "<< i << " sdp = " << sdp << " Phases = " << phases;
     }
     
     // repeat until convergence
@@ -171,37 +188,3 @@ List gpcapsiC(const mat& images, const double& ptol, const int& maxiter, const b
                       Named("eigen") = square(d_full));
 }
 
-
-
-/********************
- * 
- * the c++ part of tiltpsi
- * now with defocus
- * 
-*/
-
-
-//[[Rcpp::export]]
-
-mat pxls(const mat& im, const vec& delta, const mat& tilt, const vec& df,
-                    const vec& x, const vec& y, const vec& z3) {
-  uword nr = im.n_rows;
-  uword nf = im.n_cols;
-
-  colvec ph(nf);
-  mat A(nf, 3);
-  colvec z(nf);
-  colvec b(3);
-  mat B(nr, 3);
-  
-  for (uword n=0; n<nr; n++) {
-    ph = delta + 4.0 * M_PI * (tilt.col(0) * x(n) + tilt.col(1) * y(n)) + 2.0 * M_PI * df * z3(n);
-    A = join_rows(join_rows(ones(nf), cos(ph)), sin(ph));
-    z = im.row(n).t();
-    b = pinv(A) * z;
-    B.row(n) = b.t();
-  }
-  return B;
-}
-
-  

@@ -7,6 +7,17 @@
 using namespace Rcpp;
 using namespace arma;
 
+// pwrap
+mat pwrap(const mat& phase);
+RcppExport SEXP _zernike_pwrap(SEXP phaseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const mat& >::type phase(phaseSEXP);
+    rcpp_result_gen = Rcpp::wrap(pwrap(phase));
+    return rcpp_result_gen;
+END_RCPP
+}
 // lspsiC
 List lspsiC(const mat& images, const rowvec& phases, const vec& wt);
 RcppExport SEXP _zernike_lspsiC(SEXP imagesSEXP, SEXP phasesSEXP, SEXP wtSEXP) {
@@ -49,23 +60,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// pxls
-mat pxls(const mat& im, const vec& delta, const mat& tilt, const vec& df, const vec& x, const vec& y, const vec& z3);
-RcppExport SEXP _zernike_pxls(SEXP imSEXP, SEXP deltaSEXP, SEXP tiltSEXP, SEXP dfSEXP, SEXP xSEXP, SEXP ySEXP, SEXP z3SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const mat& >::type im(imSEXP);
-    Rcpp::traits::input_parameter< const vec& >::type delta(deltaSEXP);
-    Rcpp::traits::input_parameter< const mat& >::type tilt(tiltSEXP);
-    Rcpp::traits::input_parameter< const vec& >::type df(dfSEXP);
-    Rcpp::traits::input_parameter< const vec& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const vec& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const vec& >::type z3(z3SEXP);
-    rcpp_result_gen = Rcpp::wrap(pxls(im, delta, tilt, df, x, y, z3));
-    return rcpp_result_gen;
-END_RCPP
-}
 // readraw
 NumericMatrix readraw(CharacterVector fname, NumericVector channels);
 RcppExport SEXP _zernike_readraw(SEXP fnameSEXP, SEXP channelsSEXP) {
@@ -88,6 +82,46 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     rcpp_result_gen = Rcpp::wrap(rzernike(rho, n, m));
+    return rcpp_result_gen;
+END_RCPP
+}
+// res_frame
+vec res_frame(const vec& pars, const List& adata);
+RcppExport SEXP _zernike_res_frame(SEXP parsSEXP, SEXP adataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const vec& >::type pars(parsSEXP);
+    Rcpp::traits::input_parameter< const List& >::type adata(adataSEXP);
+    rcpp_result_gen = Rcpp::wrap(res_frame(pars, adata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// jac_frame
+mat jac_frame(const vec& pars, const List& adata);
+RcppExport SEXP _zernike_jac_frame(SEXP parsSEXP, SEXP adataSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const vec& >::type pars(parsSEXP);
+    Rcpp::traits::input_parameter< const List& >::type adata(adataSEXP);
+    rcpp_result_gen = Rcpp::wrap(jac_frame(pars, adata));
+    return rcpp_result_gen;
+END_RCPP
+}
+// tiltpsiC
+List tiltpsiC(const mat& images, const rowvec& phases_init, const mat& coords, const double& ptol, const int& maxiter, const bool& trace);
+RcppExport SEXP _zernike_tiltpsiC(SEXP imagesSEXP, SEXP phases_initSEXP, SEXP coordsSEXP, SEXP ptolSEXP, SEXP maxiterSEXP, SEXP traceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const mat& >::type images(imagesSEXP);
+    Rcpp::traits::input_parameter< const rowvec& >::type phases_init(phases_initSEXP);
+    Rcpp::traits::input_parameter< const mat& >::type coords(coordsSEXP);
+    Rcpp::traits::input_parameter< const double& >::type ptol(ptolSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type trace(traceSEXP);
+    rcpp_result_gen = Rcpp::wrap(tiltpsiC(images, phases_init, coords, ptol, maxiter, trace));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -115,12 +149,15 @@ RcppExport void read_tiff_img_info(void *, void *, void *, void *, void *);
 RcppExport void resize_image(void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_zernike_pwrap", (DL_FUNC) &_zernike_pwrap, 1},
     {"_zernike_lspsiC", (DL_FUNC) &_zernike_lspsiC, 3},
     {"_zernike_aiapsiC", (DL_FUNC) &_zernike_aiapsiC, 5},
     {"_zernike_gpcapsiC", (DL_FUNC) &_zernike_gpcapsiC, 4},
-    {"_zernike_pxls", (DL_FUNC) &_zernike_pxls, 7},
     {"_zernike_readraw", (DL_FUNC) &_zernike_readraw, 2},
     {"_zernike_rzernike", (DL_FUNC) &_zernike_rzernike, 3},
+    {"_zernike_res_frame", (DL_FUNC) &_zernike_res_frame, 2},
+    {"_zernike_jac_frame", (DL_FUNC) &_zernike_jac_frame, 2},
+    {"_zernike_tiltpsiC", (DL_FUNC) &_zernike_tiltpsiC, 6},
     {"_zernike_zpmC", (DL_FUNC) &_zernike_zpmC, 3},
     {NULL, NULL, 0}
 };

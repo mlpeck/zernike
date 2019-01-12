@@ -29,11 +29,13 @@ phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
 # target SA coefficients for numerical null.
 
 sa.t <- sconic(diam,roc,lambda=wavelength)
-
+zopt <- get_zoptions()
+zopt$plots <- FALSE
+zopt$satarget <- sa.t
 
 cat("Performing PSI analysis. Please wait...\n")
 flush.console()
-system.time(psfit <- psifit(images,phases, satarget=sa.t,plots=FALSE))
+system.time(psfit <- psifit(images, phases, psialg="ls", options=zopt))
 
 cat("Zernike fit to wavefront from PSI analysis\n")
 flush.console()
@@ -42,7 +44,7 @@ plot(psfit$wf.smooth)
 mtext(paste("RMS =",format(pupilrms(psfit$wf.smooth),digits=3)))
 
 cat("Performing PCA analysis. Please wait...\n")
-system.time(pcfit <- pcafit(images, cp=psfit$cp, satarget=sa.t, plots=FALSE))
+system.time(pcfit <- psifit(images, phases, cp=psfit$cp, psialg="pc1", options=zopt))
 
 cat("Wavefront from PCA routine\n")
 flush.console()
@@ -52,8 +54,7 @@ plot(pcfit$wf.smooth)
 mtext(paste("RMS =",format(pupilrms(pcfit$wf.smooth),digits=3)))
 
 cat("Performing 'Advanced iterative algorithm'. Please wait...\n")
-system.time(aifit <- itfit(images, phases=pcfit$phases, cp=psfit$cp, satarget=sa.t,
-  plots=FALSE, trace=1))
+system.time(aifit <- psifit(images, phases=pcfit$phases, cp=psfit$cp, psialg="aia", options=zopt))
 
 cat("Wavefront from 'AIA'\n")
 flush.console()
@@ -98,5 +99,4 @@ close.screen(all.screens=TRUE)
 
 #clean up
 rm(im.mat, im.svd, pcs)
-
 

@@ -13,13 +13,13 @@ lspsi <- function(images, phases, wt=rep(1, length(phases))) {
 
 ## Vargas et al.'s (2011) Principal Components method
 
-pcapsi <- function(im.mat, BGSUB=TRUE, diagpos="v") {
-    if (BGSUB) im.mat <- im.mat-rowMeans(im.mat)
+pcapsi <- function(im.mat, bgsub=TRUE, group_diag="v") {
+    if (bgsub) im.mat <- im.mat-rowMeans(im.mat)
 
 	# svd of the crossproduct is faster!
 	
     svd.cp <- svd(crossprod(im.mat))
-    if (tolower(diagpos) == "v") {
+    if (tolower(group_diag) == "v") {
         ph <- atan2(svd.cp$v[,2]*sqrt(svd.cp$d[2]),svd.cp$v[,1]*sqrt(svd.cp$d[1]))
         u <- im.mat %*% (svd.cp$u[,1:2] %*% diag(1/sqrt(svd.cp$d[1:2])))
     } else {
@@ -123,101 +123,10 @@ hkpsi <- function(im.mat, phases,
 	list(phi=phi, mod=mod/max(mod), phases=phases, iter=i, sse=sse)
 }
 
-## PSI with variable tilt and defocus
+## tiltpsi (new version)
 
-tiltpsi <- function(im.mat, phases, x, y, rho, tilts = NULL,
-              tlim=0.5, dflim=1., maxiter=20, ptol=0.001, trace=1, plotprogress=TRUE) {
-  M <- nrow(im.mat)
-  nf <- ncol(im.mat)
-  phases <- wrap(phases-phases[1])
-  z3 <- sqrt(2)*(2*rho^2-1)
-  gotfirst <- FALSE
-
-  # if no guess at tilts set them to 0 and calculate the phase the fast way
-  
-  if (is.null(tilts)) {
-    tilts <- matrix(0, nf, 2)
-    X <- cbind(rep(1,nf), cos(phases), sin(phases))
-    X <- X %*% solve(crossprod(X))
-    B <- im.mat %*% X
-    gotfirst <- TRUE
-  }
-  tilts[,1] <- tilts[,1]-tilts[1,1]
-  tilts[,2] <- tilts[,2]-tilts[1,2]
-  df <- numeric(nf)
-
-  res_frame <- function(pt, im, phi, x, y, z3, abar, bbar) {
-    ph.xy <- pt[1] + 4*pi*(pt[2]*x+pt[3]*y) + 2*pi*pt[4]*z3
-    im-abar-bbar*cos(phi+ph.xy)
-  }
- 
-  pt.last <- cbind(phases, 2*pi*tilts, 2*pi*df)
-  sse <- numeric(maxiter+1)
-  sse.last <- 0
-
-  for (i in 1:maxiter) {
-    if ((i>1) || !gotfirst) B <- pxls(im.mat, phases, tilts, df, x, y, z3)
-
-    # first column of B contains the background estimate; next two the components of phase
-    # note: either mean or median seem to work here
-
-    abar <- mean(B[,1])
-    bbar <- mean(sqrt(B[,2]^2+B[,3]^2))
-    phi <- atan2(-B[,3], B[,2])
-    sse[i] <- 0
-
-    # minpack's Levenberg-Marquardt solver is way faster than general purpose optimizer
-    
-    for (n in 1:nf) {
-      smin <- minpack.lm::nls.lm(par=c(phases[n], tilts[n,], df[n]),
-                                 lower=c(-2*pi, -tlim, -tlim, -dflim),
-                                 upper=c(2*pi, tlim, tlim, dflim),
-                                 fn=res_frame,
-                                 im=im.mat[,n],phi=phi,x=x,y=y,z3=z3,abar=abar,bbar=bbar)
-      if (smin$info >=1 & smin$info <= 3) {
-        smin$convergence <- 0
-      } else {
-        smin$convergence <- 1
-      }
-      sse[i] <- sse[i] + smin$deviance
-      phases[n] <- smin$par[1]
-      tilts[n,] <- smin$par[2:3]
-      df[n] <- smin$par[4]
-      if(smin$convergence > 0) warning("Convergence reported failed")
-    }
-
-    # the tilts and phase shifts are offset from frame 1
-    
-    tilts[,1] <- tilts[,1]-tilts[1,1]
-    tilts[,2] <- tilts[,2]-tilts[1,2]
-    df <- df - df[1]
-    phases <- wrap(phases-phases[1])
-    pt <- cbind(phases, 2*pi*tilts, 2*pi*df)
-    dp <- sqrt(sum(diag(crossprod(pt-pt.last))))/(3*nf)
-    pt.last <- pt
-    if (plotprogress) {
-        if (i ==1) {
-            sse.1 <- sse[1]
-            plot(1:maxiter, 1:maxiter, ylim=c(ptol, 1), type="n",
-              xlab="Iteration", ylab="", log="y")
-        }
-        points(i, sse[i]/sse.1, pch=1)
-        points(i, dp, pch=2, col="green")
-    }
-
-    # this is slow, so it's best to print out some intermediate results so
-    # the user knows something is happening.
-
-    if (trace != 0) print(paste("Iteration",i, "sse", format(sse[i], digits=2),
-      "delta sse",format((sse[i]-sse.last)/sse.last, digits=2),
-      "dp =", format(dp, digits=3)))
-    if (dp < ptol) break
-    sse.last <- sse[i]
-  }
-  B <- pxls(im.mat, phases, tilts, df, x, y, z3)
-  phi <- atan2(-B[,3], B[,2])
-  mod <- sqrt(B[,2]^2+B[,3]^2)
-  list(phi=phi,mod=mod/max(mod),phases=phases,tilts=tilts,df=df,iter=i,sse=sse)
-
+tiltpsi <- function(im.mat, phases, coords,
+       		    ptol=0.01, maxiter=20, trace=1) {
+  tiltpsiC(im.mat, phases, coords, ptol, maxiter, trace)
 }
 

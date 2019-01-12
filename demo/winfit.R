@@ -29,6 +29,9 @@ sa.t <- sconic(diam,roc,lambda=wavelength)
 
 }
 
+zopt <- get_zoptions()
+zopt$plots <- FALSE
+zopt$satarget <- sa.t
 
 n.w <- dim(images)[3]-frames.per.cycle+1
 zlist <- makezlist(2,14)
@@ -38,7 +41,7 @@ for (i in 1:n.w) {
   # fit each cycle
 	if (tolower(.Platform$OS.type) == "windows") windows() else x11()
     temp <- psifit(images[,,i:(i+frames.per.cycle-1)],
-      phases[1:frames.per.cycle],satarget=sa.t,zlist=zlist)
+      phases[1:frames.per.cycle],psialg="ls", options=zopt)
   # this assigns the fit to an object named psfit.1, etc.
     assign(paste("psfit", i, sep="."), temp)
   # get some information about the fit and store it in a matrix
