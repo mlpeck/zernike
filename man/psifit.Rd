@@ -68,4 +68,34 @@ A list with the following components
   \code{\link{pcapsi}}
   
 }
+\examples{
+  ## reuse the files from the demo for an example of two stage fitting
+  ## using gpca then tiltpsi
+require(zernike)
+fpath <- file.path(find.package(package="zernike"), "psidata")
+files <- scan(file.path(fpath, "files.txt"), what="character")
+for (i in 1:length(files)) files[i] <- file.path(fpath, files[i])
+
+# load the images into an array
+
+images <- load.images(files)
+
+# parameters for this run
+
+source(file.path(fpath, "parameters.txt"))
+
+# phase shifts
+
+phases <- wrap((0:(dim(images)[3]-1))/frames.per.cycle*2*pi)
+phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
+
+# target SA coefficients for numerical null.
+
+sa.t <- sconic(diam,roc,lambda=wavelength)
+zopt <- get_zoptions()
+zopt$satarget <- sa.t
+zopt$ptol <- 0.01
+tfit <- psifit(images, phases, psialg="gpcthentilt", options=zopt)
+}
+
 \keyword{Models}

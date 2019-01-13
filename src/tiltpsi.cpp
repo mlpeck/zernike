@@ -177,9 +177,9 @@ mat pwrap(const mat& phase) {
 
 List tiltpsiC(const mat& images, const rowvec& phases_init, const mat& coords,
               const double& ptol, const int& maxiter, const bool& trace) {
-  int N = images.n_cols;
+  uword N = images.n_cols;
   uword M = images.n_rows;
-  int np = coords.n_cols + 1;
+  uword np = coords.n_cols + 1;
   
   if (np < 3) stop("It doesn't make sense to use this algorithm without at least variable tilts.\nUse AIA or PC instead");
   if (phases_init.n_elem != N) stop("# phases must match # of images");

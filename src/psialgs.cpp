@@ -19,8 +19,8 @@ using namespace arma;
 //[[Rcpp::export]]
 
 List lspsiC(const mat& images, const rowvec& phases, const vec& wt) {
-  int nf = images.n_cols;
-  int np = images.n_rows;
+  uword nf = images.n_cols;
+  uword np = images.n_rows;
   
   if (phases.n_elem != nf || wt.n_elem != nf) stop("Dimension mismatch");
   mat S = join_cols(join_cols(ones<rowvec>(nf), cos(phases)), sin(phases));
