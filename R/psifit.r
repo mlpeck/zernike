@@ -1,15 +1,19 @@
-psfit_options <- list(refine=TRUE, puw_alg = "qual", fringescale=1,
+psfit_options <- function(refine=TRUE, puw_alg = "qual", fringescale=1,
+                    wt=NULL, bgsub=TRUE,
                     maxiter=20, ptol=1.e-4, trace=1, nzcs = 2,
                     zc0=c(1:3, 6:7),
                     satarget=c(0,0), astig.bath=c(0,0),
                     maxorder=14, uselm=FALSE, sgs=1,
-                    plots=TRUE, crop=FALSE, colors=topo.colors(256))
-
-get_zoptions <- function() {
-  psfit_options
+                    plots=TRUE, crop=FALSE, colors=topo.colors(256)) {
+  list(refine=refine, puw_alg=puw_alg, fringescale=fringescale,
+       wt=wt, bgsub=bgsub,
+       maxiter=maxiter, ptol=ptol, trace=trace, nzcs=nzcs,
+       zc0=zc0, satarget=satarget, astig.bath=astig.bath,
+       maxorder=maxorder, uselm=uselm, sgs=sgs,
+       plots=plots, crop=crop, colors=colors)
 }
-                                      
-psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options=psfit_options) {
+
+psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options=psfit_options()) {
   dims <- dim(images)
   nr <- dims[1]
   nc <- dims[2]
@@ -20,7 +24,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
   }
   refine <- options$refine
   if (length(phases) < nf) {
-    phases <- wrap((0:nf) * phases[1])
+    phases <- wrap((0:(nf-1)) * phases[1])
   }
   if (!is.null(cp)) {
     prt <- pupil.rhotheta(nr, nc, cp)
@@ -232,7 +236,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
   class(wf.raw) <- "pupil"
   wfnets <- wf_net(wf.raw, cp, options)
   if(length(psfit) > 3) extras <- psfit[4:length(psfit)]
-  list(phi=phi, mod=mod, phases=phases, cp=cp.orig,
+  list(phi=phi, mod=mod, phases=wrap(as.vector(phases)), cp=cp.orig,
        wf.net=wfnets$wf.net, wf.smooth=wfnets$wf.smooth,wf.residual=wfnets$wf.residual,
        fit=wfnets$fit, zcoef.net=wfnets$zcoef.net, extras=extras)
 }

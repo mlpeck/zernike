@@ -29,7 +29,7 @@ sa.t <- sconic(diam,roc,lambda=wavelength)
 
 }
 
-zopt <- get_zoptions()
+zopt <- psfit_options()
 zopt$plots <- FALSE
 zopt$satarget <- sa.t
 

@@ -7,7 +7,7 @@
   phase shifted interferograms.
 }
 \usage{
-psifit(images, phases, cp = NULL, satarget = NULL, psialg = "ls", options = psfit_options)
+psifit(images, phases, cp = NULL, satarget = NULL, psialg = "ls", options = psfit_options())
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -92,7 +92,7 @@ phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
 # target SA coefficients for numerical null.
 
 sa.t <- sconic(diam,roc,lambda=wavelength)
-zopt <- get_zoptions()
+zopt <- psfit_options()
 zopt$satarget <- sa.t
 zopt$ptol <- 0.01
 tfit <- psifit(images, phases, psialg="gpcthentilt", options=zopt)

@@ -575,3 +575,9 @@
 ## C++ rewrite of tiltpsi
 ## new "high level" psi fitting routine
 ## one more R source file split
+
+## 20190221
+##
+## minor fixes to psifit
+## psfit_options can get or set options for psifit
+
