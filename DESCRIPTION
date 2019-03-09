@@ -1,6 +1,6 @@
 Package: zernike
 Title: Zernike Polynomials
-Version: 3.5.1
+Version: 3.5.2
 Author: M.L. Peck <mpeck1@ix.netcom.com>
 Depends: R (>= 3.5.0)
 Suggests: pixmap, rgl, Rsolnp,
