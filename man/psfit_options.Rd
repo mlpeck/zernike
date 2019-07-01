@@ -35,7 +35,7 @@ Get and optionally set parameters controlling various aspects of PSI algorithms,
   
   Parameters you might want to change include:
   
-  \code{zc0} sets the target SA for ``numerical nulling.`` This is a vector of length 2 setting the target values of primary and 5th order SA.
+  \code{satarget} sets the target SA for ``numerical nulling.`` This is a vector of length 2 setting the target values of primary and 5th order SA.
   
   \code{ptol} sets convergence tolerances for iterative PSI algorithms. These have different definitions and different
   values may be suitable for different algorithms. A value around 0.01 is appropriate for \code{\link{tiltpsi}}.

@@ -135,13 +135,14 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
                        maxiter=maxiter, ptol=ptol, trace=trace);
       phases <- psfit$phases;
     },
-    { ## if no choice to ls
+    { ## if no match to ls
       if (is.null(options$wt)) {
         wt <- rep(1, nf)
       } else {
         wt <- options$wt
       };
       psfit <- lspsiC(im.mat, phases, wt);
+      extras <- NULL
     }
   )
   phi <- matrix(NA, nr, nc)
@@ -153,64 +154,64 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
     mod <- matrix(psfit$mod, ncol=nc)
     cp <- circle.pars(mod, plot=options$plots, ask=FALSE)
     prt <- pupil.rhotheta(nr, nc, cp)
-    if (refine) {
-      mask <- as.vector(prt$rho)
-      im.mat <- matrix(images, ncol=nf)
-      im.mat <- im.mat[!is.na(mask),]
-      switch(psialg,
-        ls = {
-          mask <- numeric(nr*nc)
-        },
-        aia = {
-          psfit <- aiapsiC(im.mat, phases, ptol, maxiter, trace);
-          phases <- psfit$phases;
-        },
-        pc1 = {
-          psfit <- pcapsi(im.mat, bgsub, group_diag);
-          phases <- psfit$phases
-        },
-        pc2 = {
-          psfit <- pcapsi(im.mat, bgsub, group_diag);
-          phases <- psfit$phases
-        },
-        gpc = {
-          psfit <- gpcapsiC(im.mat, ptol, maxiter, trace);
-          phases <- psfit$phases
-        },
-        gpcthentilt = ,
-        tilt = {
-          if (is.null(options$ptol)) {
-            ptol <- 0.001
-          } else {
-            ptol <- options$ptol
-          };
-          if (is.null(options$maxiter)) {
-            maxiter <- 20
-          } else {
-            maxiter <- options$maxiter
-          };
-          if (is.null(options$trace)) {
-            trace <- 1
-          } else {
-            trace <- options$trace
-          };
-          if (is.null(options$nzcs)) {
-            nzcs <- 2
-          } else {
-            nzcs <- min(options$nzcs, 8)
-          };
-          rho <- prt$rho;
-          theta <- prt$theta;
-          rho <- rho[!is.na(rho)];
-          theta <- theta[!is.na(theta)];
-          coords <- zpmC(rho, theta, maxorder=4);
-          coords <- coords[, 2:(nzcs+1)]
-          psfit <- tiltpsiC(im.mat, phases, coords,
-                            maxiter=maxiter, ptol=ptol, trace=trace);
-          phases <- psfit$phases;
-        }
-      )
-    }
+  }
+  if (refine || psialg=="gpcthentilt") {
+    mask <- as.vector(prt$rho)
+    im.mat <- matrix(images, ncol=nf)
+    im.mat <- im.mat[!is.na(mask),]
+    switch(psialg,
+      ls = {
+        mask <- numeric(nr*nc)
+      },
+      aia = {
+        psfit <- aiapsiC(im.mat, phases, ptol, maxiter, trace);
+        phases <- psfit$phases;
+      },
+      pc1 = {
+        psfit <- pcapsi(im.mat, bgsub, group_diag);
+        phases <- psfit$phases
+      },
+      pc2 = {
+        psfit <- pcapsi(im.mat, bgsub, group_diag);
+        phases <- psfit$phases
+      },
+      gpc = {
+        psfit <- gpcapsiC(im.mat, ptol, maxiter, trace);
+        phases <- psfit$phases
+      },
+      gpcthentilt = ,
+      tilt = {
+        if (is.null(options$ptol)) {
+          ptol <- 0.001
+        } else {
+          ptol <- options$ptol
+        };
+        if (is.null(options$maxiter)) {
+          maxiter <- 20
+        } else {
+          maxiter <- options$maxiter
+        };
+        if (is.null(options$trace)) {
+          trace <- 1
+        } else {
+          trace <- options$trace
+        };
+        if (is.null(options$nzcs)) {
+          nzcs <- 2
+        } else {
+          nzcs <- min(options$nzcs, 8)
+        };
+        rho <- prt$rho;
+        theta <- prt$theta;
+        rho <- rho[!is.na(rho)];
+        theta <- theta[!is.na(theta)];
+        coords <- zpmC(rho, theta, maxorder=4);
+        coords <- coords[, 2:(nzcs+1)]
+        psfit <- tiltpsiC(im.mat, phases, coords,
+                          maxiter=maxiter, ptol=ptol, trace=trace);
+        phases <- psfit$phases;
+      }
+    )
     phi <- matrix(NA, nr, nc)
     mod <- matrix(0, nr, nc)
     phi[!is.na(mask)] <- psfit$phi
