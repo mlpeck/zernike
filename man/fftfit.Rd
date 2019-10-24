@@ -15,6 +15,7 @@ fftfit(imagedata, cp = NULL,
   \item{sl}{Position of sidelobe in the form c(x,y)}
   \item{filter}{Size of background filter around DC}
   \item{taper}{Size of taper applied to edge of half plane cut}
+  \item{options}{a list of parameters passed to other functions. See \code{\link{psfit_options}}.
 }
 \details{
   If \code{is.null(filter)} (the default), \code{\link{pick.sidelobe}} will

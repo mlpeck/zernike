@@ -33,10 +33,10 @@ idiffpuw(phase, mask = phase, ucall = TRUE, dx = NULL, dy = NULL)
   considerably speed up the algorithm.
 }
 \seealso{
-  \code{\link{rmap}}, \code{\link{brcutpuw}}, \code{\link{modalpuw}}
+  \code{\link{rmap}}, \code{\link{brcutpuw}}
 }
 \note{
-  Both \code{\link{brcutpuw}} and \code{\link{modalpuw}} call \code{\link{rmap}} first to
+  \code{\link{brcutpuw}} calls \code{\link{rmap}} first to
   check for the presence of residues. If there are none \code{idiffpuw}
   is guaranteed to work and is called to do the phase unwrapping.
   

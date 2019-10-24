@@ -1,6 +1,6 @@
 Welcome to my R package for interferogram analysis and manipulation of Zernike polynomials. If you are new to R this README gives installation and basic usage instructions for Windows users. There are a number of required and optional packages to be installed, so please follow these instructions carefully. You need:
 
-* A recent version of R itself (v3.0.0 or later is required). The windows binary installer can be downloaded from http://cran.r-project.org. Installation works like any Windows program -- I like to have the installer create desktop shortcuts and edit its properties to have it start up in the directory where I've stored data. If you are running a 64 bit version of Windows both 32 and 64 bit binaries will be installed. The 64 bit version's performance is slightly better and it can use all available memory, which may be useful if you work with large interferogram images.
+* A recent version of R itself (v3.5.0 or later is required). The windows binary installer can be downloaded from http://cran.r-project.org. Installation works like any Windows program -- I like to have the installer create desktop shortcuts and edit its properties to have it start up in the directory where I've stored data. If you are running a 64 bit version of Windows both 32 and 64 bit binaries will be installed. The 64 bit version's performance is slightly better and it can use all available memory, which may be useful if you work with large interferogram images.
 
 * Download the Windows binary of this package from the [releases](../releases)section. Do not unzip it!
 
@@ -9,6 +9,8 @@ Welcome to my R package for interferogram analysis and manipulation of Zernike p
 * Install the following packages. This can be done with the menu item Packages/Install package(s)... The first time you select this in a session it will prompt you for a mirrored download site. Next it will display a selection box with all available packages. The ones you need are:
 
     + Rcpp. This package also has a large number of dependencies that should be automatically downloaded and installed.
+    
+    + RcppArmadillo. 
     
     + rgl. This package provides interactive 3D graphics and is strictly speaking optional.
 
@@ -25,6 +27,8 @@ demo(winfit, package="zernike", ask=FALSE)
 demo(pcaest, package="zernike", ask=FALSE)
 ```
 These demos illustrate basic PSI analysis, a sliding window analysis of a multiple cycle PSI sequence, and some alternative algorithms for generalized phase shifting interferometry.
+
+* The main PSI analysis routine is `psifit()`. Type `example(psifit)` to see an example of its use. This uses the same data set as the demo programs.
 
 * You can exit R by typing q() or just closing the console window. You will be prompted whether to save the workspace. If you enter y any data in your workspace will be saved in binary format to a file named .RData, and commands entered in the current session will be saved to an ordinary text file named .Rhistory.
 

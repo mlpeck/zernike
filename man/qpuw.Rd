@@ -19,9 +19,8 @@
   New York: Wiley & Sons, Inc., ISBN 0-471-24935-1.
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
-\seealso{\code{\link{idiffpuw}}, \code{\link{brcutpuw}}, 
-   \code{\link{modalpuw}}, \code{\link{lspuw}}}
-\note{
+\seealso{\code{\link{idiffpuw}}, \code{\link{brcutpuw}}} 
+ note{
   This is a straightforward implementation of the quality guided algorithm
   of G&P.
 }

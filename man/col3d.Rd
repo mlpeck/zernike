@@ -12,7 +12,7 @@ col3d(surf, surf.col=topo.colors(256), zlim = NULL, eqa=FALSE)
   \item{surf}{A matrix of surface values}
   \item{surf.col}{Color palette for surface}
   \item{zlim}{Range of values to display}
-  \item{eqa}{Equal area per color}
+  \item{eqa}{Equal area per color?}
 }
 \value{
   A vector of color values the same length as \code{surf}.

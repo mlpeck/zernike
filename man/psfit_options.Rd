@@ -1,7 +1,7 @@
 \name{psfit_options}
 \alias{psfit_options}
 \title{
-Options for package \code{zernike}
+Options for PSI and FFT based fitting routines
 }
 \description{
 Get and optionally set parameters controlling various aspects of PSI algorithms, Zernike polynomial fitting, and data display

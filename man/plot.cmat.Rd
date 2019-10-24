@@ -5,7 +5,7 @@
   Plot a real valued function of a complex matrix
 }
 \usage{
-plot.cmat(X, fn = "Mod", col = topo.colors(256), 
+plot.cmat(X, fn = "Mod", col = grey256, 
 	cp=NULL, zoom=1, gamma=1, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -40,7 +40,7 @@ plot.cmat(X, fn = "Mod", col = topo.colors(256),
   visible.
 }
 \seealso{
-  \code{\link{localize.sidelobe}},
+  \code{\link{pick.sidelobe}},
   \code{\link{fftfit}}.
 }
 \keyword{graphics}

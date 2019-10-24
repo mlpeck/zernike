@@ -5,12 +5,12 @@
 }
 \description{Compute the phase using the Principal components algorithm.}
 \usage{
-pcapsi(im.mat, BGSUB)
+pcapsi(im.mat, bgsub = TRUE, group_diag = "v")
 }
 \arguments{
   \item{im.mat}{A \emph{matrix} of interferogram values}
-  \item{BGSUB}{Logical - subtract the pixelwise mean as background estimate?}
-  \item{diagpos}{controls treatment of singular values of the data matrix}
+  \item{bgsub}{Boolean - subtract the pixelwise mean as background estimate?}
+  \item{group_diag}{controls treatment of singular values of the data matrix}
 }
 \details{Images are input into an array by \code{\link{load.images}}. This must
 be reshaped into a matrix for this function. Also, a mask should be applied if
@@ -37,7 +37,6 @@ J. Vargas, J. Antonio Quiroga, and T. Belenguer,
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
 
 \seealso{
-  \code{\link{pcafit}},
-  \code{\link{wf.net}}
+  \code{\link{psifit}},
 }
 \keyword{mathematics}

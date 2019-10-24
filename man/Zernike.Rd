@@ -50,7 +50,7 @@ drzernike(rho, n, m)
   \code{\link{makezlist}},
   \code{\link{zlist.fr}},
   \code{\link{zmult}},
-  \code{\link{fillzm}},
+  \code{\link{zpm}},
   \code{\link{pupil}},
   \code{\link{pupilrms}},
   \code{\link{pupilpv}},
