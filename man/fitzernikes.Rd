@@ -33,7 +33,6 @@ fitzernikes(wf, rho, theta, phi = 0, maxorder = 14, uselm = FALSE)
 \seealso{
   \code{\link{zpm}},
   \code{\link{psifit}},
-  \code{\link{fftfit}},
-  \code{\link{wf.net}}.
+  \code{\link{fftfit}}.
 }
 \keyword{statistics}

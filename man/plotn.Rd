@@ -10,12 +10,12 @@ plotn(..., labels = NULL, addContours=FALSE, wftype = "net",
 	col = rygcb(400), qt = c(0.01, 0.99))
 }
 \arguments{
-  \item{\dots}{List of wavefront estimates as returned by \code{\link{wf.net}}.
+  \item{\dots}{List of wavefront estimates as returned by \code{\link{wf_net}}.
 }
   \item{labels}{Labels to identify the wavefronts.
 }
   \item{addContours}{Boolean to add contours to top row plots}
-  \item{wftype}{If the inputs are from \code{wf.net}, one of "net", "smooth",
+  \item{wftype}{If the inputs are from \code{wf_net}, one of "net", "smooth",
   "residual".
 }
   \item{col}{Color palette for top row of plot
@@ -25,7 +25,7 @@ plotn(..., labels = NULL, addContours=FALSE, wftype = "net",
 }
 \details{
   \dots can be any number of objects containing wavefront estimates as
-  returned for example by \code{\link{wf.net}}.
+  returned for example by \code{\link{wf_net}}.
 
   Wavefronts are displayed on the top row, and differences of all
   pairs on subsequent rows. Grayscale is used to render the
@@ -38,7 +38,7 @@ plotn(..., labels = NULL, addContours=FALSE, wftype = "net",
 
 \seealso{
   \code{\link{plot.pupil}}
-  \code{\link{wf.net}}
+  \code{\link{wf_net}}
 }
 
 \keyword{Graphics}

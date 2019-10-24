@@ -44,6 +44,6 @@ wrap(phase)
 	with values of +1 or -1.
 }
 \seealso{
-  Called by \code{\link{modalpuw}}, \code{\link{idiffpuw}}, \code{\link{brcutpuw}}.
+  Called by \code{\link{brcutpuw}}.
 }
 \keyword{mathematics}
