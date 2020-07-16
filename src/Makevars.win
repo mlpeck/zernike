@@ -1,10 +1,2 @@
-ifeq "$(WIN)" "64"
-  CXX_STD = CXX11
-  PKG_CPPFLAGS += -std=c++11 -mtune=native -O3 -DLIBRAW_NODLL -DLIBRAW_NOTHREADS -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK -I"c:/rtools/local300/include"
-  PKG_LIBS += -L"c:/rtools/local300/lib/x64" -llapacke -llapack -lrefblas -lraw -ltiff -ljpeg -lm -lgfortran -lquadmath -lz -lws2_32
-else
-  CXX_STD = CXX11
-  PKG_CPPFLAGS += -std=c++11 -mtune=native -O3 -DLIBRAW_NODLL -DLIBRAW_NOTHREADS -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK -I"c:/rtools/local300/include"
-  PKG_LIBS += -L"c:/rtools/local300/lib/i386" -llapacke -llapack -lrefblas -lraw -ltiff -ljpeg -lm -lgfortran -lquadmath -lz -lws2_32
-endif
-
+  PKG_CPPFLAGS += -std=c++11 -mtune=native -O3 -DLIBRAW_NODLL -DLIBRAW_NOTHREADS -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK
+  PKG_LIBS += -llapacke -llapack -lblas -lraw -ltiff -ljpeg -lm -lgfortran -lquadmath -lz -lws2_32

@@ -112,7 +112,6 @@ qpuw <- function(phase, qual) {
     
 brcutpuw <- function(phase, pen=0, details=FALSE) {
 
-    require(zernike)
     require(clue)
 
     ## distance between points specified by their x,y coordinates.
