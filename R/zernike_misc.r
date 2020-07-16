@@ -8,89 +8,11 @@
 
 
 
-## create a unit aperture inside a matrix of arbitrary size
-## note the parameter cp is a list with components (xc, yc, rx, ry, obstruct) as returned by pupil.pars()
 
-pupil <- function(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
-	nrow=256, ncol=nrow, cp=list(xc=128,yc=128,rx=127,ry=127,obstruct=0),
-    obstruct=NULL) {
+## greyscale
 
-    xs <- ((1:nrow)-cp$xc)/cp$rx
-    ys <- ((1:ncol)-cp$yc)/cp$ry
-
-    rhol <- function(x,y) {
-        sqrt(x^2+y^2)
-    }
-
-    rho <- outer(xs,ys,rhol)
-    rho[rho>1] <- NA
-    if (is.null(obstruct)) {
-        rho[rho<cp$obstruct] <- NA
-    } else {
-        rho[rho<obstruct] <- NA
-    }
-    
-    theta <- outer(xs, ys, function(x,y) atan2(y, x))
-    rho.v <- rho[!is.na(rho)]
-    theta.v <- theta[!is.na(rho)]
-    wf.v <- numeric(length(rho.v))
-    if (!is.null(zcoef)) wf.v <- zpm(rho.v, theta.v, phi, maxorder= max(zlist$n)) %*% 
-                            c(0, zcoef)
-    wf <- matrix(NA, nrow=nrow, ncol=ncol)
-    wf[!is.na(rho)] <- wf.v
-    wf <- wf+piston
-    class(wf) <- "pupil"
-    wf
-}
-
-pupil.arb <- function(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
-	nrow=256, ncol=nrow, cp=list(xc=128,yc=128,rx=127,ry=127,obstruct=0),
-    obstruct=NULL) {
-
-    xs <- ((1:nrow)-cp$xc)/cp$rx
-    ys <- ((1:ncol)-cp$yc)/cp$ry
-
-    rhol <- function(x,y) {
-        sqrt(x^2+y^2)
-    }
-
-    rho <- outer(xs,ys,rhol)
-    rho[rho>1] <- NA
-    if (is.null(obstruct)) {
-        rho[rho<cp$obstruct] <- NA
-    } else {
-        rho[rho<obstruct] <- NA
-    }
-
-    theta <- outer(xs, ys, function(x,y) atan2(y, x))
-    rho.v <- rho[!is.na(rho)]
-    theta.v <- theta[!is.na(rho)]
-    wf.v <- numeric(length(rho.v))
-    if (!is.null(zcoef)) wf.v <- zpm.arb(rho.v, theta.v, phi, zlist=zlist) %*% zcoef
-    wf <- matrix(NA, nrow=nrow, ncol=ncol)
-    wf[!is.na(rho)] <- wf.v
-    wf <- wf+piston
-    class(wf) <- "pupil"
-    wf
-}
-
-## estimate of rms over pupil
-
-pupilrms <- function(pupil) {
-    sd(as.vector(pupil), na.rm=TRUE)
-}
-
-## estimate of p-v over pupil
-
-pupilpv <- function(pupil) {
-    max(pupil, na.rm=TRUE) - min(pupil, na.rm=TRUE)
-}
-
-## Mahajan's approximation to Strehl ratio
-
-strehlratio <- function(rms) {
-    exp(-(2*pi*rms)^2)
-}
+grey256 <- gray(seq(0,1,length=256))
+gray256 <- grey256
 
 ## A rainbow that may be better than R's rainbow() color palette
 
@@ -231,17 +153,6 @@ plotxs <- function(wf, cp, theta0=0, ylim=NULL, N=4, n=101,
 
 
 
-## a summary method for pupils
-
-summary.pupil <- function(wf) {
-	cat("Size:   ",nrow(wf), "x",ncol(wf),"\n")
-	cat("RMS    =", format(pupilrms(wf), digits=3), "\n")
-	cat("P-V    =", format(pupilpv(wf), digits=3), "\n")
-	cat("Strehl =", format(strehlratio(pupilrms(wf)), digits=3), "\n")
-}
-
-
-
 
 ## returns cosine and sine components of Bath astigmatism
 
@@ -266,9 +177,6 @@ astig.bath <- function(D, rc, s, lambda=1e-6, phi=0) {
 
 
 ## Star test simulator & support routines
-
-grey256 <- gray(seq(0,1,length=256))
-gray256 <- grey256
 
 ## calculate phase values for wavefront at wavelength lambda
 ## replaces NA values with 0
@@ -534,9 +442,6 @@ synth.interferogram <- function(wf=NULL, zcoef=NULL, zlist=NULL,
     igram
 }
 
-#########
-## Rest are routines for FFT and PSI fringe analysis
-#########
 
 #########
 ## general utilities
@@ -606,126 +511,6 @@ gblur <- function(X, fw = 0, details=FALSE) {
   else return(XP)
 }
  
-
- 
-
-## partial implementation of canny algorithm for edge detection
-##
-## arguments:
-## im - the image to process
-## fw - smoothing parameter for gaussian blur (pixels)
-## qt - threshold for accepting a point as a candidate edge point.
-## excl - number of pixels around edge to exclude. must be >= 1.
-## plots - plot some intermediate results?
-## details - return some extra data for testing purposes.
-
-## there are many online references. Search "canny edge detection" or "canny algorithm".
-
-
-circle.pars <- function(im, fw=2, qt=0.995, excl=5, refine=2,
-  plots=TRUE, ask=TRUE, details=FALSE) {
-	require(MASS)
-	nr <- nrow(im)
-	nc <- ncol(im)
-	if (fw > 0) im <- gblur(im, fw)
-	if (excl < 1) excl <- 1
-	kern.sobel <- rbind(c(-1,-2,-1),c(0,0,0),c(1,2,1))
-	gx <- convolve2d(im, kern.sobel)
-	gy <- convolve2d(im, t(kern.sobel))
-	modg <- sqrt(gx^2+gy^2)
-	modg <- modg/max(modg)
-	dirg <- atan2(gy, gx)
-	
-	# round off directions to 45 degrees
-	
-	dir <- dirg
-	dir[abs(dirg) < 7*pi/8] <- (round(dirg[abs(dirg) < 7*pi/8]*4/pi))
-	dir[abs(dirg) >= 7*pi/8] <- 0
-	dir[dir < 0] <- 4+dir[dir<0]
-	
-	# find local maxima
-	
-	maxima <- NULL
-	
-	for (i in 0:3) {
-		ptsi <- which(dir==i, arr.ind=TRUE)
-		ed <- which(ptsi[,1] <= excl)
-		ed <- c(ed, which(ptsi[,1] >= nr-excl+1))
-		ed <- c(ed, which(ptsi[,2] <= excl))
-		ed <- c(ed, which(ptsi[,2] >= nc-excl+1))
-		if (length(ed) > 0)
-			ptsi <- ptsi[-ed,]
-		nb <- switch(i+1, c(1,0), c(1,1), c(0,1), c(1, -1))
-		ptsp <- t(t(ptsi)+nb)
-		ptsm <- t(t(ptsi)-nb)
-		lm <- which((modg[ptsi] > modg[ptsp]) & (modg[ptsi] > modg[ptsm]))
-		maxima <- rbind(maxima, ptsi[lm,])
-	}
-	
-	# the thinned edges consist of the local maxima in the direction of gradient
-	
-	thin <- matrix(0, nr, nc)
-	thin[maxima] <- modg[maxima]
-	if (plots) image(1:nr, 1:nc, thin, col=grey256, asp=1, xlab="X", ylab="Y", useRaster=TRUE)
-		
-	# the rest differs from published algorithm description. I'm just picking
-	# edge candidates from top qt %-ile, and feeding them to 
-	# lqs -- "robust" least squares routine. This is basically what I did
-	# before.
-	
-	# future: Hough transform?? Probably not.
-	
-	ec <- which(modg[maxima] >= quantile(modg[maxima], probs=qt))
-	maxima <- maxima[ec,]
-	x <- maxima[,1]
-	y <- maxima[,2]
-	r2 <- x^2 + y^2
-	ecm <- lqs(r2~x+y)
-	xc <- coef(ecm)[2]/2
-	yc <- coef(ecm)[3]/2
-	rxy <- sqrt(coef(ecm)[1]+xc^2+yc^2)
-	if (refine > 0) {
-		xr <- (1:nr)-xc
-		yr <- (1:nc)-yc
-		rhod <- round(outer(xr, yr, function(x,y) sqrt(x^2+y^2)))
-		edgec <- which(abs(rhod-rxy) <= refine, arr.ind=TRUE)
-		ec <- which(thin[edgec] > 0)
-		edgec <- edgec[ec,]
-		x <- edgec[,1]
-		y <- edgec[,2]
-		ecm <- nls(0 ~ r^2-(x-xc)^2-(y-yc)^2, start=list(r=rxy, xc=xc, yc=yc),
-		   weights=thin[edgec]^2)
-		xc <- coef(ecm)[2]
-		yc <- coef(ecm)[3]
-		rxy <- coef(ecm)[1]
-	}
-		
-	if (plots) {
-		points(xc, yc, pch=20, col="red")
-		if (ask) readline("Hit <enter> to continue ")
-		points(x,y, pch=".", col="green")
-		if (ask) readline("Hit <enter> to continue ")
-		symbols(xc, yc, circles=rxy, inches=FALSE, add=TRUE, fg="red")
-	}
-	if (details)
-		return(list(cp=list(xc=xc, yc=yc, rx=rxy, ry=rxy, obstruct=0),
-		   modg=modg, thin=thin, maxima=maxima, finaledge=cbind(x,y), lsfit=ecm))
-	else
-		return(list(xc=xc, yc=yc, rx=rxy, ry=rxy, obstruct=0))
-}
-
-pupil.rhotheta <- function(nrow, ncol, cp) {
-	xs <- ((1:nrow)-cp$xc)/cp$rx
-	ys <- ((1:ncol)-cp$yc)/cp$ry
-	rho <- function(x,y) sqrt(x^2+y^2)
-	theta <- function(x,y) atan2(y,x)
-	rho.mat <- outer(xs, ys, rho)
-	theta.mat <- outer(xs,ys,theta)
-	rho.mat[rho.mat>1] <- NA
-	rho.mat[rho.mat<cp$obstruct] <- NA
-	theta.mat[is.na(rho.mat)] <- NA
-	list(rho=rho.mat, theta=theta.mat)
-}
 
 
 ## Plot a complex matrix. 
