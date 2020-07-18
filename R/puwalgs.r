@@ -215,7 +215,7 @@ brcutpuw <- function(phase, pen=0, details=FALSE) {
         ass <- cbind(as.integer(as.vector(yp)), seq_along(yp))
         pecuts <- setdiff(1:ncp, ass[,1])
       }
-      dpcuts <- ass[which(isd[ass]),]
+      dpcuts <- matrix(ass[which(isd[ass]),], ncol=2)
       edgecuts <- ass[which(!isd[ass]),]
       pecuts <- c(pecuts, edgecuts[,1])
       mecuts <- c(mecuts, edgecuts[,2])

@@ -9,12 +9,10 @@
   are also provided.
 }
 \usage{
-pupil(zcoef=NULL, zlist=makezlist(), phi=0, piston=0, 
-	nrow=256, ncol=nrow, cp=list(xc=128,yc=128,rx=127,ry=127,obstruct=0),
-    obstruct=NULL)
+pupil(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
+                  nrow=512, ncol=nrow, cp=list(xc=256,yc=256,rx=255,ry=255,obstruct=0))
 pupil.arb(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
-	nrow=256, ncol=nrow, cp=list(xc=128,yc=128,rx=127,ry=127,obstruct=0),
-    obstruct=NULL)
+                  nrow=512, ncol=nrow, cp=list(xc=256,yc=256,rx=255,ry=255,obstruct=0))
 }
 \arguments{
   \item{zcoef}{A vector of Zernike coefficients}
@@ -30,7 +28,6 @@ pupil.arb(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
     \code{ry} - y radius in pixels,
     \code{obstruct} - central obstruction fraction.
   }
-  \item{obstruct}{Obstruction fraction}
 }
 \details{
   \code{\link{plot.pupil}} and \code{\link{summary.pupil}} provide
@@ -52,7 +49,6 @@ pupil.arb(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
   The parameter \code{cp} is used to define the dimensions of the pupil.
   See \code{\link{pupil.pars}} for details.
   
-  \code{obstruct} is included twice for backward compatability.
 }
 
 \seealso{
