@@ -7,14 +7,33 @@
 using namespace Rcpp;
 using namespace arma;
 
-// pwrap
-mat pwrap(const mat& phase);
-RcppExport SEXP _zernike_pwrap(SEXP phaseSEXP) {
+// id_dxy_uw
+NumericVector id_dxy_uw(const int& nr, const int& nc, const NumericVector& phase, const NumericVector& mask, const NumericVector& dx, const NumericVector& dy, IntegerVector uw);
+RcppExport SEXP _zernike_id_dxy_uw(SEXP nrSEXP, SEXP ncSEXP, SEXP phaseSEXP, SEXP maskSEXP, SEXP dxSEXP, SEXP dySEXP, SEXP uwSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const mat& >::type phase(phaseSEXP);
-    rcpp_result_gen = Rcpp::wrap(pwrap(phase));
+    Rcpp::traits::input_parameter< const int& >::type nr(nrSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nc(ncSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type phase(phaseSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type mask(maskSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type dx(dxSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type dy(dySEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type uw(uwSEXP);
+    rcpp_result_gen = Rcpp::wrap(id_dxy_uw(nr, nc, phase, mask, dx, dy, uw));
+    return rcpp_result_gen;
+END_RCPP
+}
+// id_uw
+NumericVector id_uw(const int& nr, const int& nc, const NumericVector& phase);
+RcppExport SEXP _zernike_id_uw(SEXP nrSEXP, SEXP ncSEXP, SEXP phaseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type nr(nrSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nc(ncSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type phase(phaseSEXP);
+    rcpp_result_gen = Rcpp::wrap(id_uw(nr, nc, phase));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -57,6 +76,20 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type maxiter(maxiterSEXP);
     Rcpp::traits::input_parameter< const bool& >::type trace(traceSEXP);
     rcpp_result_gen = Rcpp::wrap(gpcapsiC(images, ptol, maxiter, trace));
+    return rcpp_result_gen;
+END_RCPP
+}
+// q_uw
+NumericVector q_uw(const int& nr, const int& nc, const NumericVector& phase, const NumericVector& qual);
+RcppExport SEXP _zernike_q_uw(SEXP nrSEXP, SEXP ncSEXP, SEXP phaseSEXP, SEXP qualSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type nr(nrSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nc(ncSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type phase(phaseSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type qual(qualSEXP);
+    rcpp_result_gen = Rcpp::wrap(q_uw(nr, nc, phase, qual));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -109,6 +142,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// pwrap
+mat pwrap(const mat& phase);
+RcppExport SEXP _zernike_pwrap(SEXP phaseSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const mat& >::type phase(phaseSEXP);
+    rcpp_result_gen = Rcpp::wrap(pwrap(phase));
+    return rcpp_result_gen;
+END_RCPP
+}
 // tiltpsiC
 List tiltpsiC(const mat& images, const rowvec& phases_init, const mat& coords, const double& ptol, const int& maxiter, const bool& trace);
 RcppExport SEXP _zernike_tiltpsiC(SEXP imagesSEXP, SEXP phases_initSEXP, SEXP coordsSEXP, SEXP ptolSEXP, SEXP maxiterSEXP, SEXP traceSEXP) {
@@ -139,9 +183,6 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport void id_dxy_uw(void *, void *, void *, void *, void *, void *, void *, void *);
-RcppExport void id_uw(void *, void *, void *, void *);
-RcppExport void q_uw(void *, void *, void *, void *, void *);
 RcppExport void read_jpg_img(void *, void *, void *, void *, void *, void *, void *);
 RcppExport void read_jpg_img_info(void *, void *, void *, void *, void *);
 RcppExport void read_tiff_img(void *, void *, void *, void *, void *, void *, void *);
@@ -149,23 +190,23 @@ RcppExport void read_tiff_img_info(void *, void *, void *, void *, void *);
 RcppExport void resize_image(void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_zernike_pwrap", (DL_FUNC) &_zernike_pwrap, 1},
+    {"_zernike_id_dxy_uw", (DL_FUNC) &_zernike_id_dxy_uw, 7},
+    {"_zernike_id_uw", (DL_FUNC) &_zernike_id_uw, 3},
     {"_zernike_lspsiC", (DL_FUNC) &_zernike_lspsiC, 3},
     {"_zernike_aiapsiC", (DL_FUNC) &_zernike_aiapsiC, 5},
     {"_zernike_gpcapsiC", (DL_FUNC) &_zernike_gpcapsiC, 4},
+    {"_zernike_q_uw", (DL_FUNC) &_zernike_q_uw, 4},
     {"_zernike_readraw", (DL_FUNC) &_zernike_readraw, 2},
     {"_zernike_rzernike", (DL_FUNC) &_zernike_rzernike, 3},
     {"_zernike_res_frame", (DL_FUNC) &_zernike_res_frame, 2},
     {"_zernike_jac_frame", (DL_FUNC) &_zernike_jac_frame, 2},
+    {"_zernike_pwrap", (DL_FUNC) &_zernike_pwrap, 1},
     {"_zernike_tiltpsiC", (DL_FUNC) &_zernike_tiltpsiC, 6},
     {"_zernike_zpmC", (DL_FUNC) &_zernike_zpmC, 3},
     {NULL, NULL, 0}
 };
 
 static const R_CMethodDef CMethods[] = {
-    {"id_dxy_uw",          (DL_FUNC) &id_dxy_uw,          8},
-    {"id_uw",              (DL_FUNC) &id_uw,              4},
-    {"q_uw",               (DL_FUNC) &q_uw,               5},
     {"read_jpg_img",       (DL_FUNC) &read_jpg_img,       7},
     {"read_jpg_img_info",  (DL_FUNC) &read_jpg_img_info,  5},
     {"read_tiff_img",      (DL_FUNC) &read_tiff_img,      7},
@@ -173,7 +214,6 @@ static const R_CMethodDef CMethods[] = {
     {"resize_image",       (DL_FUNC) &resize_image,       7},
     {NULL, NULL, 0, NULL}
 };
-
 
 RcppExport void R_init_zernike(DllInfo *dll) {
     R_registerRoutines(dll, CMethods, CallEntries, NULL, NULL);
