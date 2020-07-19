@@ -41,10 +41,10 @@ rmap <- function(phase, dx=NULL, dy=NULL, plot=FALSE, ...) {
 ## This is called by brcutpuw, or it can be called
 ## directly by the user.
 
-## Note: as of 15 May 2008 the unwrapper is written in C.
+## Note: as of July 2020 the unwrapper is written in C++ using Rcpp.
 ## It's fastest to bypass the computation of dx and dy in R
 ## and unwrap with a call to id_uw.
-## netflowpuw (in lppuw) passes values of dx and dy with ucall==TRUE.
+## netflowpuw (in lppuw, and at present unsupported) passes values of dx and dy with ucall==TRUE.
 ## brcutpuw passes dx and dy with ucall==FALSE.
 ## The call to id_dxy_uw is slower by about 80%.
 
@@ -55,35 +55,34 @@ idiffpuw <- function(phase, mask=phase, ucall=TRUE, dx=NULL, dy=NULL) {
 	
     if (ucall) {
         if (is.null(dx)) {
-            b <- .C(id_uw, as.integer(nr), as.integer(nc), as.double(phase/(2*pi)),
-	           as.double(NA*phase), NAOK=TRUE)
-	           puw <- matrix(b[[4]], nr, nc)
+          puw <- id_uw(as.integer(nr), as.integer(nc), as.vector(phase)/(2*pi))
+          puw <- matrix(puw, nr, nc)
         } else {
-            b <- .C(id_dxy_uw, as.integer(nr), as.integer(nc), as.double(phase/(2*pi)),
-	         as.double(mask), as.double(dx/(2*pi)), as.double(dy/(2*pi)),
-	         as.double(NA*phase), integer(nr*nc), 
-	         NAOK=TRUE)
-            puw <- matrix(b[[7]], nr, nc)
+          puw <- id_dxy_uw(as.integer(nr), as.integer(nc), as.vector(phase)/(2*pi),
+                           as.vector(mask), as.vector(dx/(2*pi)), as.vector(dy/(2*pi)),
+	                   integer(nr*nc))
+          puw <- matrix(puw, nr, nc)
         }
+        puw[is.na(phase)] <- NA
         class(puw) <- "pupil"
-        return(puw)
+        puw
     } else {
-        if (is.null(dx)) dx <- wrap(.fdiff(phase))
-        if (is.null(dy)) dy <- wrap(t(.fdiff(t(phase))))
-        b <- .C(id_dxy_uw, as.integer(nr), as.integer(nc), as.double(phase/(2*pi)), 
-	      as.double(mask), as.double(dx/(2*pi)), as.double(dy/(2*pi)), 
-	      as.double(NA*phase), integer(nr*nc), 
-	      NAOK=TRUE)
-        puw <- matrix(b[[7]], nr, nc)
-        uw <- matrix(as.logical(b[[8]]), nr, nc)
-        class(puw) <- "pupil"
-        return(list(puw=2*pi*puw, uw=uw))
+      if (is.null(dx)) dx <- wrap(.fdiff(phase))
+      if (is.null(dy)) dy <- wrap(t(.fdiff(t(phase))))
+      puw <- id_dxy_uw(as.integer(nr), as.integer(nc), as.vector(phase)/(2*pi),
+                       as.vector(mask), as.vector(dx/(2*pi)), as.vector(dy/(2*pi)),
+	               uw = integer(nr*nc))
+      puw <- matrix(puw, nr, nc)
+      puw[is.na(phase)] <- NA
+      uw <- matrix(as.logical(uw), nr, nc)
+      class(puw) <- "pupil"
+      list(puw=2*pi*puw, uw=uw)
     }
 }
 
 
 ## Quality guided unwrapper.
-## This is mostly a wrapper for a call to the C function "q_uw".
+## This is mostly a wrapper for a call to the C++ function "q_uw".
 
 qpuw <- function(phase, qual) {
     nr <- nrow(phase)
@@ -92,9 +91,9 @@ qpuw <- function(phase, qual) {
     phase <- phase/(2*pi)
     qual[is.na(phase)] <- 0
 	
-    sol <- .C(q_uw, as.integer(nr), as.integer(nc), as.double(phase), as.double(qual),
-		as.double(NA*phase), NAOK=TRUE)
-    puw <- matrix(sol[[5]], nr, nc)
+    puw <- q_uw(as.integer(nr), as.integer(nc), as.vector(phase), as.vector(qual))
+    puw <- matrix(puw, nr, nc)
+    puw[is.na(phase)] <- NA
     class(puw) <- "pupil"
     puw
 }
