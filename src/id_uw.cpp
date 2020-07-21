@@ -10,6 +10,8 @@ using namespace Rcpp;
     todo[ntodo++] = kn;       \
 }
 
+// [[Rcpp::export]]
+
 //' Compiled code via Rcpp for Itoh's method of phase unwrapping
 //' 
 //' Called by [brcutpuw()] for fast phase unwrapping
@@ -30,10 +32,6 @@ using namespace Rcpp;
 //'   and lines of branch cuts
 //' @seealso [brcutpuw()], [idiffpuw()]
 //' @author M.L. Peck (mlpeck54 -at- gmail.com)  
-
-
-// [[Rcpp::export]]
-
 NumericVector id_dxy_uw(const int& nr, const int& nc, 
                         const NumericVector& phase, const NumericVector& mask,
                         const NumericVector& dx, const NumericVector& dy,
@@ -83,6 +81,8 @@ NumericVector id_dxy_uw(const int& nr, const int& nc,
     todo[ntodo++] = kn;       \
 }
 
+// [[Rcpp::export]]
+
 //' Compiled code via Rcpp for Itoh's method of phase unwrapping
 //' 
 //' Called by [idiffpuw()] for fast phase unwrapping
@@ -100,10 +100,6 @@ NumericVector id_dxy_uw(const int& nr, const int& nc,
 //'   and lines of branch cuts
 //' @seealso [brcutpuw()], [idiffpuw()]
 //' @author M.L. Peck (mlpeck54 -at- gmail.com)  
-
-
-// [[Rcpp::export]]
-
 NumericVector id_uw(const int& nr, const int& nc, const NumericVector& phase) {
   size_t len = phase.length();
   NumericVector puw(len);

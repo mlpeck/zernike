@@ -2,7 +2,7 @@ Package: zernike
 Title: Zernike Polynomials
 Version: 3.5.4
 Author: M.L. Peck <mpeck1@ix.netcom.com>
-Depends: R (>= 4.0.0)
+Depends: R (>= 3.6.2)
 Suggests: pixmap, rgl, mvtnorm, clue
 Imports: Rcpp (>= 0.12.0)
 LinkingTo: Rcpp, RcppArmadillo
@@ -10,4 +10,6 @@ Description: Routines for Manipulation of Zernike polynomials and
   Interferogram fringe analysis
 Maintainer: M.L. Peck <mlpeck54@gmail.com>
 License: MIT and GPL
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
