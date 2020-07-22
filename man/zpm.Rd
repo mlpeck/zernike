@@ -10,8 +10,9 @@
   derivatives or gradient.
 }
 \usage{
-zpm(rho, theta, phi= 0 , maxorder = 14)
+zpm(rho, theta, phi= 0 , maxorder = 14, nthreads=parallel::detectCores()/2)
 zpmC(rho, theta, maxorder)
+zpmCP(rho, theta, maxorder)
 zpm.arb(rho, theta, phi = 0, zlist = makezlist())
 filldzm(rho, theta, phi = 0, zlist = makezlist())
 fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
@@ -39,6 +40,7 @@ fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
   
   \code{zpmC} is the C++ routine that does the computations
   for \code{zpm}. No column names are returned.
+  \code{zpmCP} is a threaded version of \code{zpmC}.
   
   \code{fillgradientzm} returns the gradient, in polar
   coordinates, of Zernikes in a \code{2*length(rho)} x

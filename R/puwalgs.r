@@ -46,7 +46,7 @@ rmap <- function(phase, dx=NULL, dy=NULL, plot=FALSE, ...) {
 ## and unwrap with a call to id_uw.
 ## netflowpuw (in lppuw, and at present unsupported) passes values of dx and dy with ucall==TRUE.
 ## brcutpuw passes dx and dy with ucall==FALSE.
-## The call to id_dxy_uw is slower by about 80%.
+## The call to id_dxy_uw is slower by about 40%.
 
 idiffpuw <- function(phase, mask=phase, ucall=TRUE, dx=NULL, dy=NULL) {
 
@@ -69,9 +69,10 @@ idiffpuw <- function(phase, mask=phase, ucall=TRUE, dx=NULL, dy=NULL) {
     } else {
       if (is.null(dx)) dx <- wrap(.fdiff(phase))
       if (is.null(dy)) dy <- wrap(t(.fdiff(t(phase))))
+      uw <- integer(nr*nc)
       puw <- id_dxy_uw(as.integer(nr), as.integer(nc), as.vector(phase)/(2*pi),
                        as.vector(mask), as.vector(dx/(2*pi)), as.vector(dy/(2*pi)),
-	               uw = integer(nr*nc))
+	               uw)
       puw <- matrix(puw, nr, nc)
       puw[is.na(phase)] <- NA
       uw <- matrix(as.logical(uw), nr, nc)
@@ -215,7 +216,7 @@ brcutpuw <- function(phase, pen=0, details=FALSE) {
         pecuts <- setdiff(1:ncp, ass[,1])
       }
       dpcuts <- matrix(ass[which(isd[ass]),], ncol=2)
-      edgecuts <- ass[which(!isd[ass]),]
+      edgecuts <- matrix(ass[which(!isd[ass]),], ncol=2)
       pecuts <- c(pecuts, edgecuts[,1])
       mecuts <- c(mecuts, edgecuts[,2])
       cost.dpcuts <- dpm[dpcuts]

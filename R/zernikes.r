@@ -94,9 +94,14 @@ zpm.arb <- function(rho, theta, phi=0, zlist=makezlist()) {
 
 ## a faster Zernike matrix fill
 
-zpm <- function(rho, theta, phi=0, maxorder = 14) {
+zpm <- function(rho, theta, phi=0, maxorder = 14, nthreads=parallel::detectCores()/2) {
   if (phi != 0) theta <- theta - pi*phi/180
-  zm <- zpmC(rho, theta, maxorder)
+  if (nthreads == 1) {
+    zm <- zpmC(rho, theta, maxorder)
+  } else {
+    RcppParallel::setThreadOptions(numThreads = nthreads)
+    zm <- zpmCP(rho, theta, maxorder)
+  }
   colnames(zm) <- paste("Z",0:(ncol(zm)-1), sep="")
   zm
 }
