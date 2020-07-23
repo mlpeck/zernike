@@ -8,4 +8,5 @@ S3method(wf3d, pupil)
 useDynLib(zernike, .registration=TRUE)
 
 importFrom(Rcpp, evalCpp)
+importFrom(RcppParallel, RcppParallelLibs)
 

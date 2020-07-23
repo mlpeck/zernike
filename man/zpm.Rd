@@ -23,6 +23,7 @@ fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
   \item{phi}{Orientation of the image, in degrees}
   \item{zlist}{A list of indexes, as returned by \code{\link{makezlist}}}
   \item{maxorder}{The maximum Zernike polynomial order}
+  \item{nthreads}{Number of threads for threaded function call}
 }
 \details{
   \code{rho} and \code{theta} must be the same length.
@@ -34,13 +35,9 @@ fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
   evaluated at the polar coordinates
   \code{(rho, theta-pi*phi/180)}.
   
-  \code{zpm} and \code{zpmC} return a matrix of size
+  \code{zpm}, \code{zpmC}, and \code{zpmCP} return a matrix of size
   \code{length(rho)} x \code{(maxorder/2+1)^2}
   of Zernike polynomial values including a piston term.
-  
-  \code{zpmC} is the C++ routine that does the computations
-  for \code{zpm}. No column names are returned.
-  \code{zpmCP} is a threaded version of \code{zpmC}.
   
   \code{fillgradientzm} returns the gradient, in polar
   coordinates, of Zernikes in a \code{2*length(rho)} x
@@ -52,6 +49,13 @@ fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
 \note{
   These are used by various routines to make least squares fits
   of sets of Zernike polynomials to measured wavefront values.
+
+  \code{zpmC} is the C++ routine that does the computations
+  for \code{zpm}. No column names are returned.
+    
+  Threaded computation of the matrix is now available using
+  \code{zpmCP}.
+  
 }
 
 \seealso{

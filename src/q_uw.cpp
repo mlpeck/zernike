@@ -46,8 +46,6 @@ size_t todo_pop(const NumericVector& qual, std::vector<size_t>& todo, size_t& en
   return result;
 }
 
-// [[Rcpp::export]]
-
 //' Compiled code via Rcpp for quality guided phase unwrapping
 //' 
 //' Called by [qpuw()] for fast quality guided phase unwrapping
@@ -64,6 +62,7 @@ size_t todo_pop(const NumericVector& qual, std::vector<size_t>& todo, size_t& en
 //' @seealso [qpuw()], [idiffpuw()]
 //' @author M.L. Peck (mlpeck54 -at- gmail.com)  
 //'   with valuable programming advice from Steve Koehler
+// [[Rcpp::export]]
 NumericVector q_uw(const int& nr, const int& nc, const NumericVector& phase, const NumericVector& qual) {
   size_t len = phase.length();
   NumericVector puw(len);

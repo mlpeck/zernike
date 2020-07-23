@@ -182,6 +182,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// zpmCP
+NumericMatrix zpmCP(NumericVector rho, NumericVector theta, int maxorder);
+RcppExport SEXP _zernike_zpmCP(SEXP rhoSEXP, SEXP thetaSEXP, SEXP maxorderSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< int >::type maxorder(maxorderSEXP);
+    rcpp_result_gen = Rcpp::wrap(zpmCP(rho, theta, maxorder));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport void read_jpg_img(void *, void *, void *, void *, void *, void *, void *);
 RcppExport void read_jpg_img_info(void *, void *, void *, void *, void *);
@@ -203,6 +216,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_zernike_pwrap", (DL_FUNC) &_zernike_pwrap, 1},
     {"_zernike_tiltpsiC", (DL_FUNC) &_zernike_tiltpsiC, 6},
     {"_zernike_zpmC", (DL_FUNC) &_zernike_zpmC, 3},
+    {"_zernike_zpmCP", (DL_FUNC) &_zernike_zpmCP, 3},
     {NULL, NULL, 0}
 };
 
