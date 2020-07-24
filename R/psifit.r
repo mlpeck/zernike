@@ -152,7 +152,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
   if (is.null(cp)) {
     phi <- matrix(psfit$phi, ncol=nc)
     mod <- matrix(psfit$mod, ncol=nc)
-    cp <- circle.pars(mod, plot=options$plots, ask=FALSE)
+    cp <- circle.pars(mod, plot=options$plots)
     prt <- pupil.rhotheta(nr, nc, cp)
   }
   if (refine || psialg=="gpcthentilt") {

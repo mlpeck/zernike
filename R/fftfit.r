@@ -81,7 +81,7 @@ fftfit <- function(imagedata, cp=NULL,
     phase.raw <- Arg(cphase)
     mod.raw <- Mod(cphase)
     mod.raw <- mod.raw/max(mod.raw)
-    if (is.null(cp)) cp <- circle.pars(mod.raw, plot=options$plots, ask=FALSE)
+    if (is.null(cp)) cp <- circle.pars(mod.raw, plot=options$plots)
     cp.orig <- cp
     if (options$crop) {
         mod.raw <- crop(mod.raw, cp)$im

@@ -237,12 +237,12 @@ startest <- function(wf=NULL, zcoef=NULL, zlist=makezlist(), phi=0,
     screens<- split.screen(c(1,3))
 
     if (is.null(wf))
-            wf <- pupil(zcoef=zcoef, zlist=zlist, phi=phi, nrow=nrow, ncol=ncol, cp=cp, obstruct=obstruct)
+            wf <- pupil(zcoef=zcoef, zlist=zlist, phi=phi, nrow=nrow, ncol=ncol, cp=cp)
     else {
             nrow <- nrow(wf)
             ncol <- ncol(wf)
     }
-    wf.df <- pupil(zcoef=c(0,0,1), zlist=makezlist(2,2), nrow=nrow, ncol=ncol, cp=cp, obstruct=obstruct)
+    wf.df <- pupil(zcoef=c(0,0,1), zlist=makezlist(2,2), nrow=nrow, ncol=ncol, cp=cp)
     if (!is.null(obstruct)) wf[is.na(wf.df)] <- NA
 
     lx <- round(2*cp$rx)+1
