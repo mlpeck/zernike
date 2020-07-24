@@ -60,7 +60,7 @@ pupil.pars <- function(im=NULL, obstructed=FALSE) {
 
 
 circle.pars <- function(im, fw=2, qt=0.995, excl=5, refine=2,
-                        plots=TRUE, ask=TRUE, details=FALSE) {
+                        plots=TRUE, details=FALSE) {
   require(MASS)
   nr <- nrow(im)
   nc <- ncol(im)
@@ -146,10 +146,8 @@ circle.pars <- function(im, fw=2, qt=0.995, excl=5, refine=2,
   
   if (plots) {
     points(xc, yc, pch=20, col="red")
-    if (ask) readline("Hit <enter> to continue ")
-      points(x,y, pch=".", col="green")
-      if (ask) readline("Hit <enter> to continue ")
-        symbols(xc, yc, circles=rxy, inches=FALSE, add=TRUE, fg="red")
+    points(x,y, pch=20, col="green")
+    symbols(xc, yc, circles=rxy, inches=FALSE, add=TRUE, fg="red")
   }
   if (details) {
     list(cp=list(xc=xc, yc=yc, rx=rxy, ry=rxy, obstruct=0),
