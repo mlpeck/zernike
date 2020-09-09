@@ -138,7 +138,7 @@ circle.hough <- function(im, fw=2, qt=0.995, excl=5,
   }
   if (details) {
     list(cp=cp, thin=thin, maxima=maxima, dir_edges=dir_edges, 
-         rxy=rxy, acc=acc, centers=centers, rxy_best=rxy_best, rxy_alt=rxy_alt)
+         rxy=rxy, acc=acc, rxy_best=rxy_best, rxy_alt=rxy_alt)
   } else {
     cp
   }

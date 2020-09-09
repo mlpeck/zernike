@@ -10,6 +10,7 @@ psfit_options <- function(refine=TRUE, puw_alg = "qual", fringescale=1,
        maxiter=maxiter, ptol=ptol, trace=trace, nzcs=nzcs,
        zc0=zc0, satarget=satarget, astig.bath=astig.bath,
        maxorder=maxorder, uselm=uselm, sgs=sgs,
+       nthreads=parallel::detectCores()/2,
        plots=plots, crop=crop, colors=colors)
 }
 
@@ -262,7 +263,7 @@ wf_net <- function(wf.raw, cp, options) {
   rho.v <- rho.v[!is.na(wf.v)]
   th.v <- th.v[!is.na(wf.v)]
   wf.v <- wf.v[!is.na(wf.v)]
-  fit <- fitzernikes(wf.v, rho.v, th.v, maxorder=options$maxorder, uselm=options$uselm)
+  fit <- fitzernikes(wf.v, rho.v, th.v, maxorder=options$maxorder, nthreads=options$nthreads, uselm=options$uselm)
   if (options$uselm) {
     cfit <- coef(fit)
   } else {

@@ -102,7 +102,7 @@ fftfit <- function(imagedata, cp=NULL,
     wf.raw <- options$fringescale*wf.raw
     class(wf.raw) <- "pupil"
     wf.nets <- wf_net(wf.raw, cp, options)
-    list(phase=phase.raw, mod=mod.raw, cp=cp,cp.orig=cp.orig,
+    list(phi=phase.raw, mod=mod.raw, cp=cp,cp.orig=cp.orig,
 	  wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
 	  wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net)
 }

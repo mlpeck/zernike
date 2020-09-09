@@ -61,7 +61,6 @@ pupil.pars <- function(im=NULL, obstructed=FALSE) {
 
 circle.pars <- function(im, fw=2, qt=0.995, excl=5, refine=2,
                         plots=TRUE, details=FALSE) {
-  require(MASS)
   nr <- nrow(im)
   nc <- ncol(im)
   if (fw > 0) {
@@ -114,20 +113,30 @@ circle.pars <- function(im, fw=2, qt=0.995, excl=5, refine=2,
   
   # the rest differs from published algorithm description. I'm just picking
   # edge candidates from top qt %-ile, and feeding them to 
+  # nlrob from package robustbase if available or
   # lqs -- "robust" least squares routine. This is basically what I did
   # before.
   
-  # future: Hough transform?? Probably not.
   
   ec <- which(modg[maxima] >= quantile(modg[maxima], probs=qt))
   maxima <- maxima[ec,]
   x <- maxima[,1]
   y <- maxima[,2]
-  r2 <- x^2 + y^2
-  ecm <- lqs(r2~x+y)
-  xc <- coef(ecm)[2]/2
-  yc <- coef(ecm)[3]/2
-  rxy <- sqrt(coef(ecm)[1]+xc^2+yc^2)
+  if (require(robustbase)) {
+    df <- data.frame(x=x, y=y)
+    ecm <- nlrob(0 ~ r^2 - (x-xc)^2 - (y-yc)^2, data=df, 
+                 start=list(r=min(nr,nc)/2, xc=nr/2, yc=nc/2))
+    xc <- coef(ecm)['xc']
+    yc <- coef(ecm)['yc']
+    rxy <- coef(ecm)['r']
+  } else {
+    require(MASS)
+    r2 <- x^2 + y^2
+    ecm <- lqs(r2~x+y)
+    xc <- coef(ecm)[2]/2
+    yc <- coef(ecm)[3]/2
+    rxy <- sqrt(coef(ecm)[1]+xc^2+yc^2)
+  }
   if (refine > 0) {
     xr <- (1:nr)-xc
     yr <- (1:nc)-yc
@@ -139,9 +148,9 @@ circle.pars <- function(im, fw=2, qt=0.995, excl=5, refine=2,
     y <- edgec[,2]
     ecm <- nls(0 ~ r^2-(x-xc)^2-(y-yc)^2, start=list(r=rxy, xc=xc, yc=yc),
                weights=thin[edgec]^2)
-    xc <- coef(ecm)[2]
-    yc <- coef(ecm)[3]
-    rxy <- coef(ecm)[1]
+    xc <- coef(ecm)['xc']
+    yc <- coef(ecm)['yc']
+    rxy <- coef(ecm)['r']
   }
   
   if (plots) {
@@ -150,9 +159,10 @@ circle.pars <- function(im, fw=2, qt=0.995, excl=5, refine=2,
     symbols(xc, yc, circles=rxy, inches=FALSE, add=TRUE, fg="red")
   }
   if (details) {
+    finaledge <- cbind(x,y)
     list(cp=list(xc=xc, yc=yc, rx=rxy, ry=rxy, obstruct=0),
          gx=gx, gy=gy, modg=modg, dirg=dirg,
-         thin=thin, maxima=maxima, finaledge=cbind(x,y), dir_edge=dirg[finaledge],
+         thin=thin, maxima=maxima, finaledge=finaledge, dir_edge=dirg[finaledge],
          lsfit=ecm)
   } else {
     list(xc=xc, yc=yc, rx=rxy, ry=rxy, obstruct=0)

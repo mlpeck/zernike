@@ -29,8 +29,8 @@ load.pgm <- function(files, imdiff=NULL) {
 
 ## load image files (jpeg or tiff format) into an array
 
-load.images <- function(files, names=files, channels=c(1,0,0), scale=1, FLIP=FALSE) {
-    ext <- strsplit(names[1], ".", fixed=TRUE)[[1]]
+load.images <- function(files, channels=c(1,0,0), scale=1, FLIP=FALSE) {
+    ext <- strsplit(files[1], ".", fixed=TRUE)[[1]]
     ext <- tolower(ext[length(ext)])
     switch(ext, jpg = , jpeg = {fn = readjpeg; fromraw=FALSE}, 
       tif = , tiff = {fn=readtiff; fromraw=FALSE},

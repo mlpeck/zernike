@@ -3,8 +3,11 @@
 ##utility function returns true if n-m is odd
 
 .odd <- function(n,m) {
-	if (((n-m)%%2) == 0) return(FALSE)
-	else return(TRUE)
+  if (((n-m)%%2) == 0) {
+    FALSE
+  } else {
+    TRUE
+  }
 }
 
 
@@ -137,8 +140,8 @@ fillgradientzm <- function(rho, theta, phi=0, zlist=makezlist()) {
 
 ## fit zernikes to data
 
-fitzernikes <- function(wf, rho, theta, phi=0, maxorder = 14 , uselm=FALSE) {
-    zm <- zpm(rho, theta, phi=phi, maxorder=maxorder)
+fitzernikes <- function(wf, rho, theta, phi=0, maxorder = 14, nthreads=parallel::detectCores()/2, uselm=FALSE) {
+    zm <- zpm(rho, theta, phi=phi, maxorder=maxorder, nthreads=nthreads)
     zm.names <- colnames(zm)
     if (uselm) {
         fmla <- as.formula(paste("wf ~ -1 + ", paste(zm.names, collapse="+")))
