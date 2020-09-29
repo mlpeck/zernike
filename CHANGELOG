@@ -595,3 +595,12 @@
 ## written in C++
 ##
 ## more file splits to better group routines
+
+## 20200914
+##
+## added argument refinecp to psfit_options()
+## to control refinement step in circle.pars
+##
+## cleaned up fftfit source
+##
+## earlier this summer: added circle.hough
