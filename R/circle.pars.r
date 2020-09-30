@@ -59,7 +59,7 @@ pupil.pars <- function(im=NULL, obstructed=FALSE) {
 ## there are many online references. Search "canny edge detection" or "canny algorithm".
 
 
-circle.pars <- function(im, fw=2, qt=0.995, excl=5, refine=2,
+circle.pars <- function(im, fw=2, qt=0.995, excl=5,
                         plots=TRUE, details=FALSE) {
   nr <- nrow(im)
   nc <- ncol(im)
@@ -137,21 +137,21 @@ circle.pars <- function(im, fw=2, qt=0.995, excl=5, refine=2,
     yc <- coef(ecm)[3]/2
     rxy <- sqrt(coef(ecm)[1]+xc^2+yc^2)
   }
-  if (refine > 0) {
-    xr <- (1:nr)-xc
-    yr <- (1:nc)-yc
-    rhod <- round(outer(xr, yr, function(x,y) sqrt(x^2+y^2)))
-    edgec <- which(abs(rhod-rxy) <= refine, arr.ind=TRUE)
-    ec <- which(thin[edgec] > 0)
-    edgec <- edgec[ec,]
-    x <- edgec[,1]
-    y <- edgec[,2]
-    ecm <- nls(0 ~ r^2-(x-xc)^2-(y-yc)^2, start=list(r=rxy, xc=xc, yc=yc),
-               weights=thin[edgec]^2)
-    xc <- coef(ecm)['xc']
-    yc <- coef(ecm)['yc']
-    rxy <- coef(ecm)['r']
-  }
+#   if (refine > 0) {
+#     xr <- (1:nr)-xc
+#     yr <- (1:nc)-yc
+#     rhod <- round(outer(xr, yr, function(x,y) sqrt(x^2+y^2)))
+#     edgec <- which(abs(rhod-rxy) <= refine, arr.ind=TRUE)
+#     ec <- which(thin[edgec] > 0)
+#     edgec <- edgec[ec,]
+#     x <- edgec[,1]
+#     y <- edgec[,2]
+#     ecm <- nls(0 ~ r^2-(x-xc)^2-(y-yc)^2, start=list(r=rxy, xc=xc, yc=yc),
+#                weights=thin[edgec]^2)
+#     xc <- coef(ecm)['xc']
+#     yc <- coef(ecm)['yc']
+#     rxy <- coef(ecm)['r']
+#   }
   
   if (plots) {
     points(xc, yc, pch=20, col="red")

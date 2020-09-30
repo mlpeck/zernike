@@ -70,5 +70,5 @@ X11()
 cp2 <- circle.hough(tfit$mod, rmin=round(tfit$cp$rx)-10, rmax=round(tfit$cp$rx)+10)
 }
 \seealso{
-[circle.pars()], [pupil.pars()]
+\code{\link[=circle.pars]{circle.pars()}}, \code{\link[=pupil.pars]{pupil.pars()}}
 }

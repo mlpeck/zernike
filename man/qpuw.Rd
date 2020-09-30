@@ -20,7 +20,7 @@
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
 \seealso{\code{\link{idiffpuw}}, \code{\link{brcutpuw}}} 
- note{
+\note{
   This is a straightforward implementation of the quality guided algorithm
   of G&P.
 }

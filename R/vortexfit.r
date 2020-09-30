@@ -1,6 +1,6 @@
-##' Vortex transform
+##' Vortex transform.
 ##' 
-##' Fringe analysis by Vortex aka Spiral Quadrature transform
+##' Fringe analysis by Vortex aka Spiral Quadrature transform.
 ##' 
 ##' @param imagedata matrix containing the interferogram data
 ##' @param cp list with circle parameters describing interferogram location. Defaults to NULL
@@ -8,20 +8,47 @@
 ##' @param fw.o size of gaussian blur to smooth orientation estimate
 ##' @param options A list with general fitting and display options. See [psfit_options()].
 ##' 
-##' @value a list with wavefront estimates, wrapped phase, modulation, etc.
+##' @return a list with wavefront estimates, wrapped phase, modulation, etc.
 ##' 
 ##' @seealso This is one of two routines provided for analysis of single interferograms,
 ##'   along with [fftfit()]. This \emph{may} be suitable for interferograms with
 ##'   closed fringes.
+##'
 ##' @details Implements the Vortex or spiral phase quadrature transform method
 ##'  of Larkin et al. (2001) [https://doi.org/10.1364/JOSAA.18.001862] including the 
 ##'  fringe orientation estimation approach in Larkin (2005) [https://doi.org/10.1364/OPEX.13.008097].
 ##'  Thanks to Steve Koehler for ideas on implementation details.
 ##' 
-##' @section Warning
+##' @section Warning:
 ##'   This routine is offered as is with no license, as it may be in violation of one or more
 ##'   US and international patents.
-vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=2, options=psfit_options()) {
+##'
+##' @examples
+##' require(zernike)
+##' fpath <- file.path(find.package(package="zernike"), "psidata")
+##' fname <- "Image197.jpg"
+##' img <- load.images(file.path(fpath, fname))
+##' 
+##' # parameters for this run
+##' 
+##' source(file.path(fpath, "parameters.txt"))
+##' 
+##' # target SA coefficients for numerical null.
+##' 
+##' sa.t <- sconic(diam,roc,lambda=wavelength)
+##' zopt <- psfit_options()
+##' zopt$satarget <- sa.t
+##' 
+##' # display an interferogram
+##' 
+##' if (tolower(.Platform$OS.type) == "windows") windows() else x11()
+##' image(1:nrow(img), 1:ncol(img), img, col=grey256, asp=1,
+##'  xlab="X", ylab="Y", useRaster=TRUE)
+##' mtext("Sample Interferogram")
+##' 
+##' if (tolower(.Platform$OS.type) == "windows") windows() else x11()
+##' vfit <- vortexfit(img, filter=15, fw.o=10, options=zopt)
+vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=psfit_options()) {
   
   nr <- nrow(imagedata)
   nc <- ncol(imagedata)
@@ -65,7 +92,7 @@ vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=2, options=psfit_opt
   mod <- sqrt(Q^2+(im.nb[1:nr, 1:nc])^2)
   mod <- (mod-min(mod))/(max(mod)-min(mod))
   if (is.null(cp)) {
-    cp <- circle.pars(mod, plot=options$plots, refine=options$refinecp)
+    cp <- circle.pars(mod, plot=options$plots)
   }
   cp.orig <- cp
   if (options$crop) {

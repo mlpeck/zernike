@@ -17,18 +17,18 @@ id_uw(nr, nc, phase)
 a vector with the unwrapped phase
 }
 \description{
-Called by [idiffpuw()] for fast phase unwrapping
+Called by \code{\link[=idiffpuw]{idiffpuw()}} for fast phase unwrapping
 }
 \details{
-This is called by [idiffpuw()] 
-  but is also user callable.
-  Wrapped phase values are divided by \code{2*pi} before input
-  making the input values in the range [-1/2, 1/2).
-  In [brcutpuw()] the mask indicates areas outside the interferogram area
-  and lines of branch cuts
+This is called by \code{\link[=idiffpuw]{idiffpuw()}}
+but is also user callable.
+Wrapped phase values are divided by \code{2*pi} before input
+making the input values in the range [-1/2, 1/2).
+In \code{\link[=brcutpuw]{brcutpuw()}} the mask indicates areas outside the interferogram area
+and lines of branch cuts
 }
 \seealso{
-[brcutpuw()], [idiffpuw()]
+\code{\link[=brcutpuw]{brcutpuw()}}, \code{\link[=idiffpuw]{idiffpuw()}}
 }
 \author{
 M.L. Peck (mlpeck54 -at- gmail.com)

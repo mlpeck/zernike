@@ -4,14 +4,14 @@ psfit_options <- function(colors=topo.colors(256), refine=TRUE, puw_alg = "qual"
                     zc0=c(1:3, 6:7),
                     satarget=c(0,0), astig.bath=c(0,0),
                     maxorder=14, uselm=FALSE, sgs=1,
-                    plots=TRUE, crop=FALSE, refinecp=2) {
+                    plots=TRUE, crop=FALSE) {
   list(colors=colors, refine=refine, puw_alg=puw_alg, fringescale=fringescale,
        wt=wt, bgsub=bgsub,
        maxiter=maxiter, ptol=ptol, trace=trace, nzcs=nzcs,
        zc0=zc0, satarget=satarget, astig.bath=astig.bath,
        maxorder=maxorder, uselm=uselm, sgs=sgs,
        nthreads=parallel::detectCores()/2,
-       plots=plots, crop=crop, refinecp=refinecp)
+       plots=plots, crop=crop)
 }
 
 psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options=psfit_options()) {
@@ -153,7 +153,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
   if (is.null(cp)) {
     phi <- matrix(psfit$phi, ncol=nc)
     mod <- matrix(psfit$mod, ncol=nc)
-    cp <- circle.pars(mod, plot=options$plots, refine=options$refinecp)
+    cp <- circle.pars(mod, plot=options$plots)
     prt <- pupil.rhotheta(nr, nc, cp)
   }
   if (refine || psialg=="gpcthentilt") {

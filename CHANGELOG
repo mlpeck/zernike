@@ -604,3 +604,9 @@
 ## cleaned up fftfit source
 ##
 ## earlier this summer: added circle.hough
+
+## 20200929
+##
+## added vortexfit
+## removed refinecp and implementing code in circle.pars
+## default fitting routine in circle.pars is nlsrob from package robustbase

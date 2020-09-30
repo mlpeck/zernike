@@ -19,17 +19,17 @@ q_uw(nr, nc, phase, qual)
 a vector with the unwrapped phase
 }
 \description{
-Called by [qpuw()] for fast quality guided phase unwrapping
+Called by \code{\link[=qpuw]{qpuw()}} for fast quality guided phase unwrapping
 }
 \details{
-This is called by [qpuw()] but is also user callable.
-  Wrapped phase values are divided by \code{2*pi} before input
-  making the input values in the range [-1/2, 1/2).
+This is called by \code{\link[=qpuw]{qpuw()}} but is also user callable.
+Wrapped phase values are divided by \code{2*pi} before input
+making the input values in the range [-1/2, 1/2).
 }
 \seealso{
-[qpuw()], [idiffpuw()]
+\code{\link[=qpuw]{qpuw()}}, \code{\link[=idiffpuw]{idiffpuw()}}
 }
 \author{
-M.L. Peck (mlpeck54 -at- gmail.com)  
-  with valuable programming advice from Steve Koehler
+M.L. Peck (mlpeck54 -at- gmail.com)
+with valuable programming advice from Steve Koehler
 }
