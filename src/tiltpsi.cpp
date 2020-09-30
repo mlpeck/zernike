@@ -216,7 +216,7 @@ List tiltpsiC(const mat& images, const rowvec& phases_init, const mat& coords,
     adata["bbar"] = bbar;
     adata["phi"] = phi;
     
-    for (int n=0; n<N; n++) {
+    for (uword n=0; n<N; n++) {
       pars(0) = phases(n);
       pars.tail(np-1) = zcs.col(n);
       adata["img"] = images.col(n);

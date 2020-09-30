@@ -5,17 +5,15 @@
   Automatically determine the center and radius of a circular interferogram image.
 }
 \usage{
-circle.pars(im, fw=2, qt=0.995, excl=5, refine=2, 
-    plots=TRUE, ask=TRUE, details=FALSE)
+circle.pars(im, fw=2, qt=0.995, excl=5, 
+    plots=TRUE, details=FALSE)
 }
 \arguments{
   \item{im}{A matrix containing an image of a circular disk}
   \item{fw}{Amount to smooth image}
   \item{qt}{Threshold to accept an edge point, expressed as a quantile}
   \item{excl}{number of pixels around border of frame to exclude}
-  \item{refine}{radius range in pixels for a second pass estimate}
   \item{plots}{Plot edge candidates and fit?}
-  \item{ask}{Wait for input before displaying fit?}
   \item{obstructed}{Logical: is there a central obstruction?}
 }
 \details{
@@ -26,13 +24,8 @@ circle.pars(im, fw=2, qt=0.995, excl=5, refine=2,
   magnitude of the gradient.
   
   The edge pixels with \code{qt} percentile largest gradients
-  are passed to \code{lqs} in package \code{MASS} to determine
+  are passed to \code{nlsrob} in package \code{robustbase} \code{lqs} in package \code{MASS} to determine
   robustly the best fit circle.
-  
-  Finally, if \code{refine > 0}, \emph{all} edge points
-  within +- \code{refine} pixels of the previously determined
-  edge are passed to \code{nls} for a second estimate of
-  center point and radius.
 }
 \value{
   A list with the following components:
