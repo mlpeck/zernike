@@ -26,7 +26,7 @@ typedef struct {vec x; bool convergence; int iter;} lmreturn;
 
 lmreturn mylevmar(vec (*res_fun)(const vec&, const List&),
              mat (*jac_fun)(const vec&, const List&),
-             uword m, int n, vec x0, List adata,
+             uword m, uword n, vec x0, List adata,
              int itmax = 100, vec control= {1.e-3, 2., sqrt(datum::eps), sqrt(datum::eps)}) {
   
   int k=0;
