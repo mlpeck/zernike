@@ -50,7 +50,7 @@ Get and optionally set parameters controlling various aspects of PSI algorithms,
   
   A new and somewhat experimental feature from version 3.6.0 of the package is threaded computation of Zernike polynomial matrices. The number of threads
   used is set with the option \code{nthreads}. The default is to use half the number of cores detected because on CPUs that support multi- or hyperthreading
-  the number of cores reported by \code{detectCores()} is double the number of physical cores. Setting \code{nthreads = 1} will turn off threading. Differeent C++ routines are used for the matrix fill in the unthreaded (\code{\link{zpmC}}) and threaded (\code{\link{zpmCP}}) cases. Speed improvements, if any, may vary.
+  the number of cores reported by \code{detectCores()} is double the number of physical cores. Setting \code{nthreads = 1} will turn off threading. Different C++ routines are used for the matrix fill in the unthreaded (\code{\link{zpmC}}) and threaded (\code{\link{zpmCP}}) cases. Speed improvements, if any, may vary.
 
   If you don't like the default color palette there are many other choices. If you like rainbows \code{\link{rygcb}}
   defined in this package produces a relatively perceptually uniform version that's well suited for display on an RGB monitor.
