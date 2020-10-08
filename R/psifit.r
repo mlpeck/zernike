@@ -4,13 +4,14 @@ psfit_options <- function(colors=topo.colors(256), refine=TRUE, puw_alg = "qual"
                     zc0=c(1:3, 6:7),
                     satarget=c(0,0), astig.bath=c(0,0),
                     maxorder=14, uselm=FALSE, sgs=1,
+                    nthreads=parallel::detectCores()/2,
                     plots=TRUE, crop=FALSE) {
   list(colors=colors, refine=refine, puw_alg=puw_alg, fringescale=fringescale,
        wt=wt, bgsub=bgsub,
        maxiter=maxiter, ptol=ptol, trace=trace, nzcs=nzcs,
        zc0=zc0, satarget=satarget, astig.bath=astig.bath,
        maxorder=maxorder, uselm=uselm, sgs=sgs,
-       nthreads=parallel::detectCores()/2,
+       nthreads=nthreads,
        plots=plots, crop=crop)
 }
 
