@@ -153,24 +153,6 @@ plotxs <- function(wf, cp, theta0=0, ylim=NULL, N=4, n=101,
 
 
 
-
-## returns cosine and sine components of Bath astigmatism
-
-##
-# D = diameter
-# rc = radius of curvature
-# s = beam separation
-# lambda = source wavelength
-# phi = angle from horizontal (degrees)
-##
-
-astig.bath <- function(D, rc, s, lambda=1e-6, phi=0) {
-    astig.tot <- D^2*s^2/(32*sqrt(6)*lambda*rc^3)
-    astig.tot*c(cos(pi*phi/90),sin(pi*phi/90))
-}
-
-
-
 ###########
 ## Various fun stuff
 ###########
