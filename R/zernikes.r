@@ -34,21 +34,6 @@ Zernike <- function(rho, theta, n, m, t) {
 	 s=sqrt(2)*sin(m*theta))
 }
 
-### Radial derivative of zernike polynomial
-
-DZernike <- function(rho, theta, n, m, t) {
-    sqrt(n+1) * drzernike(rho, n, m) * switch(t, n=1, c=sqrt(2)*cos(m*theta),
-	 s=sqrt(2)*sin(m*theta))
-}
-
-### Tangential derivative of zernike polynomial
-
-DTZernike <- function(rho, theta, n, m, t) {
-    if (m == 0) return (rho*0) else
-    sqrt(n+1) * m * rzernike(rho, n, m) * 
-                switch(t, n=0, c= -sqrt(2)*sin(m*theta), s = sqrt(2)*cos(m*theta))
-}
-
 ## make a list of all orders up to maxorder
 
 makezlist <- function(minorder=2, maxorder=14) {
@@ -81,10 +66,7 @@ zmult <- function(zlist = makezlist()) {
     mult
 }
 
-
-
 ## create a matrix of Zernike polynomial values
-
 
 zpm.arb <- function(rho, theta, phi=0, zlist=makezlist()) {
 	zm <- matrix(0, nrow=length(rho), ncol=length(zlist$n))
@@ -109,34 +91,6 @@ zpm <- function(rho, theta, phi=0, maxorder = 14, nthreads=parallel::detectCores
   zm
 }
 
-
-## create a matrix of radial derivatives of Zernikes
-
-filldzm <- function(rho, theta, phi=0, zlist=makezlist()) {
-    dzm <- matrix(0, nrow=length(rho), ncol=length(zlist$n))
-    for (i in (1:length(zlist$n))) {
-            dzm[,i] <- DZernike(rho,theta-pi*phi/180, zlist$n[i], zlist$m[i], zlist$t[i])
-    }
-    colnames(dzm) <- colnames(dzm, do.NULL=FALSE, prefix="DZ")
-    dzm
-}
-
-## create a matrix of gradient in polar coordinates of zernikes.
-## radial derivative is on top, followed by tangential derivative.
-
-fillgradientzm <- function(rho, theta, phi=0, zlist=makezlist()) {
-    nr <- length(rho)
-    drzm <- matrix(0, nrow=nr, ncol=length(zlist$n))
-    dtzm <- matrix(0, nrow=nr, ncol=length(zlist$n))
-    for (i in (1:length(zlist$n))) {
-        drzm[,i] <- DZernike(rho, theta-pi*phi/180, zlist$n[i], zlist$m[i], zlist$t[i])
-        dtzm[,i] <- DTZernike(rho, theta-pi*phi/180, zlist$n[i], zlist$m[i], zlist$t[i])/rho
-        dtzm[rho==0,i] <- 0
-    }
-    gradzm <- rbind(drzm, dtzm)
-    colnames(gradzm) <- colnames(gradzm, do.NULL=FALSE, prefix="Z")
-    gradzm
-}
 
 ## fit zernikes to data
 

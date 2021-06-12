@@ -610,3 +610,9 @@
 ## added vortexfit
 ## removed refinecp and implementing code in circle.pars
 ## default fitting routine in circle.pars is nlsrob from package robustbase
+
+## 20210612
+##
+## removed R code for gradient and derivatives of Zernikes except function rzernike.
+## add c++ code for zernikes and gradients in cartesian coordinates
+## add makezlist.iso

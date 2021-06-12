@@ -1,7 +1,5 @@
 \name{Zernike}
 \alias{Zernike}
-\alias{DZernike}
-\alias{DTZernike}
 \alias{rzernike}
 \alias{drzernike}
 \title{Zernike Polynomials}
@@ -10,8 +8,6 @@
 }
 \usage{
 Zernike(rho, theta, n, m, t)
-DZernike(rho, theta, n, m, t)
-DTZernike(rho, theta, n, m, t)
 rzernike(rho, n, m)
 drzernike(rho, n, m)
 }

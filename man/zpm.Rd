@@ -2,8 +2,6 @@
 \alias{zpm}
 \alias{zpm.arb}
 \alias{zpmC}
-\alias{filldzm}
-\alias{fillgradientzm}
 \title{Matrixes of Zernike polynomials}
 \description{
   Create a matrix of Zernike polynomial values, or their
@@ -29,9 +27,9 @@ fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
   \code{rho} and \code{theta} must be the same length.
 }
 \value{
-  \code{zpm.arb} and \code{filldzm} return a matrix of size
+  \code{zpm.arb} returns a matrix of size
   \code{length(rho)} x \code{length(zlist$n)} with values
-  of Zernike polynomials or their radial derivatives
+  of Zernike polynomials
   evaluated at the polar coordinates
   \code{(rho, theta-pi*phi/180)}.
   
@@ -39,11 +37,6 @@ fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
   \code{length(rho)} x \code{(maxorder/2+1)^2}
   of Zernike polynomial values including a piston term.
   
-  \code{fillgradientzm} returns the gradient, in polar
-  coordinates, of Zernikes in a \code{2*length(rho)} x
-  \code{length(zlist$n)} matrix.
-  Rows \code{1:length(rho)} contain the radial derivative,
-  followed by \code{1/rho} times the tangential derivative.
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
 \note{
