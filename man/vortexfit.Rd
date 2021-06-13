@@ -8,7 +8,7 @@ vortexfit(
   imagedata,
   cp = NULL,
   filter = NULL,
-  fw.o = 5,
+  fw.o = 10,
   options = psfit_options()
 )
 }

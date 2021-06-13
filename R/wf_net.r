@@ -73,11 +73,11 @@ wf_net <- function(wf.raw, cp, options) {
 #'  from [psifit()], [fftfit()], or [vortexfit()]
 #'
 #' @param wffit the return values from one of the fringe analysis routines
-#' @para digits number of digits to display in print and summary methods
+#' @param digits number of digits to display in print and summary methods
 #' @param ... values passed to [plot.pupil()]
 #' @return print method returns data frame with Zernike coefficients
 summary.wf_fitted <- function(wffit, digits=3) {
-  cat("Image size(s)     : ", nrow(wffit$wf.smooth) "x", ncol(wffit$wf.smooth), "\n")
+  cat("Image size(s)     : ", nrow(wffit$wf.smooth), " x ", ncol(wffit$wf.smooth), "\n")
   cat("Unsmoothed RMS    : ", format(pupilrms(wffit$wf.net), digits=digits), "\n")
   cat("Zernike fit RMS   : ", format(sqrt(crossprod(wffit$zcoef.net)), digits=digits), "\n")
   cat("Zernike fit Strehl: ", format(strehlratio(sqrt(crossprod(wffit$zcoef.net))), digits=digits), "\n")
