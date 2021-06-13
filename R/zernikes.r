@@ -34,7 +34,8 @@ Zernike <- function(rho, theta, n, m, t) {
 	 s=sqrt(2)*sin(m*theta))
 }
 
-## make a list of all orders up to maxorder
+## make a list of radial and azimuthal indexes in extended Fringe sequence
+## from order minorder to maxorder
 
 makezlist <- function(minorder=2, maxorder=14) {
     n <- numeric()
@@ -43,9 +44,11 @@ makezlist <- function(minorder=2, maxorder=14) {
 
     for (order in seq(minorder, maxorder, by=2)) {
         mmax <- order/2
-        mtemp <- numeric()
-        for (j in mmax:1) mtemp <- c(mtemp, c(j, j))
-        mtemp <- c(mtemp, 0)
+        mtemp <- 0
+        if (mmax > 0) {
+          mtemp <- c(mtemp, rep(1:mmax, each=2))
+        }
+        mtemp <- rev(mtemp)
         n <- c(n, order-mtemp)
         m <- c(m, mtemp)
         t <- c(t, rep(c("c", "s"), mmax), "n")
@@ -57,6 +60,33 @@ makezlist <- function(minorder=2, maxorder=14) {
 
 zlist.fr <- makezlist(2,12)
 
+## list of ZP indexes in ISO/ANSI sequence
+
+#' Construct list of ZP indexes in ISO/ANSI sequence with sine terms first
+#'
+#' @param maxorder maximum radial and azimuthal order
+#' @return a named list with n=radial indexes, m=azimuthal, and t indicating
+#'  trig function to apply
+#' @examples
+#' zlist.iso <- makezlist.iso(maxorder=6)
+#' zlist <- makezlist(0, 6)
+makezlist.iso <- function(maxorder=12) {
+  n <- numeric(0)
+  m <- numeric(0)
+  t <- "n"
+  for (i in 0:maxorder) {
+    n <- c(n, rep(i, i+1))
+    m <- c(m, abs(seq(-i, i, by=2)))
+    if (i >= 1) {
+      t <- c(t, rep("s" , (i+1) %/% 2))
+      if (i %% 2 == 0) {
+        t <- c(t, "n")
+      }
+      t <- c(t, rep("c", (i+1) %/% 2))
+    }
+  }
+  list(n=n, m=m, t=t)
+}
 
 ## Vector of factors from conversion between "normalized" and conventional Zernike definitions
 

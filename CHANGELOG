@@ -616,3 +616,10 @@
 ## removed R code for gradient and derivatives of Zernikes except function rzernike.
 ## add c++ code for zernikes and gradients in cartesian coordinates
 ## add makezlist.iso
+## fix makezlist to give correct result when minorder=0
+## returns from psifit, fftfit, vortexfit are assigned S3 class "wf_fitted"
+
+## 20210613
+##
+## added function PVr
+## split out wf_net() into its own file

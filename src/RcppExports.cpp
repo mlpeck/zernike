@@ -5,7 +5,6 @@
 #include <Rcpp.h>
 
 using namespace Rcpp;
-using namespace arma;
 
 // id_dxy_uw
 NumericVector id_dxy_uw(const int& nr, const int& nc, const NumericVector& phase, const NumericVector& mask, const NumericVector& dx, const NumericVector& dy, IntegerVector uw);
@@ -195,6 +194,47 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// norm_zpm
+NumericMatrix norm_zpm(NumericMatrix& uzpm, const int& maxorder);
+RcppExport SEXP _zernike_norm_zpm(SEXP uzpmSEXP, SEXP maxorderSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix& >::type uzpm(uzpmSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
+    rcpp_result_gen = Rcpp::wrap(norm_zpm(uzpm, maxorder));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gradzpm_cart
+List gradzpm_cart(const NumericVector& x, const NumericVector& y, const int& maxorder, const bool& unit_variance, const bool& return_zpm);
+RcppExport SEXP _zernike_gradzpm_cart(SEXP xSEXP, SEXP ySEXP, SEXP maxorderSEXP, SEXP unit_varianceSEXP, SEXP return_zpmSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type unit_variance(unit_varianceSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type return_zpm(return_zpmSEXP);
+    rcpp_result_gen = Rcpp::wrap(gradzpm_cart(x, y, maxorder, unit_variance, return_zpm));
+    return rcpp_result_gen;
+END_RCPP
+}
+// zpm_cart
+NumericMatrix zpm_cart(const NumericVector& x, const NumericVector& y, const int& maxorder, const bool& unit_variance);
+RcppExport SEXP _zernike_zpm_cart(SEXP xSEXP, SEXP ySEXP, SEXP maxorderSEXP, SEXP unit_varianceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type unit_variance(unit_varianceSEXP);
+    rcpp_result_gen = Rcpp::wrap(zpm_cart(x, y, maxorder, unit_variance));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport void read_jpg_img(void *, void *, void *, void *, void *, void *, void *);
 RcppExport void read_jpg_img_info(void *, void *, void *, void *, void *);
@@ -217,6 +257,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_zernike_tiltpsiC", (DL_FUNC) &_zernike_tiltpsiC, 6},
     {"_zernike_zpmC", (DL_FUNC) &_zernike_zpmC, 3},
     {"_zernike_zpmCP", (DL_FUNC) &_zernike_zpmCP, 3},
+    {"_zernike_norm_zpm", (DL_FUNC) &_zernike_norm_zpm, 2},
+    {"_zernike_gradzpm_cart", (DL_FUNC) &_zernike_gradzpm_cart, 5},
+    {"_zernike_zpm_cart", (DL_FUNC) &_zernike_zpm_cart, 4},
     {NULL, NULL, 0}
 };
 

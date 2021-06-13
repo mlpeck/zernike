@@ -52,6 +52,26 @@ pupilpv <- function(pupil) {
     max(pupil, na.rm=TRUE) - min(pupil, na.rm=TRUE)
 }
 
+#' Zygo's "robust" PV
+#'
+#' A peak to valley error estimate that reduces the effect of noise and artifacts
+#'
+#' @param wf.zfit matrix containing the smoothed Zernike fit wavefront
+#' @param wf.residual matrix of the difference between the raw wavefront
+#'  and the Zernike fit. These values are returned by [wf_net()]
+#' @return the estimated PVr
+#' @references
+#'  Evans, C. (2009) Optical Engineering 48(4), 43605.
+#'  <https://doi.org/10.1117/1.3119307>
+#'
+#' @details
+#'  no check is performed on the wavefronts, so it's the user's
+#'  responsibility to make sure these come from the same source
+PVr <- function(wf.zfit, wf.residual) {
+  pvr <- pupilrms(wf.zfit) + 3*sd(wf.residual, na.rm=TRUE)
+  pvr
+}
+
 ## Mahajan's approximation to Strehl ratio
 
 strehlratio <- function(rms) {

@@ -110,3 +110,91 @@ zpmCP <- function(rho, theta, maxorder) {
     .Call(`_zernike_zpmCP`, rho, theta, maxorder)
 }
 
+
+
+#' Normalize matrix of Zernike polynomial values.
+#'
+#' Convert a matrix of Zernike polynomial values from
+#' unit scaled to unit variance aka orthonormal form.
+#'
+#' @param uzpm matrix of Zernike polynomial values
+#' @param maxorder the maximum radial order.
+#'
+#' @return matrix in orthonormal form.
+#'
+#' @details
+#'  This is intended only for ISO/ANSI ordered matrices. The
+#'  only check performed is that the number of columns in the
+#'  matrix matches the expected number given by the argument
+#'  `maxorder`.
+#'  This is called by [gradzpm_cart()] and [zpm_cart()]
+#'  if `unit_variance` is set to `true` in the respective
+#'  function calls.
+#' @md
+norm_zpm <- function(uzpm, maxorder = 12L) {
+    .Call(`_zernike_norm_zpm`, uzpm, maxorder)
+}
+
+#' Calculate Zernike polynomial values and Cartesian gradients in
+#' ISO/ANSI sequence for a set of Cartesian coordinates.
+#'
+#' @param x a vector of x coordinates for points on a unit disk.
+#' @param y a vector of y coordinates.
+#' @param maxorder the maximum radial polynomial order (defaults to 12).
+#' @param unit_variance logical: return with orthonormal scaling? (default `false`)
+#' @param return_zpm logical: return Zernike polynomial matrix? (default `true`)
+#'
+#' @return a named list with the matrices `zm` (optional but returned by default), `dzdx`, `dzdy`.
+#'
+#' @references
+#'   Anderson, T.B. (2018) Optics Express 26, #5, 18878
+#'   <https://doi.org/10.1364/OE.26.018878> (open access)
+#'
+#' @details
+#'  polynomial values and their directional derivatives in Cartesian coordinates. These are
+#'  known to be both efficient and numerically stable.
+#'
+#'  m = {-n, -(n-2), ..., (n-2), n}, with sine components for negative m and cosine for positive m. Note this
+#'  is the opposite ordering from the extended Fringe set and the ordering of aberrations is quite different. 
+#'  For example the two components of trefoil are in the 7th and 10th column while coma is in
+#'  columns 8 and 9 (or 7 and 8 with 0-indexing). Note also that except for tilt and coma-like aberrations
+#'  (m=1) non-axisymmetric aberrations will be separated.
+#'
+#'  All three matrices will have the same dimensions on return. Columns 0 and 1 of `dzdx` will be all 0,
+#'  while columns 0 and 3 of `dzdy` are 0.
+#'
+#' @seealso [zpm()] uses the same recurrence relations for polar coordinates and extended
+#'  Fringe set ordering, which is the more common indexing scheme for optical design/testing
+#'  software.
+#' @seealso [zpm_cart()] calculates and returns the Zernike polynomial values only.
+#' @examples
+#'  theta <- seq(0, 1.6*pi, length=5)
+#'  rt <- expand.grid(theta, rho)
+#'  x <- c(0, rt[,2]*cos(rt[,1]))
+#'  y <- c(0, rt[,2]*sin(rt[,1]))
+#'  gzpm <- gradzpm_cart(x, y)
+#'
+#' @md
+gradzpm_cart <- function(x, y, maxorder = 12L, unit_variance = FALSE, return_zpm = TRUE) {
+    .Call(`_zernike_gradzpm_cart`, x, y, maxorder, unit_variance, return_zpm)
+}
+
+#' Calculate Zernike polynomial values in
+#' ISO/ANSI sequence for a set of Cartesian coordinates.
+#'
+#' @param x a vector of x coordinates for points on a unit disk.
+#' @param y a vector of y coordinates.
+#' @param maxorder the maximum radial polynomial order (defaults to 12).
+#' @param unit_variance logical: return with orthonormal scaling? (default `false`)
+#'
+#' @return a matrix of Zernike polynomial values evaluated at the input
+#'  Cartesian coordinates and all radial and azimuthal orders from
+#'  0 through `maxorder`.
+#'
+#' @details This is the same algorithm and essentially the same code as [gradzpm_cart()]
+#'  except directional derivatives aren't calculated.
+#' @md
+zpm_cart <- function(x, y, maxorder = 12L, unit_variance = TRUE) {
+    .Call(`_zernike_zpm_cart`, x, y, maxorder, unit_variance)
+}
+
