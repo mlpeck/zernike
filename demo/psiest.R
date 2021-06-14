@@ -122,7 +122,7 @@ mtext("Perspective plot")
 astig.bath <- diam^2*beam.sep^2/roc^3/(32*sqrt(6)*wavelength*1.e-6)
 zcoef.net <- psfit$zcoef.net
 zcoef.net[4] <- zcoef.net[4]-astig.bath
-wf.smooth <- pupil(zcoef=zcoef.net, zlist=makezlist(2,14))
+wf.smooth <- pupil(zcoef=c(0, zcoef.net), maxorder=14)
 
 #plot it with a different color palette
 

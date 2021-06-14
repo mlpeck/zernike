@@ -13,10 +13,10 @@
       phi=0, piston=0,
       nrow=640, ncol=nrow, 
       cp=list(xc=320.5,yc=320.5,rx=319.5,ry=319.5,obstruct=0))
-pupil.arb(zcoef=NULL, zlist=makezlist(), 
+  pupil.arb(zcoef=NULL, zlist=makezlist(), 
           phi=0, piston=0,
           nrow=640, ncol=nrow, 
-          Cp=list(xc=320.5,yc=320.5,rx=319.5,ry=319.5,obstruct=0)) {
+          Cp=list(xc=320.5,yc=320.5,rx=319.5,ry=319.5,obstruct=0))
 }
 \arguments{
   \item{zcoef}{A vector of Zernike coefficients}

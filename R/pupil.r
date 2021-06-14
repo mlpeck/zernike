@@ -2,7 +2,7 @@
 ## note the parameter cp is a list with components (xc, yc, rx, ry, obstruct) as returned by pupil.pars()
 
 pupil <- function(zcoef=NULL, maxorder=12L, isoseq=FALSE, 
-                  phi=0, piston=0,
+                  phi=0, piston=NULL,
                   nrow=640, ncol=nrow, 
                   cp=list(xc=320.5,yc=320.5,rx=319.5,ry=319.5,obstruct=0)) {
   
@@ -13,16 +13,18 @@ pupil <- function(zcoef=NULL, maxorder=12L, isoseq=FALSE,
   theta.v <- theta[!is.na(rho)] - pi*phi/180
   wf.v <- numeric(length(rho.v))
   if (!is.null(zcoef)) {
+    if (!is.null(piston)) {
+      zcoef <- c(piston, zcoef)
+    }
     if (isoseq) {
       wf.v <- zpm_cart(x=rho.v*cos(theta.v), y=rho.v*sin(theta.v), maxorder=maxorder) %*% zcoef
     } else {
-      wf.v <- zpm(rho.v, theta.v, maxorder = maxorder) %*% 
-                c(piston, zcoef)
+      wf.v <- zpm(rho.v, theta.v, maxorder = maxorder) %*% zcoef
     }
   }
   wf <- matrix(NA, nrow=nrow, ncol=ncol)
   wf[!is.na(rho)] <- wf.v
-  class(wf) <- append(class(wf), "pupil")
+  class(wf) <- c("pupil", class(wf))
   wf
 }
                   
@@ -43,7 +45,7 @@ pupil.arb <- function(zcoef=NULL, zlist=makezlist(),
   wf <- matrix(NA, nrow=nrow, ncol=ncol)
   wf[!is.na(rho)] <- wf.v
   wf <- wf+piston
-  class(wf) <- append(class(wf), "pupil")
+  class(wf) <- c("pupil", class(wf))
   wf
 }
 

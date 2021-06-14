@@ -20,7 +20,7 @@ Get and optionally set parameters controlling various aspects of PSI algorithms,
  \item{ptol       }{1e-04}
  \item{trace      }{1}
  \item{nzcs       }{2}
- \item{zc0        }{c(1, 2, 3, 6, 7)}
+ \item{zc0        }{6:7}
  \item{satarget   }{c(0, 0)}
  \item{astig.bath }{c(0, 0)}
  \item{maxorder   }{14}

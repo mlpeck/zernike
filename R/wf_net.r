@@ -30,7 +30,7 @@ wf_net <- function(wf.raw, cp, options) {
   } else {
     cfit <- fit
   }
-  if (isoseq) {
+  if (options$isoseq) {
     ind.ptf <- c(1:3, 5)
     ind.sa4 <- 13
     ind.sa6 <- 25
@@ -55,7 +55,7 @@ wf_net <- function(wf.raw, cp, options) {
   zc.low[c(ind.sa4, ind.sa6)] <- zc.low[c(ind.sa4, ind.sa6)] + options$satarget
   zc.low[ind.astig] <- zc.low[ind.astig] + options$astig.bath
   if (is.element(6, options$zc0)) {
-    zc.low[ind.coma] <- cfit[ind.ptf]
+    zc.low[ind.coma] <- cfit[ind.coma]
   }
   wf.net <- wf.raw - pupil(zcoef=zc.low, maxorder=6, isoseq=options$isoseq,
                            nrow=nr, ncol=nc, cp=cp)
@@ -70,6 +70,7 @@ wf_net <- function(wf.raw, cp, options) {
     plot(wf.net, cp=cp, col=options$colors, addContours=FALSE)
     mtext(paste("RMS = ", format(pupilrms(wf.net),digits=3)))
   }
+  zcoef.net <- cfit
   zcoef.net[1:length(zc.low)] <- zcoef.net[1:length(zc.low)] - zc.low
   wf.smooth <- pupil(zcoef=zcoef.net, maxorder=options$maxorder, isoseq=options$isoseq, 
                      cp=cp, nrow=nr, ncol=nc)
@@ -86,7 +87,7 @@ wf_net <- function(wf.raw, cp, options) {
     close.screen(all.screens=TRUE)
   }
   list(wf.net=wf.net, wf.smooth=wf.smooth, wf.residual=wf.residual, 
-       fit=fit, zcoef.net=zcoef.net)
+       fit=fit, zcoef.net=zcoef.net[-1])
 }
 
 #' Methods for class "wf_fitted"
@@ -103,7 +104,7 @@ summary.wf_fitted <- function(wffit, digits=3) {
   cat("Unsmoothed RMS    : ", format(pupilrms(wffit$wf.net), digits=digits), "\n")
   cat("Zernike fit RMS   : ", format(sqrt(crossprod(wffit$zcoef.net)), digits=digits), "\n")
   cat("Zernike fit Strehl: ", format(strehlratio(sqrt(crossprod(wffit$zcoef.net))), digits=digits), "\n")
-  cat("Zernie fit P-V    : ", format(pupilpv(wffit$wf.smooth), digits=digits), "\n")
+  cat("Zernike fit P-V   : ", format(pupilpv(wffit$wf.smooth), digits=digits), "\n")
   cat("PVr               : ", format(PVr(wffit$wf.smooth, wffit$wf.residual), digits=digits), "\n")
 }
 
