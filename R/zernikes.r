@@ -37,7 +37,7 @@ Zernike <- function(rho, theta, n, m, t) {
 ## make a list of radial and azimuthal indexes in extended Fringe sequence
 ## from order minorder to maxorder
 
-makezlist <- function(minorder=2, maxorder=14) {
+makezlist <- function(minorder=0, maxorder=14) {
     n <- numeric()
     m <- numeric()
     t <- character(length=0)
@@ -124,17 +124,23 @@ zpm <- function(rho, theta, phi=0, maxorder = 14, nthreads=parallel::detectCores
 
 ## fit zernikes to data
 
-fitzernikes <- function(wf, rho, theta, phi=0, maxorder = 14, nthreads=parallel::detectCores()/2, uselm=FALSE) {
+fitzernikes <- function(wf, rho, theta, phi=0, maxorder = 14, 
+                        nthreads=parallel::detectCores()/2, uselm=FALSE, isoseq=FALSE) {
+  if (isoseq) {
+    theta <- theta - pi * phi/180
+    zm <- zpm_cart(x=rho*cos(theta), y=rho*sin(theta), maxorder=maxorder)
+  } else {
     zm <- zpm(rho, theta, phi=phi, maxorder=maxorder, nthreads=nthreads)
-    zm.names <- colnames(zm)
-    if (uselm) {
-        fmla <- as.formula(paste("wf ~ -1 + ", paste(zm.names, collapse="+")))
-        dataf <- data.frame(cbind(wf, zm))
-        fit <- lm(fmla, data=dataf)
-    } else {
-        fit <- qr.solve(crossprod(zm),crossprod(zm, wf))
-    }
-    fit
+  }
+  zm.names <- colnames(zm)
+  if (uselm) {
+      fmla <- as.formula(paste("wf ~ -1 + ", paste(zm.names, collapse="+")))
+      dataf <- data.frame(cbind(wf, zm))
+      fit <- lm(fmla, data=dataf)
+  } else {
+      fit <- qr.solve(crossprod(zm),crossprod(zm, wf))
+  }
+  fit
 }
 
 

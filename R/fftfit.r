@@ -116,7 +116,7 @@ fftfit <- function(imagedata, cp=NULL,
   outs <- list(phi=phase, mod=mod, cp=cp,cp.orig=cp.orig,
        wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
        wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net)
-  class(outs) <- "wf_fitted"
+  class(outs) <- append(class(outs), "wf_fitted")
   outs
 }
                    

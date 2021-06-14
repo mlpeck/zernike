@@ -25,6 +25,7 @@ Get and optionally set parameters controlling various aspects of PSI algorithms,
  \item{astig.bath }{c(0, 0)}
  \item{maxorder   }{14}
  \item{uselm      }{FALSE}
+ \item{isoseq     }{FALSE}
  \item{sgs        }{1}
  \item{nthreads   }{parallel::detectCores()/2}
  \item{plots      }{TRUE}

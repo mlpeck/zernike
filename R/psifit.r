@@ -1,16 +1,18 @@
+## options for fringe analysis routines, wavefront fitting and wavefront display
+
 psfit_options <- function(colors=topo.colors(256), refine=TRUE, puw_alg = "qual", fringescale=1,
                     wt=NULL, bgsub=TRUE,
                     maxiter=20, ptol=1.e-4, trace=1, nzcs = 2,
-                    zc0=c(1:3, 6:7),
+                    zc0=6:7,
                     satarget=c(0,0), astig.bath=c(0,0),
-                    maxorder=14, uselm=FALSE, sgs=1,
+                    maxorder=14, uselm=FALSE, isoseq=FALSE, sgs=1,
                     nthreads=parallel::detectCores()/2,
                     plots=TRUE, crop=FALSE) {
   list(colors=colors, refine=refine, puw_alg=puw_alg, fringescale=fringescale,
        wt=wt, bgsub=bgsub,
        maxiter=maxiter, ptol=ptol, trace=trace, nzcs=nzcs,
        zc0=zc0, satarget=satarget, astig.bath=astig.bath,
-       maxorder=maxorder, uselm=uselm, sgs=sgs,
+       maxorder=maxorder, uselm=uselm, isoseq=isoseq, sgs=sgs,
        nthreads=nthreads,
        plots=plots, crop=crop)
 }
@@ -243,7 +245,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
        cp=cp, cp.orig=cp.orig,
        wf.net=wfnets$wf.net, wf.smooth=wfnets$wf.smooth,wf.residual=wfnets$wf.residual,
        fit=wfnets$fit, zcoef.net=wfnets$zcoef.net, extras=extras)
-  class(outs) <- "wf_fitted"
+  class(outs) <- append(class(outs), "wf_fitted")
   outs
 }
 

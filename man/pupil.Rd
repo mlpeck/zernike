@@ -9,13 +9,19 @@
   are also provided.
 }
 \usage{
-pupil(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
-                  nrow=512, ncol=nrow, cp=list(xc=256,yc=256,rx=255,ry=255,obstruct=0))
-pupil.arb(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
-                  nrow=512, ncol=nrow, cp=list(xc=256,yc=256,rx=255,ry=255,obstruct=0))
+  pupil(zcoef=NULL, maxorder=12L, isoseq=FALSE,
+      phi=0, piston=0,
+      nrow=640, ncol=nrow, 
+      cp=list(xc=320.5,yc=320.5,rx=319.5,ry=319.5,obstruct=0))
+pupil.arb(zcoef=NULL, zlist=makezlist(), 
+          phi=0, piston=0,
+          nrow=640, ncol=nrow, 
+          Cp=list(xc=320.5,yc=320.5,rx=319.5,ry=319.5,obstruct=0)) {
 }
 \arguments{
   \item{zcoef}{A vector of Zernike coefficients}
+  \item{maxorder}{Maximum Zernike polynomial order}
+  \item{isoseq}{ZPs in ISO/ANSI sequence}
   \item{zlist}{List of indexes the same length as \code{zcoef}}
   \item{phi}{Amount to rotate image, in degrees}
   \item{piston}{Constant to add to wavefront values}
@@ -41,7 +47,7 @@ pupil.arb(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
 \value{
   A matrix of size \code{nrow} x \code{ncol}.
   The matrix is assigned to the class \code{"pupil"}.
-  \code{NA}'s are used to fill the matrix outside the defined
+  \code{NA}s are used to fill the matrix outside the defined
   area of the pupil.
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}

@@ -1,7 +1,7 @@
 ## calculate net and zernike fit wavefronts from any of psifit, fftfit, vortexfit
 
 wf_net <- function(wf.raw, cp, options) {
-  zlist <- makezlist(maxorder=options$maxorder)
+
   nr <- nrow(wf.raw)
   nc <- ncol(wf.raw)
   prt <- pupil.rhotheta(nr, nc, cp)
@@ -20,22 +20,44 @@ wf_net <- function(wf.raw, cp, options) {
   rho.v <- rho.v[!is.na(wf.v)]
   th.v <- th.v[!is.na(wf.v)]
   wf.v <- wf.v[!is.na(wf.v)]
-  fit <- fitzernikes(wf.v, rho.v, th.v, maxorder=options$maxorder, nthreads=options$nthreads, uselm=options$uselm)
+  fit <- fitzernikes(wf.v, rho.v, th.v, 
+                     maxorder=options$maxorder, 
+                     nthreads=options$nthreads, 
+                     uselm=options$uselm,
+                     isoseq=options$isoseq)
   if (options$uselm) {
     cfit <- coef(fit)
   } else {
     cfit <- fit
   }
-  if (sign(cfit[9])*sign(options$satarget[1]) < 0) {
+  if (isoseq) {
+    ind.ptf <- c(1:3, 5)
+    ind.sa4 <- 13
+    ind.sa6 <- 25
+    ind.astig <- c(6, 4)
+    ind.coma <- 8:9
+    zc.low <- numeric(28)
+  } else {
+    ind.ptf <- 1:4
+    ind.sa4 <- 9
+    ind.sa6 <- 16
+    ind.astig <- 5:6
+    ind.coma <- 7:8
+    zc.low <- numeric(16)
+  }
+  if (sign(cfit[ind.sa4])*sign(options$satarget[1]) < 0) {
     cfit <- -cfit
     wf.raw <- -wf.raw
     if (!options$uselm) fit <- -fit
   }
-  zc.low <- rep(0,15)
-  zc.low[options$zc0] <- cfit[options$zc0+1]
-  zc.low[c(8,15)] <- zc.low[c(8,15)] + options$satarget
-  zc.low[4:5] <- zc.low[4:5] + options$astig.bath
-  wf.net <- wf.raw - pupil(zcoef=zc.low, zlist=makezlist(2,6), piston=cfit[1], 
+  
+  zc.low[ind.ptf] <- cfit[ind.ptf]
+  zc.low[c(ind.sa4, ind.sa6)] <- zc.low[c(ind.sa4, ind.sa6)] + options$satarget
+  zc.low[ind.astig] <- zc.low[ind.astig] + options$astig.bath
+  if (is.element(6, options$zc0)) {
+    zc.low[ind.coma] <- cfit[ind.ptf]
+  }
+  wf.net <- wf.raw - pupil(zcoef=zc.low, maxorder=6, isoseq=options$isoseq,
                            nrow=nr, ncol=nc, cp=cp)
   if (options$plots) {
     if (tolower(.Platform$OS.type) == "windows") {
@@ -48,9 +70,9 @@ wf_net <- function(wf.raw, cp, options) {
     plot(wf.net, cp=cp, col=options$colors, addContours=FALSE)
     mtext(paste("RMS = ", format(pupilrms(wf.net),digits=3)))
   }
-  zcoef.net <- cfit[-1]
-  zcoef.net[1:15] <- zcoef.net[1:15] - zc.low
-  wf.smooth <- pupil(zcoef=zcoef.net, zlist=zlist, cp=cp, nrow=nr, ncol=nc)
+  zcoef.net[1:length(zc.low)] <- zcoef.net[1:length(zc.low)] - zc.low
+  wf.smooth <- pupil(zcoef=zcoef.net, maxorder=options$maxorder, isoseq=options$isoseq, 
+                     cp=cp, nrow=nr, ncol=nc)
   if (options$plots) {
     screen(2)
     plot(wf.smooth, cp=cp, col=options$colors)
@@ -86,10 +108,10 @@ summary.wf_fitted <- function(wffit, digits=3) {
 }
 
 print.wf_fitted <- function(wffit, digits=3) {
-  if (class(wffit$fit) == "lm") {
+  if (is.element("lm", class(wffit$fit))) {
     fit <- coef(wffit$fit)
   } else {
-    fit <- coef(wffit$fit)
+    fit <- wffit$fit
   }
   nz <- length(wffit$zcoef.net)
   znames <- paste("Z", 0:nz, sep="")
@@ -97,11 +119,11 @@ print.wf_fitted <- function(wffit, digits=3) {
   summary.wf_fitted(wffit, digits=digits)
   cat("\n")
   print(df.zernikes, digits=digits, row.names=FALSE)
-  df.zernikes
+  invisible(df.zernikes)
 }
 
 plot.wf_fitted <- function(wffit, wftype="smooth", ...) {
-  wf <- get(paste(wf, wftype, sep="."), wffit)
+  wf <- get(paste("wf", wftype, sep="."), wffit)
   plot.pupil(wf, cp=wffit$cp, ...)
 }
   

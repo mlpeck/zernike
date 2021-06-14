@@ -205,7 +205,7 @@ fftshift <- function(X) {
 ## computes & displays fraunhofer diffraction pattern
 ## & mtf for wavefront described in zernike coefficients zcoef
 
-startest <- function(wf=NULL, zcoef=NULL, zlist=makezlist(), phi=0,
+startest <- function(wf=NULL, zcoef=NULL, maxorder=12L, phi=0,
 	lambda = 1, defocus=5,
 	nrow = 255, ncol = nrow, cp = list(xc=128,yc=128,rx=127,ry=127,obstruct=0),
 	obstruct=NULL, 
@@ -219,12 +219,12 @@ startest <- function(wf=NULL, zcoef=NULL, zlist=makezlist(), phi=0,
     screens<- split.screen(c(1,3))
 
     if (is.null(wf))
-            wf <- pupil(zcoef=zcoef, zlist=zlist, phi=phi, nrow=nrow, ncol=ncol, cp=cp)
+            wf <- pupil(zcoef=zcoef, maxorder=maxorder, phi=phi, nrow=nrow, ncol=ncol, cp=cp)
     else {
             nrow <- nrow(wf)
             ncol <- ncol(wf)
     }
-    wf.df <- pupil(zcoef=c(0,0,1), zlist=makezlist(2,2), nrow=nrow, ncol=ncol, cp=cp)
+    wf.df <- pupil(zcoef=c(0, 0,0,1), maxorder=2, nrow=nrow, ncol=ncol, cp=cp)
     if (!is.null(obstruct)) wf[is.na(wf.df)] <- NA
 
     lx <- round(2*cp$rx)+1
@@ -393,27 +393,26 @@ foucogram <- function(wf, edgex = 0, phradius = 0, slit=FALSE, pad=4, gamma=1,
 
 ## Synthetic interferogram
 
-synth.interferogram <- function(wf=NULL, zcoef=NULL, zlist=NULL, 
+synth.interferogram <- function(wf=NULL, zcoef=NULL, maxorder=NULL, 
                                 nr=nrow(wf), nc=ncol(wf), cp=NULL, 
                                 phi=0, addzc=rep(0,4), fringescale=1, 
                                 plots=TRUE) {
-    addzl <- makezlist(2,2)
     if (is.null(wf)) {
         if (is.null(cp)) {
-            wf <- pupil(zcoef=zcoef, zlist=zlist, phi=phi)+
-                        pupil(zcoef=addzc[-1], zlist=addzl, piston=addzc[1])
+            wf <- pupil(zcoef=zcoef, maxorder=maxorder, phi=phi)+
+                        pupil(zcoef=addzc[-1], maxorder=2, piston=addzc[1])
             nr <- nrow(wf)
             nc <- ncol(wf)
         } else {
-            wf <- pupil(zcoef=zcoef, zlist=zlist, phi=phi, nrow=nr, ncol=nc, cp=cp) +
-                  pupil(zcoef=addzc[-1], zlist=addzl, piston=addzc[1], 
+            wf <- pupil(zcoef=zcoef, maxorder=maxorder, phi=phi, nrow=nr, ncol=nc, cp=cp) +
+                  pupil(zcoef=addzc[-1], maxorder=2, piston=addzc[1], 
                         nrow=nr, ncol=nc, cp=cp)
         }
     } else {
         if (is.null(cp)) {
-            wf <- wf + pupil(zcoef=addzc[-1], zlist=addzl, piston=addzc[1], nrow=nr, ncol=nc)
+            wf <- wf + pupil(zcoef=addzc[-1], maxorder=2, piston=addzc[1], nrow=nr, ncol=nc)
         } else {
-            wf <- wf + pupil(zcoef=addzc[-1], zlist=addzl, piston=addzc[1], 
+            wf <- wf + pupil(zcoef=addzc[-1], maxorder=2, piston=addzc[1], 
                              nrow=nr, ncol=nc, cp=cp)
         }
     }

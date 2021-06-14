@@ -15,9 +15,13 @@ fitzernikes(wf, rho, theta, phi = 0, maxorder = 14, uselm = FALSE)
   \item{phi}{Orientation of the image, in degrees}
   \item{maxorder}{Maximum Zernike polynomial order}
   \item{uselm}{Boolean: use lm() for least squares fit}
+  \item{isoseq}{Boolean: use ISO/ANSI sequencing}
 }
 \details{
   \code{wf}, \code{rho}, and \code{theta} must be the same length.
+  
+  As of version 3.7.0 Zernike polynomials in ISO/ANSI sequence can
+  be used through a call to \code{\link{zpm_cart}}.
 }
 \value{
   The model fit as returned by \code{\link{lm}},
@@ -32,7 +36,10 @@ fitzernikes(wf, rho, theta, phi = 0, maxorder = 14, uselm = FALSE)
 }
 \seealso{
   \code{\link{zpm}},
+  \code{\link{zpm_cart}},
   \code{\link{psifit}},
-  \code{\link{fftfit}}.
+  \code{\link{fftfit}},
+  \code{\link{vortexfit}},
+  \code{\link{wf_net}}.
 }
 \keyword{statistics}

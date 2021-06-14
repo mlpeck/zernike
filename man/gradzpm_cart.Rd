@@ -39,6 +39,7 @@ All three matrices will have the same dimensions on return. Columns 0 and 1 of \
 while columns 0 and 3 of \code{dzdy} are 0.
 }
 \examples{
+ rho <- seq(0.2, 1, length=5)
  theta <- seq(0, 1.6*pi, length=5)
  rt <- expand.grid(theta, rho)
  x <- c(0, rt[,2]*cos(rt[,1]))

@@ -1,28 +1,35 @@
 ## create a unit aperture inside a matrix of arbitrary size
 ## note the parameter cp is a list with components (xc, yc, rx, ry, obstruct) as returned by pupil.pars()
 
-pupil <- function(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
-                  nrow=512, ncol=nrow, cp=list(xc=256,yc=256,rx=255,ry=255,obstruct=0)) {
+pupil <- function(zcoef=NULL, maxorder=12L, isoseq=FALSE, 
+                  phi=0, piston=0,
+                  nrow=640, ncol=nrow, 
+                  cp=list(xc=320.5,yc=320.5,rx=319.5,ry=319.5,obstruct=0)) {
   
   prt <- pupil.rhotheta(nrow, ncol, cp)
   rho <- prt$rho
   theta <- prt$theta
   rho.v <- rho[!is.na(rho)]
-  theta.v <- theta[!is.na(rho)]
+  theta.v <- theta[!is.na(rho)] - pi*phi/180
   wf.v <- numeric(length(rho.v))
   if (!is.null(zcoef)) {
-    wf.v <- zpm(rho.v, theta.v, phi, maxorder= max(zlist$n)) %*% 
-    c(0, zcoef)
+    if (isoseq) {
+      wf.v <- zpm_cart(x=rho.v*cos(theta.v), y=rho.v*sin(theta.v), maxorder=maxorder) %*% zcoef
+    } else {
+      wf.v <- zpm(rho.v, theta.v, maxorder = maxorder) %*% 
+                c(piston, zcoef)
+    }
   }
   wf <- matrix(NA, nrow=nrow, ncol=ncol)
   wf[!is.na(rho)] <- wf.v
-  wf <- wf+piston
-  class(wf) <- "pupil"
+  class(wf) <- append(class(wf), "pupil")
   wf
 }
                   
-pupil.arb <- function(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
-	nrow=512, ncol=nrow, cp=list(xc=256,yc=256,rx=255,ry=255,obstruct=0)) {
+pupil.arb <- function(zcoef=NULL, zlist=makezlist(), 
+                      phi=0, piston=0,
+                      nrow=640, ncol=nrow, 
+                      cp=list(xc=320.5,yc=320.5,rx=319.5,ry=319.5,obstruct=0)) {
 
   prt <- pupil.rhotheta(nrow, ncol, cp)
   rho <- prt$rho
@@ -36,7 +43,7 @@ pupil.arb <- function(zcoef=NULL, zlist=makezlist(), phi=0, piston=0,
   wf <- matrix(NA, nrow=nrow, ncol=ncol)
   wf[!is.na(rho)] <- wf.v
   wf <- wf+piston
-  class(wf) <- "pupil"
+  class(wf) <- append(class(wf), "pupil")
   wf
 }
 
@@ -68,7 +75,7 @@ pupilpv <- function(pupil) {
 #'  no check is performed on the wavefronts, so it's the user's
 #'  responsibility to make sure these come from the same source
 PVr <- function(wf.zfit, wf.residual) {
-  pvr <- pupilrms(wf.zfit) + 3*sd(wf.residual, na.rm=TRUE)
+  pvr <- pupilpv(wf.zfit) + 3*sd(wf.residual, na.rm=TRUE)
   pvr
 }
 

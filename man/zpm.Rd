@@ -4,16 +4,13 @@
 \alias{zpmC}
 \title{Matrixes of Zernike polynomials}
 \description{
-  Create a matrix of Zernike polynomial values, or their
-  derivatives or gradient.
+  Create a matrix of Zernike polynomial values.
 }
 \usage{
 zpm(rho, theta, phi= 0 , maxorder = 14, nthreads=parallel::detectCores()/2)
 zpmC(rho, theta, maxorder)
 zpmCP(rho, theta, maxorder)
 zpm.arb(rho, theta, phi = 0, zlist = makezlist())
-filldzm(rho, theta, phi = 0, zlist = makezlist())
-fillgradientzm(rho, theta, phi = 0, zlist = makezlist())
 }
 \arguments{
   \item{rho}{A vector of radial coordinates.}

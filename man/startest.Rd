@@ -15,7 +15,7 @@ startest(wf=NULL, zcoef=NULL, zlist=makezlist(), phi=0,
 \arguments{
   \item{wf}{A matrix of class \code{pupil} containing wavefront values}
   \item{zcoef}{Vector of Zernike coefficients}
-  \item{zlist}{Indexes of Zernike coefficients}
+  \item{maxorder}{maximum Zernike polynomial order}
   \item{phi}{Angle to rotate wavefront}
   \item{lambda}{Wavelength, in same units as coefficients}
   \item{defocus}{Amount of defocus in waves}

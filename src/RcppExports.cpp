@@ -5,6 +5,7 @@
 #include <Rcpp.h>
 
 using namespace Rcpp;
+using namespace arma;
 
 // id_dxy_uw
 NumericVector id_dxy_uw(const int& nr, const int& nc, const NumericVector& phase, const NumericVector& mask, const NumericVector& dx, const NumericVector& dy, IntegerVector uw);

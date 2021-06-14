@@ -5,14 +5,14 @@
   Compute and display a synthetic interferogram.
 }
 \usage{
-synth.interferogram(wf = NULL, zcoef = NULL, zlist = NULL, 
+synth.interferogram(wf = NULL, zcoef = NULL, maxorder = NULL, 
   nr = nrow(wf), nc = ncol(wf), cp = NULL, 
   phi = 0, addzc = rep(0, 4), fringescale = 1, plots = TRUE)
 }
 \arguments{
   \item{wf}{A matrix of wavefront values}
   \item{zcoef}{A vector of Zernike coefficients}
-  \item{zlist}{A list of Zernike indexes}
+  \item{maxorder}{Maximum Zernike polynomial order}
   \item{nr}{Number of rows in the output matrix}
   \item{nc}{Number of columns in the output matrix}
   \item{cp}{A list describing the pupil boundaries, as created by \code{\link{pupil.pars}}}
@@ -23,7 +23,7 @@ synth.interferogram(wf = NULL, zcoef = NULL, zlist = NULL,
 }
 \details{
   Either \code{wf} or \code{zcoef} should be non-null,
-  but not both. If \code{zcoef} is specified \code{zlist}
+  but not both. If \code{zcoef} is specified \code{maxorder}
   must be as well.
   
   Additional piston, tilt, and defocus terms can be added
