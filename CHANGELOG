@@ -623,3 +623,9 @@
 ##
 ## added function PVr
 ## split out wf_net() into its own file
+
+## 20210613
+##
+## Changes to pupil(), startest(), synth.interferogram()
+## cleaned up documentation
+

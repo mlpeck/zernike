@@ -2,7 +2,7 @@
 \alias{astig.bath}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Zernike coefficients for astigmatism due to Bath astigmatism.
+Zernike coefficients for astigmatism due to Bath geometry.
 }
 \description{
 Calculates Bath astigmatism coefficients with optional rotation

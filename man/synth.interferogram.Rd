@@ -6,8 +6,9 @@
 }
 \usage{
 synth.interferogram(wf = NULL, zcoef = NULL, maxorder = NULL, 
-  nr = nrow(wf), nc = ncol(wf), cp = NULL, 
-  phi = 0, addzc = rep(0, 4), fringescale = 1, plots = TRUE)
+                    nr = nrow(wf), nc = ncol(wf), cp = NULL, 
+                    phi = 0, addzc = rep(0, 4), fringescale = 1, 
+                    plots = TRUE)
 }
 \arguments{
   \item{wf}{A matrix of wavefront values}
@@ -22,7 +23,7 @@ synth.interferogram(wf = NULL, zcoef = NULL, maxorder = NULL,
   \item{plots}{Logical: Plot the interferogram?}
 }
 \details{
-  Either \code{wf} or \code{zcoef} should be non-null,
+  Either \code{wf} or \code{zcoef} must be non-null,
   but not both. If \code{zcoef} is specified \code{maxorder}
   must be as well.
   
@@ -41,13 +42,13 @@ synth.interferogram(wf = NULL, zcoef = NULL, maxorder = NULL,
 # create a list of zernikes
 zcoef <- rnorm(length(zlist.fr$n), mean=0, sd=0.01)
 
-iwf <- synth.interferogram(zcoef=zcoef, zlist=zlist.fr)
+iwf <- synth.interferogram(zcoef=zcoef, maxorder=12)
 
 X11()
 
 # show again with some tilt
 
-iwf <- synth.interferogram(zcoef=zcoef, zlist=zlist.fr, addzc=c(0,5,5,0))
+iwf <- synth.interferogram(zcoef=zcoef, maxorder=12, addzc=c(0,5,5,0))
 }
 \keyword{graphics}
 \keyword{hplot}

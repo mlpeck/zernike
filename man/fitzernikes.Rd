@@ -6,7 +6,7 @@
   Zernike polynomials to a vector of wavefront measurements.
 }
 \usage{
-fitzernikes(wf, rho, theta, phi = 0, maxorder = 14, uselm = FALSE)
+fitzernikes(wf, rho, theta, phi = 0, maxorder = 14, uselm = FALSE, isoseq = FALSE)
 }
 \arguments{
   \item{wf}{A vector of wavefront values}

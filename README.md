@@ -46,19 +46,6 @@ These demos illustrate basic PSI analysis, a sliding window analysis of a multip
 
 There is a vast quantity of documentation and literature about the R system. At a minimum you should read the [R for Windows FAQ](https://cran.r-project.org/bin/windows/base/rw-FAQ.html) and the introduction to R included as a PDF file in the software installation.
 
-## Release notes
-
-Several changes were made for the current release. Most of these are "behind the scenes" and mostly made for performance or maintainability reasons. These include:
-
-* C code for phase unwrapping routines has been converted to C++ for use with Rcpp. This mostly involved changing pointers to references in function calls.
-* A threaded version of the code for filling matrixes of Zernike polynomials has been added. The number of threads used is set by the argument `nthreads` to `psfit_options()`. This is set by default to half the number of cores detected because all of the PCs in my collection have multithreading CPUs that report double the number of physical cores actually present. In practice threading might or might not be beneficial. Speed gains are more likely if very large numbers of ZP values are needed.
-
-Some user visible changes:
-
-* Added function `vortexfit()` implementing the vortex aka spiral quadrature transform algorithm of Larkin et al. This is the same algorithm with possibly slightly different implementation as used in DFTFringe.
-* Added function `circle.hough()` to detect circular interferogram edges using the Hough circle transform. This is experimental and is not curently used by any other routine.
-* The function `circle.pars()` for automated edge detection now uses the function `nlsrob()` from package robustbase for circle parameter estimation. An optional but enabled by default refinement step used in previous versions of the algorithm has been removed.
-
 ***
 PSI data are courtesy of Vladimir Galogaza. Steve Koehler provided valuable programming advice.
 

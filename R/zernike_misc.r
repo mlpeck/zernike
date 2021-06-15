@@ -4,7 +4,7 @@
 
 ## Author: M.L. Peck (mlpeck54@gmail.com)
 ## Language: R (http://www.r-project.org/)
-## Copyright (c) 2004-2019, M.L. Peck
+## Copyright (c) 2004-2021, M.L. Peck
 
 
 
@@ -24,59 +24,6 @@ rygcb <- colorRampPalette(c("red", "yellow", "green", "cyan", "blue"), space = "
 rygcbm <- colorRampPalette(c("red", "yellow", "green", "cyan", "blue", "magenta"),
 			space="Lab", interpolate="spline")
 
-## a plot method for pupils
-
-plot.pupil <- function(wf, cp=NULL, col=topo.colors(256), addContours=TRUE, 
-                       cscale=FALSE, eqa=FALSE, zlim=NULL, ...) {
-    nr <- nrow(wf)
-    nc <- ncol(wf)
-    if(is.null(zlim)) zlim <- range(wf, finite=TRUE)
-    if(eqa) wfcdf <- ecdf(wf[!is.na(wf)])
-    if (cscale) {
-        mar.orig <- (par.orig <- par(c("mar", "las", "mfrow")))$mar
-        on.exit(par(par.orig))
-        w <- (3 + mar.orig[2]) * par("csi") * 2.54
-        layout(matrix(c(2, 1), ncol = 2), widths = c(1, lcm(w)))
-        par(las = 1)
-        mar <- mar.orig
-        mar[4] <- mar[2]
-        mar[2] <- 1
-        par(mar = mar)
-        levels <- seq(zlim[1], zlim[2], length=length(col)+1)
-        plot.new()
-        plot.window(xlim=c(0,1),ylim=range(levels), xaxs="i", yaxs="i")
-        if (eqa) {
-            vcol <- col[round((length(col)-1)*wfcdf(seq(zlim[1],zlim[2],length=length(col)))+1)]
-        } else vcol <- col
-	rect(0, levels[-length(levels)], 1, levels[-1], col=vcol, density=NA)
-        axis(4)
-        box()
-        mar <- mar.orig
-        mar[4] <- 0
-        par(mar = mar)
-    }
-    if (is.null(cp)) {
-        axis1 <- 1:nr
-        axis2 <- 1:nc
-    } else {
-        axis1 <- ((1:nr)-cp$xc)/cp$rx
-        axis2 <- ((1:nc)-cp$yc)/cp$ry
-    }
-    if (eqa) {
-        iwf <- wfcdf(wf[!is.na(wf)])
-        iwfm <- wf
-        iwfm[!is.na(iwfm)] <- iwf
-        zlim <- wfcdf(zlim)
-        col1 <- round((length(col)-1)*zlim[1]+1)
-        col2 <- round((length(col)-1)*zlim[2]+1)
-        image(axis1, axis2, iwfm, zlim=zlim, asp=1, col=col[col1:col2], 
-              xlab="X", ylab="Y", useRaster=TRUE, ...)
-    } else {
-        image(axis1, axis2, wf, zlim=zlim, asp=1, col=col, 
-                  xlab="X", ylab="Y", useRaster=TRUE, ...)
-    }
-    if (addContours) contour(axis1, axis2, wf, add=TRUE)
-}
 
 ## comparison plot of n wavefront estimates
 
@@ -205,28 +152,33 @@ fftshift <- function(X) {
 ## computes & displays fraunhofer diffraction pattern
 ## & mtf for wavefront described in zernike coefficients zcoef
 
-startest <- function(wf=NULL, zcoef=NULL, maxorder=12L, phi=0,
-	lambda = 1, defocus=5,
-	nrow = 255, ncol = nrow, cp = list(xc=128,yc=128,rx=127,ry=127,obstruct=0),
+startest <- function(wf=NULL, zcoef=NULL, maxorder=14L, phi=0,
+	lambda = 1, defocus=5, cp=NULL,
 	obstruct=NULL, 
 	npad = 4, 
 	gamma=2, psfmag=2, displaymtf=TRUE, displaywf=FALSE) {
 
     if (tolower(.Platform$OS.type) == "windows") {
-    windows(width=15, height=5) } else {
-    x11(width=15,height=5)
+      windows(width=15, height=5) 
+    } else {
+      x11(width=15,height=5)
     }
     screens<- split.screen(c(1,3))
 
-    if (is.null(wf))
-            wf <- pupil(zcoef=zcoef, maxorder=maxorder, phi=phi, nrow=nrow, ncol=ncol, cp=cp)
-    else {
-            nrow <- nrow(wf)
-            ncol <- ncol(wf)
+    if (is.null(wf)) {
+      wf <- pupil(zcoef=zcoef, maxorder=maxorder, phi=phi, piston=0)
+      cp <- cp.default
+    } else {
+      if (is.null(cp)) {
+        stop("must specify cp if wf is non-null")
+      }
     }
-    wf.df <- pupil(zcoef=c(0, 0,0,1), maxorder=2, nrow=nrow, ncol=ncol, cp=cp)
-    if (!is.null(obstruct)) wf[is.na(wf.df)] <- NA
-
+    nrow <- nrow(wf)
+    ncol <- ncol(wf)
+    wf.df <- pupil(zcoef=c(0, 0, 0, 1), maxorder=2, nrow=nrow, ncol=ncol, cp=cp)
+    if (!is.null(obstruct)) {
+      wf[is.na(wf.df)] <- NA
+    }
     lx <- round(2*cp$rx)+1
     ly <- round(2*cp$ry)+1
     npad <- npad * .up2(lx,ly)
@@ -285,44 +237,6 @@ startest <- function(wf=NULL, zcoef=NULL, maxorder=12L, phi=0,
             grid()
     }
     list(psf=psf, otf=otf, mtf=mtf)
-}
-
-## RGL animated 3D plot
-
-## administrative stuff needed to make this a method for class "pupil"
-
-wf3d <- function(wf, ...) UseMethod("wf3d", wf)
-
-col3d <- function(wf, surf.col=topo.colors(256), zlim = NULL, eqa=FALSE) {
-	if (is.null(zlim)) zlim <- range(wf, na.rm=TRUE)
-    if (eqa) {
-        wfcdf <- ecdf(wf[!is.na(wf)])
-        iwf <- wfcdf(wf[!is.na(wf)])
-        wf[!is.na(wf)] <- iwf
-        zlim <- wfcdf(zlim)
-    }
-    surf.col[(length(surf.col)-1)*(wf-zlim[1])/(zlim[2]-zlim[1])+1]
-}
-
-wf3d.pupil <- function(wf, cp=NULL, zoom.wf=1, surf.col=topo.colors(256), bg.col="black",
-                eqa=FALSE) {
-    require(rgl)
-    zlim <- range(wf, na.rm=TRUE)
-    col <- col3d(wf, surf.col, zlim, eqa)
-    if (is.null(cp)) {
-        axis1 <- seq(-1, 1, length=nrow(wf))
-        axis2 <- seq(-1, 1, length=ncol(wf))*(ncol(wf)/nrow(wf))
-    } else {
-        axis1 <- ((1:nrow(wf))-cp$xc)/cp$rx
-        axis2 <- ((1:ncol(wf))-cp$yc)/cp$ry
-    }
-
-    rgl.bg(sphere=FALSE, fogtype="exp2", color=bg.col)
-    rgl.surface(-axis1, axis2, wf*zoom.wf, color=col, shininess=100)
-    rgl.lines(c(-1,-1.25)*max(axis1),c(0,0),c(0,0),color="red", lit=FALSE)
-    rgl.lines(c(0,0),c(0,0),c(1,1.25)*max(axis2),color="red", lit=FALSE)
-    rgl.texts(-1.3*max(axis1),0,0, "X", color="red")
-    rgl.texts(0,0,1.3*max(axis2), "Y", color="red")
 }
 
 ## Kolmogorov turbulence
@@ -393,37 +307,42 @@ foucogram <- function(wf, edgex = 0, phradius = 0, slit=FALSE, pad=4, gamma=1,
 
 ## Synthetic interferogram
 
+## notes: must have either non-null wf or zcoef. If wf is NULL
+##        and cp is null make a new wavefront with current defaults
+##        for matrix size and cp in pupil(), otherwise use the values
+##        passed here. If wf is non-null zcoef is ignored
+##        and the correct cp must be passed.
+
 synth.interferogram <- function(wf=NULL, zcoef=NULL, maxorder=NULL, 
                                 nr=nrow(wf), nc=ncol(wf), cp=NULL, 
                                 phi=0, addzc=rep(0,4), fringescale=1, 
                                 plots=TRUE) {
-    if (is.null(wf)) {
-        if (is.null(cp)) {
-            wf <- pupil(zcoef=zcoef, maxorder=maxorder, phi=phi)+
-                        pupil(zcoef=addzc[-1], maxorder=2, piston=addzc[1])
-            nr <- nrow(wf)
-            nc <- ncol(wf)
-        } else {
-            wf <- pupil(zcoef=zcoef, maxorder=maxorder, phi=phi, nrow=nr, ncol=nc, cp=cp) +
-                  pupil(zcoef=addzc[-1], maxorder=2, piston=addzc[1], 
-                        nrow=nr, ncol=nc, cp=cp)
-        }
+  if (is.null(wf)) {
+    if (is.null(cp)) {
+      wf <- pupil(zcoef=zcoef, maxorder=maxorder, phi=phi, piston=0)+
+            pupil(zcoef=addzc, maxorder=2)
+      nr <- nrow(wf)
+      nc <- ncol(wf)
+      cp <- cp.default
     } else {
-        if (is.null(cp)) {
-            wf <- wf + pupil(zcoef=addzc[-1], maxorder=2, piston=addzc[1], nrow=nr, ncol=nc)
-        } else {
-            wf <- wf + pupil(zcoef=addzc[-1], maxorder=2, piston=addzc[1], 
-                             nrow=nr, ncol=nc, cp=cp)
-        }
+      wf <- pupil(zcoef=zcoef, maxorder=maxorder, phi=phi, piston=0,
+                  nrow=nr, ncol=nc, cp=cp) +
+            pupil(zcoef=addzc, maxorder=2, nrow=nr, ncol=nc, cp=cp)
     }
-    igram <- cos(2*pi*wf/fringescale)
-    igram[is.na(igram)] <- 0
-    class(igram) <- "pupil"
-    if (plots) plot(igram, col=grey256, addContours=FALSE)
-    igram
+  } else {
+    if (is.null(cp)) {
+      stop("must specify a value for cp if wf is non-null")
+    }
+    wf <- wf + pupil(zcoef=addzc, maxorder=2, nrow=nr, ncol=nc, cp=cp)
+  }
+  igram <- cos(2*pi*wf/fringescale)
+  igram[is.na(igram)] <- 0
+  class(igram) <- c("pupil", class(igram))
+  if (plots) plot(igram, col=grey256, addContours=FALSE)
+  igram
 }
-
-
+                                
+                                
 #########
 ## general utilities
 #########

@@ -5,10 +5,8 @@
   Simulates a star test.
 }
 \usage{
-startest(wf=NULL, zcoef=NULL, zlist=makezlist(), phi=0,
-	lambda = 1, defocus=5,
-	nrow = 255, ncol = nrow, 
-	cp = list(xc=128,yc=128,rx=127,ry=127,obstruct=0),
+startest(wf=NULL, zcoef=NULL, maxorder=14L, phi=0,
+	lambda = 1, defocus=5, cp=NULL,
 	obstruct=NULL, npad = 4, 
 	gamma=2, psfmag=2, displaymtf=TRUE, displaywf=FALSE)
 }
@@ -19,8 +17,6 @@ startest(wf=NULL, zcoef=NULL, zlist=makezlist(), phi=0,
   \item{phi}{Angle to rotate wavefront}
   \item{lambda}{Wavelength, in same units as coefficients}
   \item{defocus}{Amount of defocus in waves}
-  \item{nrow}{# rows in pupil matrix}
-  \item{ncol}{# columns in pupil matrix}
   \item{cp}{pupil parameters}
   \item{obstruct}{Obstruction fraction}
   \item{npad}{Pad factor for FFT}
@@ -50,11 +46,6 @@ startest(wf=NULL, zcoef=NULL, zlist=makezlist(), phi=0,
 \seealso{
   \code{\link{Zernike}},
   \code{\link{pupil}}.
-}
-\examples{
-# a random, but probably almost diffraction limited, wavefront
-
-temp <- startest(zcoef=rnorm(length(makezlist()$n), mean=0, sd=0.01), zlist=makezlist(), displaywf=TRUE)
 }
 \keyword{graphics}
 \keyword{hplot}

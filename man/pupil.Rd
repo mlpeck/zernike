@@ -9,10 +9,14 @@
   are also provided.
 }
 \usage{
-  pupil(zcoef=NULL, maxorder=12L, isoseq=FALSE,
+  nrow.default <- 640
+  ncol.default <- nrow.default
+  cp.default <- list(xc=320.5, yc=320.5, rx=319.5, ry=319.5, obstruct=0)
+
+  pupil(zcoef=NULL, maxorder=14L, isoseq=FALSE,
       phi=0, piston=0,
-      nrow=640, ncol=nrow, 
-      cp=list(xc=320.5,yc=320.5,rx=319.5,ry=319.5,obstruct=0))
+      nrow=nrow.default, ncol=ncol.default, 
+      cp=cp.default)
   pupil.arb(zcoef=NULL, zlist=makezlist(), 
           phi=0, piston=0,
           nrow=640, ncol=nrow, 
@@ -39,10 +43,14 @@
   \code{\link{plot.pupil}} and \code{\link{summary.pupil}} provide
   simple plot and summary methods for objects of class \code{"pupil"}.
 
-  \code{pupil.arb} will accept an arbitrary list of Zernikes.
+  \code{pupil.arb} will accept an arbitrary list of Zernike indexes.
 
   \code{pupil} requires a complete set of Zernikes as returned
-  by \code{\link{makezlist}}.
+  by \code{\link{zpm}} or \code{\link{zpm_cart}}.
+  
+  Default values \code{nrow.default}, \code{ncol.default} and \code{cp.default}
+  are now (as of version 3.7.0) stored in the package environment. These
+  can be used or overridden by setting values in the user`s global environment.
 }
 \value{
   A matrix of size \code{nrow} x \code{ncol}.
@@ -67,7 +75,7 @@
   \code{\link{circle.pars}}.
 }
 \examples{
-wf <- pupil(zcoef=rnorm(length(makezlist()$n), 0, 0.01))
+wf <- pupil(zcoef=rnorm(length(makezlist(0, 14)$n), 0, 0.01))
 plot(wf, addContours=FALSE)
 summary(wf)
 }

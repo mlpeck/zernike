@@ -26,9 +26,11 @@ Calculate Zernike polynomial values and Cartesian gradients in
 ISO/ANSI sequence for a set of Cartesian coordinates.
 }
 \details{
-polynomial values and their directional derivatives in Cartesian coordinates. These are
-known to be both efficient and numerically stable.
+Zernike polynomial values and their directional derivatives in Cartesian coordinates. 
+The recurrence relations used are
+known to be both efficient and numerically stable (see the reference).
 
+Columns are in ISO/ANSI sequence: for each radial order n >= 0 the azimuthal orders m are sequenced
 m = {-n, -(n-2), ..., (n-2), n}, with sine components for negative m and cosine for positive m. Note this
 is the opposite ordering from the extended Fringe set and the ordering of aberrations is quite different.
 For example the two components of trefoil are in the 7th and 10th column while coma is in
@@ -36,7 +38,7 @@ columns 8 and 9 (or 7 and 8 with 0-indexing). Note also that except for tilt and
 (m=1) non-axisymmetric aberrations will be separated.
 
 All three matrices will have the same dimensions on return. Columns 0 and 1 of \code{dzdx} will be all 0,
-while columns 0 and 3 of \code{dzdy} are 0.
+while columns 0 and 2 of \code{dzdy} are 0.
 }
 \examples{
  rho <- seq(0.2, 1, length=5)
