@@ -135,6 +135,8 @@ norm_zpm <- function(uzpm, maxorder = 12L) {
     .Call(`_zernike_norm_zpm`, uzpm, maxorder)
 }
 
+#' Zernike polynomials and cartesian gradients\
+#'
 #' Calculate Zernike polynomial values and Cartesian gradients in
 #' ISO/ANSI sequence for a set of Cartesian coordinates.
 #'
@@ -151,11 +153,11 @@ norm_zpm <- function(uzpm, maxorder = 12L) {
 #'   <https://doi.org/10.1364/OE.26.018878> (open access)
 #'
 #' @details
-#`  Uses the recurrence relations in the above publication to calculate Zernike
+#'  Uses the recurrence relations in the above publication to calculate Zernike
 #'  polynomial values and their directional derivatives in Cartesian coordinates. These are
 #'  known to be both efficient and numerically stable.
 #'
-#`  Columns are in ISO/ANSI sequence: for each radial order n >= 0 the azimuthal orders m are sequenced
+#'  Columns are in ISO/ANSI sequence: for each radial order n >= 0 the azimuthal orders m are sequenced
 #'  m = {-n, -(n-2), ..., (n-2), n}, with sine components for negative m and cosine for positive m. Note this
 #'  is the opposite ordering from the extended Fringe set and the ordering of aberrations is quite different. 
 #'  For example the two components of trefoil are in the 7th and 10th column while coma is in
@@ -182,6 +184,8 @@ gradzpm_cart <- function(x, y, maxorder = 12L, unit_variance = FALSE, return_zpm
     .Call(`_zernike_gradzpm_cart`, x, y, maxorder, unit_variance, return_zpm)
 }
 
+#' Zernike polynomials
+#'
 #' Calculate Zernike polynomial values in
 #' ISO/ANSI sequence for a set of Cartesian coordinates.
 #'

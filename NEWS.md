@@ -4,6 +4,7 @@ A number of additions and changes have been made for this release, and some of t
 
 * Added `gradzpm_cart`, `zpm_cart`, and `norm_zpm` to create matrixes of Zernike polynomials and their derivatives in ISO/ANSI sequence and Cartesian coordinates. See the documentation for further details.
 * Added the item `isoseq` to the list in `psfit_options()` to tell other routines when to use `zpm_cart` instead of `zpm`. This is checked in the function `wf_net()` and if true `zpm_cart` is used in the Zernike fitting.
+* Added function `makezlist.iso` to make a list of Zernike polynomial indexes in ISO/ANSI sequence.
 * Added print, summary, and plot methods for the return lists from `psifit()`, `vortexfit()`, and `fftfit()`. These have been assigned the S3 class `wf_fitted`.
 * **Potentially important!** Arguments to `pupil` have changed: instead of passing `zlist` as argument I now use `maxorder` which is in turn passed to `zpm` or `zpm_cart`. If the first element of zcoef is the piston term the piston entry in the argument list should be left null, which is the default. If zcoef starts with tilts, which it will be if returned by `wf_net` or one of the routines that call _it_, piston _must_ be non-null (usually should be 0). The function `pupil.arb()` continues to use `zlist` to provide a list of Zernike indexes since the usual use case would be to create a synthetic wavefront with just a few aberrations.
 * The bonus functions `startest()` and `synth.interferogram()` have modified arguments and the logic of the code has been improved (maybe).

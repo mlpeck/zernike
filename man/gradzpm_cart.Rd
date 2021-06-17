@@ -2,8 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{gradzpm_cart}
 \alias{gradzpm_cart}
-\title{Calculate Zernike polynomial values and Cartesian gradients in
-ISO/ANSI sequence for a set of Cartesian coordinates.}
+\title{Zernike polynomials and cartesian gradients\}
 \usage{
 gradzpm_cart(x, y, maxorder = 12L, unit_variance = FALSE, return_zpm = TRUE)
 }
@@ -26,9 +25,9 @@ Calculate Zernike polynomial values and Cartesian gradients in
 ISO/ANSI sequence for a set of Cartesian coordinates.
 }
 \details{
-Zernike polynomial values and their directional derivatives in Cartesian coordinates. 
-The recurrence relations used are
-known to be both efficient and numerically stable (see the reference).
+Uses the recurrence relations in the above publication to calculate Zernike
+polynomial values and their directional derivatives in Cartesian coordinates. These are
+known to be both efficient and numerically stable.
 
 Columns are in ISO/ANSI sequence: for each radial order n >= 0 the azimuthal orders m are sequenced
 m = {-n, -(n-2), ..., (n-2), n}, with sine components for negative m and cosine for positive m. Note this
@@ -38,7 +37,7 @@ columns 8 and 9 (or 7 and 8 with 0-indexing). Note also that except for tilt and
 (m=1) non-axisymmetric aberrations will be separated.
 
 All three matrices will have the same dimensions on return. Columns 0 and 1 of \code{dzdx} will be all 0,
-while columns 0 and 2 of \code{dzdy} are 0.
+while columns 0 and 3 of \code{dzdy} are 0.
 }
 \examples{
  rho <- seq(0.2, 1, length=5)

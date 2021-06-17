@@ -2,8 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{zpm_cart}
 \alias{zpm_cart}
-\title{Calculate Zernike polynomial values in
-ISO/ANSI sequence for a set of Cartesian coordinates.}
+\title{Zernike polynomials}
 \usage{
 zpm_cart(x, y, maxorder = 12L, unit_variance = TRUE)
 }

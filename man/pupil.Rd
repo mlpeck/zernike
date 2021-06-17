@@ -14,19 +14,19 @@
   cp.default <- list(xc=320.5, yc=320.5, rx=319.5, ry=319.5, obstruct=0)
 
   pupil(zcoef=NULL, maxorder=14L, isoseq=FALSE,
-      phi=0, piston=0,
+      phi=0, piston=NULL,
       nrow=nrow.default, ncol=ncol.default, 
       cp=cp.default)
   pupil.arb(zcoef=NULL, zlist=makezlist(), 
           phi=0, piston=0,
-          nrow=640, ncol=nrow, 
-          Cp=list(xc=320.5,yc=320.5,rx=319.5,ry=319.5,obstruct=0))
+          nrow=nrow.default, ncol=ncol.default, 
+          cp=cp.default)
 }
 \arguments{
   \item{zcoef}{A vector of Zernike coefficients}
   \item{maxorder}{Maximum Zernike polynomial order}
+  \item{zlist}{List of indexes the same length as zcoef}
   \item{isoseq}{ZPs in ISO/ANSI sequence}
-  \item{zlist}{List of indexes the same length as \code{zcoef}}
   \item{phi}{Amount to rotate image, in degrees}
   \item{piston}{Constant to add to wavefront values}
   \item{nrow}{Number of rows in output matrix}
@@ -51,6 +51,18 @@
   Default values \code{nrow.default}, \code{ncol.default} and \code{cp.default}
   are now (as of version 3.7.0) stored in the package environment. These
   can be used or overridden by setting values in the user`s global environment.
+  
+  Version 3.7.0 of this package makes some fairly significant changes in \code{pupil} from previous releases.
+  First, zlist is no longer used to indicate the set of Zernikes used. Instead the 
+  maximum radial order is passed as \code{maxorder}, defaulting to 14.
+  The complete set of Zernike polynomial values including piston is
+  calculated with either \code{\link{zpm}} or \code{\link{zpm_cart}} if
+  \code{isoseq} is \code{TRUE}. The vector \code{zcoef}, if non-null,
+  must be either the same length as the number of columns in the zernike matrix with
+  a null value for \code{piston}, or one shorter with a non-null value
+  for \code{piston}. The vector \code{zcoef.net} returned by
+  \code{\link{wf_net}} has the first, piston, element removed so a
+  non-null piston value must be passed as an argument.
 }
 \value{
   A matrix of size \code{nrow} x \code{ncol}.
@@ -66,8 +78,9 @@
 }
 
 \seealso{
-  \code{\link{Zernike}},
-  \code{\link{makezlist}},
+  \code{\link{zpm}},
+  \code{\link{zpm_cart}},
+  \code{\link{wf_net}},
   \code{\link{pupilrms}},
   \code{\link{pupilpv}},
   \code{\link{strehlratio}},
