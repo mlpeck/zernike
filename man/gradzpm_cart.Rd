@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{gradzpm_cart}
 \alias{gradzpm_cart}
-\title{Zernike polynomials and cartesian gradients\}
+\title{Zernike polynomials and cartesian gradients}
 \usage{
 gradzpm_cart(x, y, maxorder = 12L, unit_variance = FALSE, return_zpm = TRUE)
 }

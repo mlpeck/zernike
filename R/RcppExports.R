@@ -135,7 +135,7 @@ norm_zpm <- function(uzpm, maxorder = 12L) {
     .Call(`_zernike_norm_zpm`, uzpm, maxorder)
 }
 
-#' Zernike polynomials and cartesian gradients\
+#' Zernike polynomials and cartesian gradients
 #'
 #' Calculate Zernike polynomial values and Cartesian gradients in
 #' ISO/ANSI sequence for a set of Cartesian coordinates.
