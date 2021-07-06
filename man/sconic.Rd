@@ -8,7 +8,7 @@
 %%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-sconic(D, rc, b = -1, lambda = 632.8, nmax = 6)
+sconic(D, rc, b = -1, eps = 0., lambda = 632.8, nmax = 6)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,9 +18,10 @@ sconic(D, rc, b = -1, lambda = 632.8, nmax = 6)
   \item{rc}{Radius of curvature (mm)
 %%     ~~Describe \code{rc} here~~
 }
-  \item{b}{conic constant
+  \item{b}{conic constant (default -1)
 %%     ~~Describe \code{b} here~~
 }
+  \item{eps}{obstruction fraction (default 0)}
   \item{lambda}{source or test wavelength (nm)
 %%     ~~Describe \code{lambda} here~~
 }
