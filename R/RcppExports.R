@@ -102,14 +102,17 @@ tiltpsiC <- function(images, phases_init, coords, ptol, maxiter, trace) {
     .Call(`_zernike_tiltpsiC`, images, phases_init, coords, ptol, maxiter, trace)
 }
 
-zpmC <- function(rho, theta, maxorder) {
+zpmC <- function(rho, theta, maxorder = 12L) {
     .Call(`_zernike_zpmC`, rho, theta, maxorder)
+}
+
+zapmC <- function(rho, theta, maxorder = 12L) {
+    .Call(`_zernike_zapmC`, rho, theta, maxorder)
 }
 
 zpmCP <- function(rho, theta, maxorder) {
     .Call(`_zernike_zpmCP`, rho, theta, maxorder)
 }
-
 
 
 #' Normalize matrix of Zernike polynomial values.
@@ -165,14 +168,15 @@ norm_zpm <- function(uzpm, maxorder = 12L) {
 #'  (m=1) non-axisymmetric aberrations will be separated.
 #'
 #'  All three matrices will have the same dimensions on return. Columns 0 and 1 of `dzdx` will be all 0,
-#'  while columns 0 and 3 of `dzdy` are 0.
+#'  while columns 0 and 2 of `dzdy` are 0.
 #'
 #' @seealso [zpm()] uses the same recurrence relations for polar coordinates and extended
 #'  Fringe set ordering, which is the more common indexing scheme for optical design/testing
 #'  software.
 #' @seealso [zpm_cart()] calculates and returns the Zernike polynomial values only.
+#'
 #' @examples
-#'  rho <- seq(0.2, 1, length=5)
+#'  rho <- seq(0.2, 1., length=5)
 #'  theta <- seq(0, 1.6*pi, length=5)
 #'  rt <- expand.grid(theta, rho)
 #'  x <- c(0, rt[,2]*cos(rt[,1]))
@@ -203,5 +207,27 @@ gradzpm_cart <- function(x, y, maxorder = 12L, unit_variance = FALSE, return_zpm
 #' @md
 zpm_cart <- function(x, y, maxorder = 12L, unit_variance = TRUE) {
     .Call(`_zernike_zpm_cart`, x, y, maxorder, unit_variance)
+}
+
+#' Zernike Annular polynomials
+#'
+#' Calculate approximate Zernike Annular polynomial values in
+#' ISO/ANSI sequence for a set of Cartesian coordinates.
+#'
+#' @param x a vector of x coordinates for points on a unit disk.
+#' @param y a vector of y coordinates.
+#' @param maxorder the maximum radial polynomial order (defaults to 12).
+#'
+#' @return a matrix of approximate Zernike Annular polynomial values evaluated at the input
+#'  Cartesian coordinates and all radial and azimuthal orders from
+#'  0 through `maxorder`.
+#'
+#' @details Uses QR decomposition applied separately to each azimuthal order m to orthogonalize a matrix
+#'  of Zernike polynomials. This closely approximates annular Zernikes for a large enough set of coordinates.
+#'
+#'  Note the coordinates must be uniformly spaced for this to produce the intended values.
+#' @md
+zapm_cart <- function(x, y, maxorder = 12L) {
+    .Call(`_zernike_zapm_cart`, x, y, maxorder)
 }
 

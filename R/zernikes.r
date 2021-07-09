@@ -124,21 +124,29 @@ zpm <- function(rho, theta, phi=0, maxorder = 14, nthreads=parallel::detectCores
 
 ## fit zernikes to data
 
-fitzernikes <- function(wf, rho, theta, phi=0, maxorder = 14, 
+fitzernikes <- function(wf, rho, theta, eps=0, phi=0, maxorder = 14, 
                         nthreads=parallel::detectCores()/2, uselm=FALSE, isoseq=FALSE) {
   if (isoseq) {
     theta <- theta - pi * phi/180
-    zm <- zpm_cart(x=rho*cos(theta), y=rho*sin(theta), maxorder=maxorder)
+    if (eps == 0.) {
+      zm <- zpm_cart(x=rho*cos(theta), y=rho*sin(theta), maxorder=maxorder)
+    } else {
+      zm <- zapm_cart(x=rho*cos(theta), y=rho*sin(theta), maxorder=maxorder)
+    }
   } else {
-    zm <- zpm(rho, theta, phi=phi, maxorder=maxorder, nthreads=nthreads)
+    if (eps == 0) {
+      zm <- zpm(rho, theta, phi=phi, maxorder=maxorder, nthreads=nthreads)
+    } else {
+      zm <- zapmC(rho, theta - pi * phi/180, maxorder=maxorder)
+    }
   }
-  zm.names <- colnames(zm)
   if (uselm) {
-      fmla <- as.formula(paste("wf ~ -1 + ", paste(zm.names, collapse="+")))
-      dataf <- data.frame(cbind(wf, zm))
-      fit <- lm(fmla, data=dataf)
+    zm.names <- paste("Z", 0:(ncol(zm)-1), sep="")
+    fmla <- as.formula(paste("wf ~ -1 + ", paste(zm.names, collapse="+")))
+    dataf <- data.frame(cbind(wf, zm))
+    fit <- lm(fmla, data=dataf)
   } else {
-      fit <- qr.solve(crossprod(zm),crossprod(zm, wf))
+    fit <- qr.solve(crossprod(zm),crossprod(zm, wf))
   }
   fit
 }

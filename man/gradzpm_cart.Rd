@@ -37,10 +37,10 @@ columns 8 and 9 (or 7 and 8 with 0-indexing). Note also that except for tilt and
 (m=1) non-axisymmetric aberrations will be separated.
 
 All three matrices will have the same dimensions on return. Columns 0 and 1 of \code{dzdx} will be all 0,
-while columns 0 and 3 of \code{dzdy} are 0.
+while columns 0 and 2 of \code{dzdy} are 0.
 }
 \examples{
- rho <- seq(0.2, 1, length=5)
+ rho <- seq(0.2, 1., length=5)
  theta <- seq(0, 1.6*pi, length=5)
  rt <- expand.grid(theta, rho)
  x <- c(0, rt[,2]*cos(rt[,1]))

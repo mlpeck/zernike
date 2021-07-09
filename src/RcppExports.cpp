@@ -170,15 +170,28 @@ BEGIN_RCPP
 END_RCPP
 }
 // zpmC
-NumericMatrix zpmC(NumericVector rho, NumericVector theta, int maxorder);
+NumericMatrix zpmC(const NumericVector& rho, const NumericVector& theta, const int& maxorder);
 RcppExport SEXP _zernike_zpmC(SEXP rhoSEXP, SEXP thetaSEXP, SEXP maxorderSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< int >::type maxorder(maxorderSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
     rcpp_result_gen = Rcpp::wrap(zpmC(rho, theta, maxorder));
+    return rcpp_result_gen;
+END_RCPP
+}
+// zapmC
+mat zapmC(const NumericVector& rho, const NumericVector& theta, const int& maxorder);
+RcppExport SEXP _zernike_zapmC(SEXP rhoSEXP, SEXP thetaSEXP, SEXP maxorderSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
+    rcpp_result_gen = Rcpp::wrap(zapmC(rho, theta, maxorder));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -236,6 +249,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// zapm_cart
+mat zapm_cart(const NumericVector& x, const NumericVector& y, const int& maxorder);
+RcppExport SEXP _zernike_zapm_cart(SEXP xSEXP, SEXP ySEXP, SEXP maxorderSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
+    rcpp_result_gen = Rcpp::wrap(zapm_cart(x, y, maxorder));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport void read_jpg_img(void *, void *, void *, void *, void *, void *, void *);
 RcppExport void read_jpg_img_info(void *, void *, void *, void *, void *);
@@ -257,10 +283,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_zernike_pwrap", (DL_FUNC) &_zernike_pwrap, 1},
     {"_zernike_tiltpsiC", (DL_FUNC) &_zernike_tiltpsiC, 6},
     {"_zernike_zpmC", (DL_FUNC) &_zernike_zpmC, 3},
+    {"_zernike_zapmC", (DL_FUNC) &_zernike_zapmC, 3},
     {"_zernike_zpmCP", (DL_FUNC) &_zernike_zpmCP, 3},
     {"_zernike_norm_zpm", (DL_FUNC) &_zernike_norm_zpm, 2},
     {"_zernike_gradzpm_cart", (DL_FUNC) &_zernike_gradzpm_cart, 5},
     {"_zernike_zpm_cart", (DL_FUNC) &_zernike_zpm_cart, 4},
+    {"_zernike_zapm_cart", (DL_FUNC) &_zernike_zapm_cart, 3},
     {NULL, NULL, 0}
 };
 
@@ -272,6 +300,7 @@ static const R_CMethodDef CMethods[] = {
     {"resize_image",       (DL_FUNC) &resize_image,       7},
     {NULL, NULL, 0, NULL}
 };
+
 
 RcppExport void R_init_zernike(DllInfo *dll) {
     R_registerRoutines(dll, CMethods, CallEntries, NULL, NULL);

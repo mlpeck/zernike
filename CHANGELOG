@@ -629,3 +629,11 @@
 ## Changes to pupil(), startest(), synth.interferogram()
 ## cleaned up documentation
 
+## 20210709
+##
+## adding annular zernikes and modifying code to work
+## with annular apertures
+## modified functions: pupil, fitzernikes, wf_net
+## added functions (in C++): zapmC, zapm_cart
+
+

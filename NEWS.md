@@ -1,3 +1,10 @@
+## Version 3.7.1
+
+New in this version: support for Zernike Annular polynomials approximated by orthogonalizing a matrix of Zernike polynomials:
+
+* Added C++ functions `zapmC` and `zapm_cart` to create matrixes of Annular Zernikes in extended Fringe or ISO/ANSI sequence.
+* Modified the functions `wf_net`, `fitzernikes`, and `pupil` to use annular Zernikes for annular (or obstructed) wavefronts. This is done automatically and involves no user visible changes.
+
 ## Version 3.7.0
 
 A number of additions and changes have been made for this release, and some of the changes may break previously working code. This list _may_ not be comprehensive:

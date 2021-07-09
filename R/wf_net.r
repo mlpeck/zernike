@@ -20,7 +20,8 @@ wf_net <- function(wf.raw, cp, options) {
   rho.v <- rho.v[!is.na(wf.v)]
   th.v <- th.v[!is.na(wf.v)]
   wf.v <- wf.v[!is.na(wf.v)]
-  fit <- fitzernikes(wf.v, rho.v, th.v, 
+  fit <- fitzernikes(wf.v, rho.v, th.v,
+                     eps=cp$obstruct,
                      maxorder=options$maxorder, 
                      nthreads=options$nthreads, 
                      uselm=options$uselm,

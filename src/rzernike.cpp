@@ -14,8 +14,8 @@ using namespace Rcpp;
 
 NumericVector rzernike(NumericVector rho, int n, int m) {
     
-    int np=rho.size();
-    int i;
+    unsigned int np=rho.size();
+    unsigned int i;
     NumericVector rpoly(np);
     double a, a2, a4;
     

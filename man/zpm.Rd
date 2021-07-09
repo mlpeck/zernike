@@ -9,6 +9,7 @@
 \usage{
 zpm(rho, theta, phi= 0 , maxorder = 14, nthreads=parallel::detectCores()/2)
 zpmC(rho, theta, maxorder)
+zapmC(rho, theta, maxorder)
 zpmCP(rho, theta, maxorder)
 zpm.arb(rho, theta, phi = 0, zlist = makezlist())
 }
@@ -34,6 +35,7 @@ zpm.arb(rho, theta, phi = 0, zlist = makezlist())
   \code{length(rho)} x \code{(maxorder/2+1)^2}
   of Zernike polynomial values including a piston term.
   
+  \code{zapmC} returns a matrix of (approximate) Zernike annular polynomial values.
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
 \note{

@@ -6,12 +6,13 @@
   Zernike polynomials to a vector of wavefront measurements.
 }
 \usage{
-fitzernikes(wf, rho, theta, phi = 0, maxorder = 14, uselm = FALSE, isoseq = FALSE)
+fitzernikes(wf, rho, theta, eps=0, phi = 0, maxorder = 14, uselm = FALSE, isoseq = FALSE)
 }
 \arguments{
   \item{wf}{A vector of wavefront values}
   \item{rho}{A vector of radial coordinates.}
   \item{theta}{A vector of angular coordinates, in radians.}
+  \item{eps}{Obstruction fraction of annular aperture.}
   \item{phi}{Orientation of the image, in degrees}
   \item{maxorder}{Maximum Zernike polynomial order}
   \item{uselm}{Boolean: use lm() for least squares fit}
@@ -25,8 +26,8 @@ fitzernikes(wf, rho, theta, phi = 0, maxorder = 14, uselm = FALSE, isoseq = FALS
 }
 \value{
   The model fit as returned by \code{\link{lm}},
-  or the coefficients of the least squares fit if
-  \code{uselm} is \code{FALSE}.  
+  or the coefficients of the least squares fit using \code{qr.solve}
+  if \code{uselm} is \code{FALSE}.  
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
 \note{

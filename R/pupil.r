@@ -18,14 +18,27 @@ pupil <- function(zcoef=NULL, maxorder=14L, isoseq=FALSE,
   rho.v <- rho[!is.na(rho)]
   theta.v <- theta[!is.na(rho)] - pi*phi/180
   wf.v <- numeric(length(rho.v))
+  if (cp$obstruct > 0) {
+    use.circ <- FALSE
+  } else {
+    use.circ <- TRUE
+  }
   if (!is.null(zcoef)) {
     if (!is.null(piston)) {
       zcoef <- c(piston, zcoef)
     }
     if (isoseq) {
-      wf.v <- zpm_cart(x=rho.v*cos(theta.v), y=rho.v*sin(theta.v), maxorder=maxorder) %*% zcoef
+      if (use.circ) {
+        wf.v <- zpm_cart(x=rho.v*cos(theta.v), y=rho.v*sin(theta.v), maxorder=maxorder) %*% zcoef
+      } else {
+        wf.v <- zapm_cart(x=rho.v*cos(theta.v), y=rho.v*sin(theta.v), maxorder=maxorder) %*% zcoef
+      }
     } else {
-      wf.v <- zpm(rho.v, theta.v, maxorder = maxorder) %*% zcoef
+      if (use.circ) {
+        wf.v <- zpm(rho.v, theta.v, maxorder = maxorder) %*% zcoef
+      } else {
+        wf.v <- zapmC(rho.v, theta.v, maxorder = maxorder) %*% zcoef
+      }
     }
   }
   wf <- matrix(NA, nrow=nrow, ncol=ncol)
