@@ -250,6 +250,48 @@ List gradzpm_cart(const NumericVector& x, const NumericVector& y, const int& max
 //'
 //' @details This is the same algorithm and essentially the same code as [gradzpm_cart()]
 //'  except directional derivatives aren't calculated.
+//'
+//' @examples
+//'   ##illustrates difference in smoothed wavefront from using zpm_cart with ISO sequence of same order
+
+//'   require(zernike)
+//'   fpath <- file.path(find.package(package="zernike"), "psidata")
+//'   files <- scan(file.path(fpath, "files.txt"), what="character")
+//'   for (i in 1:length(files)) files[i] <- file.path(fpath, files[i])
+//'   
+//'   ## load the images into an array
+//'   
+//'   images <- load.images(files)
+//'   
+//'   ## parameters for this run
+//'   
+//'   source(file.path(fpath, "parameters.txt"))
+//'   
+//'   ## phase shifts
+//'   
+//'   phases <- wrap((0:(dim(images)[3]-1))/frames.per.cycle*2*pi)
+//'   phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
+//'   
+//'   ## target SA coefficients for numerical null.
+//'   
+//'   sa.t <- sconic(diam,roc,lambda=wavelength)
+//'   zopt <- psfit_options()
+//'   zopt$satarget <- sa.t
+//'   psfit <- psifit(images, phases, psialg="ls", options=zopt)
+//'   
+//'   ## get back the raw wavefront
+//'   
+//'   wf.raw <- qpuw(psfit$phi, psfit$mod)
+//'   
+//'   ## This will tell wf_net to use zpm_cart instead
+//'   
+//'   zopt$isoseq <- TRUE
+//'   ifit <- wf_net(wf.raw, cp = psfit$cp, options=zopt)
+//'   
+//'   ## plotn does a direct comparison
+//'   
+//'   plotn(psfit, ifit, wftype="smooth", qt=c(0,1))
+//'
 //' @md
 // [[Rcpp::export]]
 NumericMatrix zpm_cart(const NumericVector& x, const NumericVector& y, const int& maxorder = 12, 

@@ -51,7 +51,11 @@ plotn <- function(...,
 		}
 	}
 	zlim <- range(rdiff)
-	if (tolower(.Platform$OS.type)=="windows") windows(5*nwf, 5*nwf) else X11(5*nwf,5*nwf)
+	if (tolower(.Platform$OS.type)=="windows") {
+          windows(width = 5*nwf, height = 5*nwf)
+        } else {
+          X11(width = 5*nwf,height = 5*nwf)
+        }
 	par(mar=c(0,0,2,0))
 	split.screen(figs=c(nwf,nwf))
 	for (i in 1:nwf) {
