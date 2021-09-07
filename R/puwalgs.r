@@ -15,24 +15,32 @@ rmap <- function(phase, dx=NULL, dy=NULL, plot=FALSE, ...) {
   nr <- nrow(phase)
   nc <- ncol(phase)
 
-  if (is.null(dx)) dx <- wrap(.fdiff(phase))
-  if (is.null(dy)) dy <- wrap(t(.fdiff(t(phase))))
+  if (is.null(dx)) {
+    dx <- wrap(.fdiff(phase))
+  }
+  if (is.null(dy)) {
+    dy <- wrap(t(.fdiff(t(phase))))
+  }
   d2y <- rbind(dy[1:(nr-1),]-dy[2:nr,],rep(NA,nc))
   d2x <- cbind(dx[,2:nc]-dx[,1:(nc-1)],rep(NA,nr))
   residues <- round((d2y+d2x)/(2*pi))
   if (plot) {
-  	## positive charges
-	chp <- which(residues ==1, arr.ind=TRUE)
-	## negative charges
-	chm <- which(residues == -1, arr.ind=TRUE)
-	image(1:nr, 1:nc, phase, col=grey256, asp=1, xlab="X", ylab="Y", useRaster=TRUE, ...)
-	if(length(chp)>0) points(chp, col="green", pch=20)
-	if(length(chm)>0) points(chm, col="red", pch=1)
-	nr <- sum(abs(residues),na.rm=TRUE)
-	return(nr)
+    ## positive charges
+    chp <- which(residues ==1, arr.ind=TRUE)
+    ## negative charges
+    chm <- which(residues == -1, arr.ind=TRUE)
+    image(1:nr, 1:nc, phase, col=grey256, asp=1, xlab="X", ylab="Y", useRaster=TRUE, ...)
+    if(length(chp)>0) {
+      points(chp, col="green", pch=20)
+    }
+    if(length(chm)>0) {
+      points(chm, col="red", pch=20)
+    }
+    nr <- sum(abs(residues),na.rm=TRUE)
+    nr
+  } else {
+    residues
   }
-  else
-  	return(residues)
 }
 
 ## "Itoh's" method for phase unwrapping.
