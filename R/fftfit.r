@@ -86,9 +86,9 @@ fftfit <- function(imagedata, cp=NULL,
   if (options$plots) {
     plot.cmat(submatrix(sl.fft, size=npad/2))
   }
-  cphase <- fft(fftshift(sl.fft), inv=TRUE)[1:nr, 1:nc]
-  phase <- Arg(cphase)
-  mod <- Mod(cphase)
+  cphi <- fft(fftshift(sl.fft), inv=TRUE)[1:nr, 1:nc]
+  phi <- Arg(cphi)
+  mod <- Mod(cphi)
   mod <- mod/max(mod)
   if (is.null(cp)) {
     cp <- circle.pars(mod, plot=options$plots)
@@ -96,24 +96,26 @@ fftfit <- function(imagedata, cp=NULL,
   cp.orig <- cp
   if (options$crop) {
     mod <- crop(mod, cp)$im
-    phase <- crop(phase, cp)
-    cp <- phase$cp
-    phase <- phase$im
+    phi <- crop(phi, cp)
+    cp <- phi$cp
+    phi <- phi$im
   }
-  nr <- nrow(phase)
-  nc <- ncol(phase)
+  nr <- nrow(phi)
+  nc <- ncol(phi)
   prt <- pupil.rhotheta(nr, nc, cp)
-  phase[is.na(prt$rho)] <- NA
-  class(phase) <- "pupil"
+  phi[is.na(prt$rho)] <- NA
+  class(phi) <- "pupil"
   wf.raw <- switch(options$puw_alg,
-                   qual = qpuw(phase, mod),
-                   brcut = brcutpuw(phase),
-                   qpuw(phase, mod)
+                qual = qpuw(phi, mod),
+                brcut = zernike::brcutpuw(phi),
+                lpbrcut = lppuw::brcutpuw(phi),
+                lp = lppuw::netflowpuw(phi, mod),
+                qpuw(phi, mod)
   )
   wf.raw <- options$fringescale*wf.raw
   class(wf.raw) <- "pupil"
   wf.nets <- wf_net(wf.raw, cp, options)
-  outs <- list(phi=phase, mod=mod, cp=cp,cp.orig=cp.orig,
+  outs <- list(phi=phi, mod=mod, cp=cp, cp.orig=cp.orig,
        wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
        wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net)
   class(outs) <- append(class(outs), "wf_fitted")

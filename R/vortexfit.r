@@ -88,7 +88,7 @@ vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=psfit_op
     mtext("Direction")
   }
   Q <- Re(D[1:nr, 1:nc] * exp(-1i*dir))
-  phase <- atan2(Q, im.nb[1:nr, 1:nc])
+  phi <- atan2(Q, im.nb[1:nr, 1:nc])
   mod <- sqrt(Q^2+(im.nb[1:nr, 1:nc])^2)
   mod <- (mod-min(mod))/(max(mod)-min(mod))
   if (is.null(cp)) {
@@ -97,24 +97,26 @@ vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=psfit_op
   cp.orig <- cp
   if (options$crop) {
     mod <- crop(mod, cp)$im
-    phase <- crop(phase, cp)
-    cp <- phase$cp
-    phase <- phase$im
+    phi <- crop(phi, cp)
+    cp <- phi$cp
+    phi <- phi$im
   }
-  nr <- nrow(phase)
-  nc <- ncol(phase)
+  nr <- nrow(phi)
+  nc <- ncol(phi)
   prt <- pupil.rhotheta(nr, nc, cp)
-  phase[is.na(prt$rho)] <- NA
-  class(phase) <- "pupil"
+  phi[is.na(prt$rho)] <- NA
+  class(phi) <- "pupil"
   wf.raw <- switch(options$puw_alg,
-                   qual = qpuw(phase, mod),
-                   brcut = brcutpuw(phase),
-                   qpuw(phase, mod)
+                qual = qpuw(phi, mod),
+                brcut = zernike::brcutpuw(phi),
+                lpbrcut = lppuw::brcutpuw(phi),
+                lp = lppuw::netflowpuw(phi, mod),
+                qpuw(phi, mod)
   )
   wf.raw <- options$fringescale*wf.raw
   class(wf.raw) <- "pupil"
   wf.nets <- wf_net(wf.raw, cp, options)
-  outs <- list(im.bgclean=im.nb[1:nr, 1:nc], orient=orient, dir=dir, phi=phase, mod=mod, 
+  outs <- list(im.bgclean=im.nb[1:nr, 1:nc], orient=orient, dir=dir, phi=phi, mod=mod, 
        cp=cp, cp.orig=cp.orig,
        wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
        wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net)

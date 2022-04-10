@@ -1,3 +1,10 @@
+## Version 3.7.2
+
+* `crop` will try to make a square matrix with an even number of pixels per side. Side length is optionally specifiable
+* added option `lpbrcut` to list of available phase unwrapping routines set in `psfit_options{}$puw_alg`. This will result in `lppuw::brcutpuw` being called as the phase unwrapper. Option `brcut` will result in calling `zernike::brcutpuw`.
+* Consistent calls to phase unwrapping routine in `fftfit` and `vortexfit`.
+
+
 ## Version 3.7.1
 
 New in this version: support for Zernike Annular polynomials approximated by orthogonalizing a matrix of Zernike polynomials:

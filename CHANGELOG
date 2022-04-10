@@ -636,4 +636,10 @@
 ## modified functions: pupil, fitzernikes, wf_net
 ## added functions (in C++): zapmC, zapm_cart
 
+## 20220410
+##
+## improve (I hope) crop function
+## phase unwrapping options are consistent among analysis functions
+
+
 

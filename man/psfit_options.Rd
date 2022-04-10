@@ -49,6 +49,8 @@ Get and optionally set parameters controlling various aspects of PSI algorithms,
   \code{maxorder} sets the maximum Zernike polynomial order for wavefront fitting. It must be even and at least 6. The default generally produces a
   good wavefront representation but you may want to experiment with higher order fits.
   
+  \code{puw_alg} specifies the phase unwrapping algorithm. Current options are "qual", "brcut", "lpbrcut", and "lp".
+  
   A new and somewhat experimental feature from version 3.6.0 of the package is threaded computation of Zernike polynomial matrices. The number of threads
   used is set with the option \code{nthreads}. The default is to use half the number of cores detected because on CPUs that support multi- or hyperthreading
   the number of cores reported by \code{detectCores()} is double the number of physical cores. Setting \code{nthreads = 1} will turn off threading. Different C++ routines are used for the matrix fill in the unthreaded (\code{\link{zpmC}}) and threaded (\code{\link{zpmCP}}) cases. Speed improvements, if any, may vary.

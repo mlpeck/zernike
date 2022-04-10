@@ -234,8 +234,10 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
   }
   wf.raw <- switch(options$puw_alg,
                 qual = qpuw(phi, mod),
-                brcut = brcutpuw(phi),
-                lp = lppuw::netflowpuw(phi, mod)
+                brcut = zernike::brcutpuw(phi),
+                lpbrcut = lppuw::brcutpuw(phi),
+                lp = lppuw::netflowpuw(phi, mod),
+                qpuw(phi, mod)
   )
   wf.raw <- options$fringescale * wf.raw
   class(wf.raw) <- "pupil"

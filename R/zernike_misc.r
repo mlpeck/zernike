@@ -353,19 +353,29 @@ synth.interferogram <- function(wf=NULL, zcoef=NULL, maxorder=NULL,
 
 ## crop an array
 
-crop <- function(img, cp, npad=20) {
-    nr <- dim(img)[1]
-    nc <- dim(img)[2]
-    xmin <- max(1, round(cp$xc-cp$rx-npad))
-    xmax <- min(nr, round(cp$xc+cp$rx+npad))
-    ymin <- max(1, round(cp$yc-cp$ry-npad))
-    ymax <- min(nc, round(cp$yc+cp$rx+npad))
-    cp.new <- cp
-    cp.new$xc <- cp$xc-xmin+1
-    cp.new$yc <- cp$yc-ymin+1
-    if (length(dim(img)) > 2) img <- img[xmin:xmax,ymin:ymax,]
-    else img <- img[xmin:xmax,ymin:ymax]
-    list(im=img, cp=cp.new)
+crop <- function(img, cp, npad=20, nxy=NULL) {
+  nr <- dim(img)[1]
+  nc <- dim(img)[2]
+  if (!is.null(nxy)) {
+    if ((nxy %% 2) != 0) {
+      nxy <- nxy + 1
+    }
+  } else {
+    nxy <- min(nr, nc, 2*round(cp$rx + npad), 2*round(cp$ry + npad))
+  }
+  xmin <- max(1, round(cp$xc) - nxy/2)
+  xmax <- xmin+nxy-1
+  ymin <- max(1, round(cp$yc) - nxy/2)
+  ymax <- ymin+nxy-1
+  cp.new <- cp
+  cp.new$xc <- cp$xc-xmin
+  cp.new$yc <- cp$yc-ymin
+  if (length(dim(img)) > 2) {
+    img <- img[xmin:xmax,ymin:ymax,]
+  } else {
+    img <- img[xmin:xmax,ymin:ymax]
+  }
+  list(im=img, cp=cp.new)
 }
 
 ## general purpose 2D convolution using FFT's.

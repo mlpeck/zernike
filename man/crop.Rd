@@ -7,13 +7,14 @@
   from an image array, wavefront, etc.
 }
 \usage{
-crop(img, cp, npad = 20)
+crop(img, cp, npad = 20, nxy=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{img}{Array to be cropped.}
   \item{cp}{A list describing the pupil boundary.}
   \item{npad}{Amount of padding to leave around the edge.}
+  \item{nxy}{Number pixels per side in cropped array.}
 }
 \details{
   \code{cp} is the list provided by \code{\link{circle.pars}}.
