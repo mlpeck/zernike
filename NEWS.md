@@ -1,6 +1,6 @@
 ## Version 3.7.2
 
-* `crop` will try to make a square matrix with an even number of pixels per side. Side length is optionally specifiable
+* `crop` will return a square matrix with an even number of pixels per side. Side length is optionally specifiable. Interferograms should be completely contained within frames with some padding on all sides.  This function does absolutely no error checking.
 * added option `lpbrcut` to list of available phase unwrapping routines set in `psfit_options{}$puw_alg`. This will result in `lppuw::brcutpuw` being called as the phase unwrapper. Option `brcut` will result in calling `zernike::brcutpuw`.
 * Consistent calls to phase unwrapping routine in `fftfit` and `vortexfit`.
 
