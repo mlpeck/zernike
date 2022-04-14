@@ -53,7 +53,6 @@ except directional derivatives aren't calculated.
   sa.t <- sconic(diam,roc,lambda=wavelength)
   zopt <- psfit_options()
   zopt$satarget <- sa.t
-  zopt$ptol <- 0.01
   psfit <- psifit(images, phases, psialg="ls", options=zopt)
   
   ## get back the raw wavefront
