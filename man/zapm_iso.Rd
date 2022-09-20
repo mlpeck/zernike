@@ -4,7 +4,7 @@
 \alias{zapm_iso}
 \title{Zernike Annular polynomials, ISO ordering}
 \usage{
-zapm_iso(rho, theta, eps, maxorder = 12L, nq = 21L)
+zapm_iso(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L)
 }
 \arguments{
 \item{rho}{a vector of radial coordinates with eps <= rho <= 1.}

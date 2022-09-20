@@ -34,7 +34,6 @@ zpm.arb(rho, theta, phi = 0, zlist = makezlist())
   \code{length(rho)} x \code{(maxorder/2+1)^2}
   of Zernike polynomial values including a piston term.
   
-  \code{zapmC} returns a matrix of (approximate) Zernike annular polynomial values.
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
 \note{
@@ -53,7 +52,8 @@ zpm.arb(rho, theta, phi = 0, zlist = makezlist())
   \code{\link{Zernike}},
   \code{\link{makezlist}},
   \code{\link{zlist.fr}},
-  \code{\link{fitzernikes}}
+  \code{\link{fitzernikes}},
+  \code{\link{zapm}} for Annular Zernikes.
 }
 \keyword{mathematics}
 

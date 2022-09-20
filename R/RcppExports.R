@@ -221,7 +221,7 @@ rzernike_ann <- function(rho, eps, n, m, xq, qwts) {
 #'   sample_az()
 #'
 #' @md
-zapm <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
+zapm <- function(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L) {
     .Call(`_zernike_zapm`, rho, theta, eps, maxorder, nq)
 }
 
@@ -296,7 +296,7 @@ zapm <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
 #'   sample_az_iso()
 #'
 #' @md
-zapm_iso <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
+zapm_iso <- function(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L) {
     .Call(`_zernike_zapm_iso`, rho, theta, eps, maxorder, nq)
 }
 
@@ -370,7 +370,7 @@ zapm_iso <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
 #'   sample_az_128()
 #'
 #' @md
-zapm_128 <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
+zapm_128 <- function(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L) {
     .Call(`_zernike_zapm_128`, rho, theta, eps, maxorder, nq)
 }
 
@@ -445,7 +445,7 @@ zapm_128 <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
 #'   sample_az_iso_128()
 #'
 #' @md
-zapm_iso_128 <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
+zapm_iso_128 <- function(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L) {
     .Call(`_zernike_zapm_iso_128`, rho, theta, eps, maxorder, nq)
 }
 
