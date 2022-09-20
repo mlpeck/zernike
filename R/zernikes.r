@@ -125,19 +125,20 @@ zpm <- function(rho, theta, phi=0, maxorder = 14, nthreads=parallel::detectCores
 ## fit zernikes to data
 
 fitzernikes <- function(wf, rho, theta, eps=0, phi=0, maxorder = 14, 
-                        nthreads=parallel::detectCores()/2, uselm=FALSE, isoseq=FALSE) {
+                        nthreads=parallel::detectCores()/2, uselm=FALSE, 
+                        isoseq=FALSE, usecirc=FALSE) {
   if (isoseq) {
     theta <- theta - pi * phi/180
-    if (eps == 0.) {
+    if ((eps == 0.) | usecirc) {
       zm <- zpm_cart(x=rho*cos(theta), y=rho*sin(theta), maxorder=maxorder)
     } else {
-      zm <- zapm_cart(x=rho*cos(theta), y=rho*sin(theta), maxorder=maxorder)
+      zm <- zapm_iso(rho, theta, eps, maxorder=maxorder)
     }
   } else {
-    if (eps == 0) {
+    if ((eps == 0) | usecirc) {
       zm <- zpm(rho, theta, phi=phi, maxorder=maxorder, nthreads=nthreads)
     } else {
-      zm <- zapmC(rho, theta - pi * phi/180, maxorder=maxorder)
+      zm <- zapm(rho, theta - pi * phi/180, eps, maxorder=maxorder)
     }
   }
   if (uselm) {

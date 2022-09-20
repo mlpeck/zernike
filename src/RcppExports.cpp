@@ -7,6 +7,11 @@
 using namespace Rcpp;
 using namespace arma;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // id_dxy_uw
 NumericVector id_dxy_uw(const int& nr, const int& nc, const NumericVector& phase, const NumericVector& mask, const NumericVector& dx, const NumericVector& dy, IntegerVector uw);
 RcppExport SEXP _zernike_id_dxy_uw(SEXP nrSEXP, SEXP ncSEXP, SEXP phaseSEXP, SEXP maskSEXP, SEXP dxSEXP, SEXP dySEXP, SEXP uwSEXP) {
@@ -169,6 +174,94 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// gol_welsch
+vec gol_welsch(const double& eps, vec& qwts);
+RcppExport SEXP _zernike_gol_welsch(SEXP epsSEXP, SEXP qwtsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const double& >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< vec& >::type qwts(qwtsSEXP);
+    rcpp_result_gen = Rcpp::wrap(gol_welsch(eps, qwts));
+    return rcpp_result_gen;
+END_RCPP
+}
+// rzernike_ann
+mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, const vec& xq, const vec& qwts);
+RcppExport SEXP _zernike_rzernike_ann(SEXP rhoSEXP, SEXP epsSEXP, SEXP nSEXP, SEXP mSEXP, SEXP xqSEXP, SEXP qwtsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const vec& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const double& >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const int& >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type xq(xqSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type qwts(qwtsSEXP);
+    rcpp_result_gen = Rcpp::wrap(rzernike_ann(rho, eps, n, m, xq, qwts));
+    return rcpp_result_gen;
+END_RCPP
+}
+// zapm
+mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorder, const int& nq);
+RcppExport SEXP _zernike_zapm(SEXP rhoSEXP, SEXP thetaSEXP, SEXP epsSEXP, SEXP maxorderSEXP, SEXP nqSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const vec& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nq(nqSEXP);
+    rcpp_result_gen = Rcpp::wrap(zapm(rho, theta, eps, maxorder, nq));
+    return rcpp_result_gen;
+END_RCPP
+}
+// zapm_iso
+mat zapm_iso(const vec& rho, const vec& theta, const double eps, const int& maxorder, const int& nq);
+RcppExport SEXP _zernike_zapm_iso(SEXP rhoSEXP, SEXP thetaSEXP, SEXP epsSEXP, SEXP maxorderSEXP, SEXP nqSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const vec& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< const double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nq(nqSEXP);
+    rcpp_result_gen = Rcpp::wrap(zapm_iso(rho, theta, eps, maxorder, nq));
+    return rcpp_result_gen;
+END_RCPP
+}
+// zapm_128
+mat zapm_128(const vec& rho, const vec& theta, const double& eps, const int& maxorder, const int& nq);
+RcppExport SEXP _zernike_zapm_128(SEXP rhoSEXP, SEXP thetaSEXP, SEXP epsSEXP, SEXP maxorderSEXP, SEXP nqSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const vec& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nq(nqSEXP);
+    rcpp_result_gen = Rcpp::wrap(zapm_128(rho, theta, eps, maxorder, nq));
+    return rcpp_result_gen;
+END_RCPP
+}
+// zapm_iso_128
+mat zapm_iso_128(const vec& rho, const vec& theta, const double eps, const int& maxorder, const int& nq);
+RcppExport SEXP _zernike_zapm_iso_128(SEXP rhoSEXP, SEXP thetaSEXP, SEXP epsSEXP, SEXP maxorderSEXP, SEXP nqSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const vec& >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< const vec& >::type theta(thetaSEXP);
+    Rcpp::traits::input_parameter< const double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
+    Rcpp::traits::input_parameter< const int& >::type nq(nqSEXP);
+    rcpp_result_gen = Rcpp::wrap(zapm_iso_128(rho, theta, eps, maxorder, nq));
+    return rcpp_result_gen;
+END_RCPP
+}
 // zpmC
 NumericMatrix zpmC(const NumericVector& rho, const NumericVector& theta, const int& maxorder);
 RcppExport SEXP _zernike_zpmC(SEXP rhoSEXP, SEXP thetaSEXP, SEXP maxorderSEXP) {
@@ -179,19 +272,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericVector& >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
     rcpp_result_gen = Rcpp::wrap(zpmC(rho, theta, maxorder));
-    return rcpp_result_gen;
-END_RCPP
-}
-// zapmC
-mat zapmC(const NumericVector& rho, const NumericVector& theta, const int& maxorder);
-RcppExport SEXP _zernike_zapmC(SEXP rhoSEXP, SEXP thetaSEXP, SEXP maxorderSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const NumericVector& >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< const NumericVector& >::type theta(thetaSEXP);
-    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
-    rcpp_result_gen = Rcpp::wrap(zapmC(rho, theta, maxorder));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -249,19 +329,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// zapm_cart
-mat zapm_cart(const NumericVector& x, const NumericVector& y, const int& maxorder);
-RcppExport SEXP _zernike_zapm_cart(SEXP xSEXP, SEXP ySEXP, SEXP maxorderSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const NumericVector& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const NumericVector& >::type y(ySEXP);
-    Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
-    rcpp_result_gen = Rcpp::wrap(zapm_cart(x, y, maxorder));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 RcppExport void read_jpg_img(void *, void *, void *, void *, void *, void *, void *);
 RcppExport void read_jpg_img_info(void *, void *, void *, void *, void *);
@@ -282,13 +349,17 @@ static const R_CallMethodDef CallEntries[] = {
     {"_zernike_jac_frame", (DL_FUNC) &_zernike_jac_frame, 2},
     {"_zernike_pwrap", (DL_FUNC) &_zernike_pwrap, 1},
     {"_zernike_tiltpsiC", (DL_FUNC) &_zernike_tiltpsiC, 6},
+    {"_zernike_gol_welsch", (DL_FUNC) &_zernike_gol_welsch, 2},
+    {"_zernike_rzernike_ann", (DL_FUNC) &_zernike_rzernike_ann, 6},
+    {"_zernike_zapm", (DL_FUNC) &_zernike_zapm, 5},
+    {"_zernike_zapm_iso", (DL_FUNC) &_zernike_zapm_iso, 5},
+    {"_zernike_zapm_128", (DL_FUNC) &_zernike_zapm_128, 5},
+    {"_zernike_zapm_iso_128", (DL_FUNC) &_zernike_zapm_iso_128, 5},
     {"_zernike_zpmC", (DL_FUNC) &_zernike_zpmC, 3},
-    {"_zernike_zapmC", (DL_FUNC) &_zernike_zapmC, 3},
     {"_zernike_zpmCP", (DL_FUNC) &_zernike_zpmCP, 3},
     {"_zernike_norm_zpm", (DL_FUNC) &_zernike_norm_zpm, 2},
     {"_zernike_gradzpm_cart", (DL_FUNC) &_zernike_gradzpm_cart, 5},
     {"_zernike_zpm_cart", (DL_FUNC) &_zernike_zpm_cart, 4},
-    {"_zernike_zapm_cart", (DL_FUNC) &_zernike_zapm_cart, 3},
     {NULL, NULL, 0}
 };
 

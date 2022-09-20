@@ -102,18 +102,360 @@ tiltpsiC <- function(images, phases_init, coords, ptol, maxiter, trace) {
     .Call(`_zernike_tiltpsiC`, images, phases_init, coords, ptol, maxiter, trace)
 }
 
-zpmC <- function(rho, theta, maxorder = 12L) {
-    .Call(`_zernike_zpmC`, rho, theta, maxorder)
+#' Golub-Welsch method to find quadrature points and weights for Gauss-Legendre quadrature
+#'
+#' Calculates the nodes and weights for Legendre polynomials shifted
+#'   to the interval (eps^2, 1).
+#'
+#' @param eps obstruction fraction 0 <= eps < 1
+#' @param qwts an input R vector with length equal to the number of quatrature points.
+#'
+#' @return a vector of quadrature nodes the same length as `qwts` in the open interval 
+#'   (eps^2, 1). `qwts` will be overwritten with the quadrature weights.
+#'
+#' @details If N is the maximum polynomial order to be evaluated qwts should be at least
+#'   of length N/2 + 1. Quadratures will then be nominally exact.
+#'
+#' @seealso Called by [zapm()] and [zapm_iso()].
+gol_welsch <- function(eps, qwts) {
+    .Call(`_zernike_gol_welsch`, eps, qwts)
 }
 
-zapmC <- function(rho, theta, maxorder = 12L) {
-    .Call(`_zernike_zapmC`, rho, theta, maxorder)
+#' Radial Zernike Annular polynomials
+#'
+#' Create a matrix of Zernike Annular polynomial values in
+#' extended Fringe sequence for a set of polar coordinates.
+#'
+#' @param rho a vector of radial coordinates.
+#' @param eps the obstruction fraction 0 <= eps < 1.
+#' @param n the maximum radial order required
+#' @param m azimuthal order
+#' @param xq nodes for Gauss-Legendre quadrature
+#' @param qwts weights for Gauss-Legendre quadrature
+#'
+#' @return A length(rho) x (n-m)/2+1 column matrix of radial Zernike Annular polynomial values evaluated at the input
+#'  radial coordinates. The radial indexes are in increasing order from m, m+2, ..., n.
+#'
+#' @details To the author's knowledge no recurrence relations for radial Zernike annular polynomials
+#'  have been published, even though several are well known for the closely related Zernike circle polynomials.
+#'  However the m=0 polynomials representing axially symmetric aberrations are just shifted Legendre polynomials
+#'  with an easily derived recurrence relation. This routine makes use of that fact to generate
+#'  recurrence relations for arbitrary polynomial indexes using chebyshev's algorithm with modified moments.
+#'  The modified moments are calculated using Gauss-Legendre quadrature. If enough quadrature nodes
+#'  were chosen the quadrature is nominally exact, as are the resulting annular Zernike values.
+#'
+#' @seealso This function is called by [zapm()] and [zapm_iso()].
+#'
+#' @md
+rzernike_ann <- function(rho, eps, n, m, xq, qwts) {
+    .Call(`_zernike_rzernike_ann`, rho, eps, n, m, xq, qwts)
+}
+
+#' Zernike Annular polynomials
+#'
+#' Create a matrix of Zernike Annular polynomial values in
+#' extended Fringe sequence for a set of polar coordinates.
+#'
+#' @param rho a vector of radial coordinates with eps <= rho <= 1.
+#' @param theta a vector of angular coordinates, in radians.
+#' @param eps the obstruction fraction 0 <= eps < 1.
+#' @param maxorder the maximum radial polynomial order (defaults to 12).
+#' @param nq the number of quadrature points for numerical integration
+#'
+#' @return a matrix of Zernike Annular polynomial values evaluated at the input
+#'  polar coordinates and all radial orders from
+#'  0 through `maxorder` in Fringe sequence, with orthonormal scaling.
+#'
+#' @details The *radial* polynomials are calculated using recurrence relations
+#'  generated numerically using chebyshev's algorithm with modified moments.
+#'  See the documentation for [rzernike_ann()]. A formal presentation will be
+#'  included in a future release.
+#' @examples
+#'   sample_az <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
+#'   
+#'     ## get coordinates for unobstructed and obstructed apertures
+#'     cpa <- cp.default
+#'     cpa$obstruct <- eps
+#'     prt <- pupil.rhotheta(nrow.default,ncol.default,cp.default)
+#'     prta <- pupil.rhotheta(nrow.default,ncol.default,cp=cpa)
+#'     rho0 <- prt$rho[!is.na(prt$rho)]
+#'     theta0 <- prt$theta[!is.na(prt$theta)]
+#'     rhoa <- prta$rho[!is.na(prta$rho)]
+#'     thetaa <- prta$theta[!is.na(prta$theta)]
+#'     
+#'     ## fill up matrixes of Zernikes and Annular Zernikes
+#'     
+#'     zm <- zpmC(rho0, theta0, maxorder=maxorder)
+#'     zam <- zapm(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
+#'     
+#'     ## pick a column at random and look up its index pair
+#'     
+#'     zlist <- makezlist(0, maxorder)
+#'     i <- sample(2:ncol(zm), 1)
+#'     n <- zlist$n[i]
+#'     m <- zlist$m[i]
+#'     
+#'     ## fill up the wavefront representations and plot them
+#'     
+#'     wf0 <- prt$rho
+#'     wf0[!is.na(wf0)] <- zm[,i]
+#'     class(wf0) <- "pupil"
+#'     
+#'     wfa <- prta$rho
+#'     wfa[!is.na(wfa)] <- zam[,i]
+#'     class(wfa) <- "pupil"
+#'     
+#'     plot(wf0, cp=cp.default, col=col, addContours=addContours, cscale=cscale)
+#'     mtext(paste("Zernike, n =", n, " m =", m))
+#'     
+#'     x11()
+#'     plot(wfa, cp=cpa, col=col, addContours=addContours, cscale=cscale)
+#'     mtext(paste("Annular Zernike, n =", n, " m =", m))
+#'     
+#'     ## return Zernike matrices and wavefronts invisibly
+#'     ## just in case user wants to do something with them
+#'     
+#'     invisible(list(zm=zm, wf0=wf0, zam=zam, wfa=wfa))
+#'   }
+#'
+#'   sample_az()
+#'
+#' @md
+zapm <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
+    .Call(`_zernike_zapm`, rho, theta, eps, maxorder, nq)
+}
+
+#' Zernike Annular polynomials, ISO ordering
+#'
+#' Create a matrix of Zernike Annular polynomial values in
+#' ISO/ANSI sequence for a set of polar coordinates.
+#'
+#' @param rho a vector of radial coordinates with eps <= rho <= 1.
+#' @param theta a vector of angular coordinates, in radians.
+#' @param eps the obstruction fraction 0 <= eps < 1.
+#' @param maxorder the maximum radial and azimuthal polynomial order (defaults to 12).
+#' @param nq the number of quadrature points for numerical integration
+#'
+#' @return a matrix of Zernike Annular polynomial values evaluated at the input
+#'  polar coordinates and all radial orders from
+#'  0 through `maxorder` in ISO/ANSI sequence, with orthonormal scaling.
+#'
+#' @details The *radial* polynomials are calculated using recurrence relations
+#'  generated numerically using chebyshev's algorithm with modified moments.
+#'  See the documentation for [rzernike_ann()]. A formal presentation will be
+#'  included in a future release.
+#'
+#' @examples
+#'   sample_az_iso <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
+#'   
+#'     ## get coordinates for unobstructed and obstructed apertures
+#'     cpa <- cp.default
+#'     cpa$obstruct <- eps
+#'     prt <- pupil.rhotheta(nrow.default,ncol.default,cp.default)
+#'     prta <- pupil.rhotheta(nrow.default,ncol.default,cp=cpa)
+#'     rho0 <- prt$rho[!is.na(prt$rho)]
+#'     theta0 <- prt$theta[!is.na(prt$theta)]
+#'     rhoa <- prta$rho[!is.na(prta$rho)]
+#'     thetaa <- prta$theta[!is.na(prta$theta)]
+#'     
+#'     ## fill up matrixes of Zernikes and Annular Zernikes
+#'     
+#'     zm <- zpm_cart(x=rho0*cos(theta0), y=rho0*sin(theta0), maxorder=maxorder)
+#'     zam <- zapm_iso(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
+#'     
+#'     ## pick a column at random and look up its index pair
+#'     
+#'     zlist <- makezlist.iso(maxorder)
+#'     i <- sample(2:ncol(zm), 1)
+#'     n <- zlist$n[i]
+#'     m <- zlist$m[i]
+#'     
+#'     ## fill up the wavefront representations and plot them
+#'     
+#'     wf0 <- prt$rho
+#'     wf0[!is.na(wf0)] <- zm[,i]
+#'     class(wf0) <- "pupil"
+#'     
+#'     wfa <- prta$rho
+#'     wfa[!is.na(wfa)] <- zam[,i]
+#'     class(wfa) <- "pupil"
+#'     
+#'     plot(wf0, cp=cp.default, col=col, addContours=addContours, cscale=cscale)
+#'     mtext(paste("Zernike, n =", n, " m =", m))
+#'     
+#'     x11()
+#'     plot(wfa, cp=cpa, col=col, addContours=addContours, cscale=cscale)
+#'     mtext(paste("Annular Zernike, n =", n, " m =", m))
+#'     
+#'     ## return Zernike matrices and wavefronts invisibly
+#'     ## just in case user wants to do something with them
+#'     
+#'     invisible(list(zm=zm, wf0=wf0, zam=zam, wfa=wfa))
+#'   }
+#'
+#'   sample_az_iso()
+#'
+#' @md
+zapm_iso <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
+    .Call(`_zernike_zapm_iso`, rho, theta, eps, maxorder, nq)
+}
+
+#' Zernike Annular polynomials, extended precision version
+#'
+#' Create a matrix of Zernike Annular polynomial values in
+#' extended Fringe sequence for a set of polar coordinates.
+#'
+#' @param rho a vector of radial coordinates with eps <= rho <= 1.
+#' @param theta a vector of angular coordinates, in radians.
+#' @param eps the obstruction fraction 0 <= eps < 1.
+#' @param maxorder the maximum radial polynomial order (defaults to 12).
+#' @param nq the number of quadrature points for numerical integration
+#'
+#' @return a matrix of Zernike Annular polynomial values evaluated at the input
+#'  polar coordinates and all radial orders from
+#'  0 through `maxorder` in Fringe sequence, with orthonormal scaling.
+#'
+#' @details The *radial* polynomials are calculated using recurrence relations
+#'  generated numerically using chebyshev's algorithm with modified moments.
+#'  See the documentation for [rzernike_ann()]. A formal presentation will be
+#'  included in a future release.
+#' @examples
+#'   sample_az_128 <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
+#'   
+#'     ## get coordinates for unobstructed and obstructed apertures
+#'     cpa <- cp.default
+#'     cpa$obstruct <- eps
+#'     prt <- pupil.rhotheta(nrow.default,ncol.default,cp.default)
+#'     prta <- pupil.rhotheta(nrow.default,ncol.default,cp=cpa)
+#'     rho0 <- prt$rho[!is.na(prt$rho)]
+#'     theta0 <- prt$theta[!is.na(prt$theta)]
+#'     rhoa <- prta$rho[!is.na(prta$rho)]
+#'     thetaa <- prta$theta[!is.na(prta$theta)]
+#'     
+#'     ## fill up matrixes of Zernikes and Annular Zernikes
+#'     
+#'     zm <- zpmC(rho0, theta0, maxorder=maxorder)
+#'     zam <- zapm_128(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
+#'     
+#'     ## pick a column at random and look up its index pair
+#'     
+#'     zlist <- makezlist(0, maxorder)
+#'     i <- sample(2:ncol(zm), 1)
+#'     n <- zlist$n[i]
+#'     m <- zlist$m[i]
+#'     
+#'     ## fill up the wavefront representations and plot them
+#'     
+#'     wf0 <- prt$rho
+#'     wf0[!is.na(wf0)] <- zm[,i]
+#'     class(wf0) <- "pupil"
+#'     
+#'     wfa <- prta$rho
+#'     wfa[!is.na(wfa)] <- zam[,i]
+#'     class(wfa) <- "pupil"
+#'     
+#'     plot(wf0, cp=cp.default, col=col, addContours=addContours, cscale=cscale)
+#'     mtext(paste("Zernike, n =", n, " m =", m))
+#'     
+#'     x11()
+#'     plot(wfa, cp=cpa, col=col, addContours=addContours, cscale=cscale)
+#'     mtext(paste("Annular Zernike, n =", n, " m =", m))
+#'     
+#'     ## return Zernike matrices and wavefronts invisibly
+#'     ## just in case user wants to do something with them
+#'     
+#'     invisible(list(zm=zm, wf0=wf0, zam=zam, wfa=wfa))
+#'   }
+#'
+#'   sample_az_128()
+#'
+#' @md
+zapm_128 <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
+    .Call(`_zernike_zapm_128`, rho, theta, eps, maxorder, nq)
+}
+
+#' Zernike Annular polynomials, ISO ordering - extended precision version
+#'
+#' Create a matrix of Zernike Annular polynomial values in
+#' ISO/ANSI sequence for a set of polar coordinates.
+#'
+#' @param rho a vector of radial coordinates with eps <= rho <= 1.
+#' @param theta a vector of angular coordinates, in radians.
+#' @param eps the obstruction fraction 0 <= eps < 1.
+#' @param maxorder the maximum radial and azimuthal polynomial order (defaults to 12).
+#' @param nq the number of quadrature points for numerical integration
+#'
+#' @return a matrix of Zernike Annular polynomial values evaluated at the input
+#'  polar coordinates and all radial orders from
+#'  0 through `maxorder` in ISO/ANSI sequence, with orthonormal scaling.
+#'
+#' @details The *radial* polynomials are calculated using recurrence relations
+#'  generated numerically using chebyshev's algorithm with modified moments.
+#'  See the documentation for [rzernike_ann()]. A formal presentation will be
+#'  included in a future release.
+#'
+#' @examples
+#'   sample_az_iso_128 <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
+#'   
+#'     ## get coordinates for unobstructed and obstructed apertures
+#'     cpa <- cp.default
+#'     cpa$obstruct <- eps
+#'     prt <- pupil.rhotheta(nrow.default,ncol.default,cp.default)
+#'     prta <- pupil.rhotheta(nrow.default,ncol.default,cp=cpa)
+#'     rho0 <- prt$rho[!is.na(prt$rho)]
+#'     theta0 <- prt$theta[!is.na(prt$theta)]
+#'     rhoa <- prta$rho[!is.na(prta$rho)]
+#'     thetaa <- prta$theta[!is.na(prta$theta)]
+#'     
+#'     ## fill up matrixes of Zernikes and Annular Zernikes
+#'     
+#'     zm <- zpm_cart(x=rho0*cos(theta0), y=rho0*sin(theta0), maxorder=maxorder)
+#'     zam <- zapm_iso_128(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
+#'     
+#'     ## pick a column at random and look up its index pair
+#'     
+#'     zlist <- makezlist.iso(maxorder)
+#'     i <- sample(2:ncol(zm), 1)
+#'     n <- zlist$n[i]
+#'     m <- zlist$m[i]
+#'     
+#'     ## fill up the wavefront representations and plot them
+#'     
+#'     wf0 <- prt$rho
+#'     wf0[!is.na(wf0)] <- zm[,i]
+#'     class(wf0) <- "pupil"
+#'     
+#'     wfa <- prta$rho
+#'     wfa[!is.na(wfa)] <- zam[,i]
+#'     class(wfa) <- "pupil"
+#'     
+#'     plot(wf0, cp=cp.default, col=col, addContours=addContours, cscale=cscale)
+#'     mtext(paste("Zernike, n =", n, " m =", m))
+#'     
+#'     x11()
+#'     plot(wfa, cp=cpa, col=col, addContours=addContours, cscale=cscale)
+#'     mtext(paste("Annular Zernike, n =", n, " m =", m))
+#'     
+#'     ## return Zernike matrices and wavefronts invisibly
+#'     ## just in case user wants to do something with them
+#'     
+#'     invisible(list(zm=zm, wf0=wf0, zam=zam, wfa=wfa))
+#'   }
+#'
+#'   sample_az_iso_128()
+#'
+#' @md
+zapm_iso_128 <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
+    .Call(`_zernike_zapm_iso_128`, rho, theta, eps, maxorder, nq)
+}
+
+zpmC <- function(rho, theta, maxorder = 12L) {
+    .Call(`_zernike_zpmC`, rho, theta, maxorder)
 }
 
 zpmCP <- function(rho, theta, maxorder) {
     .Call(`_zernike_zpmCP`, rho, theta, maxorder)
 }
-
 
 #' Normalize matrix of Zernike polynomial values.
 #'
@@ -207,6 +549,7 @@ gradzpm_cart <- function(x, y, maxorder = 12L, unit_variance = FALSE, return_zpm
 #'
 #' @examples
 #'   ##illustrates difference in smoothed wavefront from using zpm_cart with ISO sequence of same order
+#'
 #'   require(zernike)
 #'   fpath <- file.path(find.package(package="zernike"), "psidata")
 #'   files <- scan(file.path(fpath, "files.txt"), what="character")
@@ -248,27 +591,5 @@ gradzpm_cart <- function(x, y, maxorder = 12L, unit_variance = FALSE, return_zpm
 #' @md
 zpm_cart <- function(x, y, maxorder = 12L, unit_variance = TRUE) {
     .Call(`_zernike_zpm_cart`, x, y, maxorder, unit_variance)
-}
-
-#' Zernike Annular polynomials
-#'
-#' Calculate approximate Zernike Annular polynomial values in
-#' ISO/ANSI sequence for a set of Cartesian coordinates.
-#'
-#' @param x a vector of x coordinates for points on a unit disk.
-#' @param y a vector of y coordinates.
-#' @param maxorder the maximum radial polynomial order (defaults to 12).
-#'
-#' @return a matrix of approximate Zernike Annular polynomial values evaluated at the input
-#'  Cartesian coordinates and all radial and azimuthal orders from
-#'  0 through `maxorder`.
-#'
-#' @details Uses QR decomposition applied separately to each azimuthal order m to orthogonalize a matrix
-#'  of Zernike polynomials. This closely approximates annular Zernikes for a large enough set of coordinates.
-#'
-#'  Note the coordinates must be uniformly spaced for this to produce the intended values.
-#' @md
-zapm_cart <- function(x, y, maxorder = 12L) {
-    .Call(`_zernike_zapm_cart`, x, y, maxorder)
 }
 

@@ -4,13 +4,9 @@
 //	License: MIT <https://opensource.org/licenses/MIT>
 //
 
-// [[Rcpp::depends(RcppArmadillo)]]
 
-
-# include <RcppArmadillo.h>
 # include <Rcpp.h>
 using namespace Rcpp;
-using namespace arma;
 
 /*****************
  * 
@@ -253,7 +249,7 @@ List gradzpm_cart(const NumericVector& x, const NumericVector& y, const int& max
 //'
 //' @examples
 //'   ##illustrates difference in smoothed wavefront from using zpm_cart with ISO sequence of same order
-
+//'
 //'   require(zernike)
 //'   fpath <- file.path(find.package(package="zernike"), "psidata")
 //'   files <- scan(file.path(fpath, "files.txt"), what="character")
@@ -374,83 +370,3 @@ NumericMatrix zpm_cart(const NumericVector& x, const NumericVector& y, const int
   return zm;
 }
 
-/*****************
- * 
- * Approximate Zernike Annular polynomials by numerically orthogonalizing
- * sub-matrixes for each m separately using thin QR decomposition.
- * 
-******************/
-
-//' Zernike Annular polynomials
-//'
-//' Calculate approximate Zernike Annular polynomial values in
-//' ISO/ANSI sequence for a set of Cartesian coordinates.
-//'
-//' @param x a vector of x coordinates for points on a unit disk.
-//' @param y a vector of y coordinates.
-//' @param maxorder the maximum radial polynomial order (defaults to 12).
-//'
-//' @return a matrix of approximate Zernike Annular polynomial values evaluated at the input
-//'  Cartesian coordinates and all radial and azimuthal orders from
-//'  0 through `maxorder`.
-//'
-//' @details Uses QR decomposition applied separately to each azimuthal order m to orthogonalize a matrix
-//'  of Zernike polynomials. This closely approximates annular Zernikes for a large enough set of coordinates.
-//'
-//'  Note the coordinates must be uniformly spaced for this to produce the intended values.
-//' @md
-// [[Rcpp::export]]
-mat zapm_cart(const NumericVector& x, const NumericVector& y, const int& maxorder=12) {
-  
-  uword nrow=x.size();
-  int ncol = (maxorder+1)*(maxorder+2)/2;
-  uword i, j, m, nj;
-  double zpnorm = std::sqrt((double) nrow);
-  mat zm(nrow, ncol), annzm(nrow, ncol);
-
-  //do some rudimentary error checking
-  
-  if (x.size() != y.size()) stop("Numeric vectors must be same length");
-  if (maxorder < 1) stop("maxorder must be >= 1");
-  
-  // good enough
-  
-  zm = as<arma::mat>(zpm_cart(x, y, maxorder));
-  
-  // for each azimuthal index m find the column indexes
-  // of the zp matrix having that value of m. That
-  // subset is what we need to orthogonalize.
-  // Note this is done separately for "sine" and "cosine" components.
-  
-  for (m=0; m<maxorder-1; m++) {
-    nj = (maxorder-m)/2 + 1;
-    uvec jsin(nj);
-    uvec jcos(nj);
-    mat Q(nrow, nj);
-    mat R(nj, nj);
-    vec sgn(nj);
-    for (i=0; i<nj; i++) {
-      jsin(i) = ((m + 2*i)*(m + 2*i) + 2*(m + 2*i) - m) / 2;
-      jcos(i) = jsin(i) + m;
-    }
-    qr_econ(Q, R, zm.cols(jsin));
-    sgn = sign(R.diag());
-    
-    annzm.cols(jsin) = zpnorm * Q * diagmat(sgn);
-    if (m > 0) {
-      qr_econ(Q, R, zm.cols(jcos));
-      sgn = sign(R.diag());
-      annzm.cols(jcos) = zpnorm * Q * diagmat(sgn);
-    }
-  }
-  
-  // Two highest orders only have one term
-  
-  for (m=maxorder-1; m<=maxorder; m++) {
-    j =  (m*m + m)/2;
-    annzm.col(j) = zm.col(j) * zpnorm / norm(zm.col(j));
-    j = j+m;
-    annzm.col(j) = zm.col(j) * zpnorm / norm(zm.col(j));
-  }
-  return annzm;
-}

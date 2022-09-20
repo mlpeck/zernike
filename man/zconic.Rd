@@ -15,18 +15,20 @@ zconic(D, rc, b = -1, lambda = 1e-06, nmax = 6)
   \item{D}{Diameter}
   \item{rc}{Radius of curvature}
   \item{b}{Conic constant}
-  \item{lambda}{Wavelength -- defaults to 1 nm.}
-  \item{nmax}{Maximum radial polynomial order}
+  \item{lambda}{Wavelength -- defaults to 632.8 (nm)}
+  \item{nmax}{Maximum radial polynomial order. Defaults to 6.}
 }
 \details{
-  D, rc, and lambda must have the same units.
+  For the typical use case \code{D} and \code{rc} should be
+  in millimeters and \code{lambda} in nanometers.
+
 }
 \value{
   A vector of length \code{nmax/2-1} of coefficient values, in increasing
   radial order, n=c(4,6, ...).
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
-\seealso{\code{\link{Zernike}}}
+\seealso{\code{\link{Zernike}, \link{sconic}}}
 \examples{
 	zconic(200,2000)
 	zconic(10, 20, b=-1.05, lambda=632.8E-9, nmax=12)

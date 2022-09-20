@@ -7,7 +7,8 @@ cp.default <- list(xc=320.5, yc=320.5, rx=319.5, ry=319.5, obstruct=0)
 ## create a unit aperture inside a matrix of arbitrary size
 ## note the parameter cp is a list with components (xc, yc, rx, ry, obstruct) as returned by pupil.pars()
 
-pupil <- function(zcoef=NULL, maxorder=14L, isoseq=FALSE, 
+pupil <- function(zcoef=NULL, maxorder=14L, 
+                  isoseq=FALSE, usecirc=FALSE,
                   phi=0, piston=NULL,
                   nrow=nrow.default, ncol=ncol.default, 
                   cp=cp.default) {
@@ -18,26 +19,21 @@ pupil <- function(zcoef=NULL, maxorder=14L, isoseq=FALSE,
   rho.v <- rho[!is.na(rho)]
   theta.v <- theta[!is.na(rho)] - pi*phi/180
   wf.v <- numeric(length(rho.v))
-  if (cp$obstruct > 0) {
-    use.circ <- FALSE
-  } else {
-    use.circ <- TRUE
-  }
   if (!is.null(zcoef)) {
     if (!is.null(piston)) {
       zcoef <- c(piston, zcoef)
     }
     if (isoseq) {
-      if (use.circ) {
+      if (usecirc | (cp$obstruct == 0)) {
         wf.v <- zpm_cart(x=rho.v*cos(theta.v), y=rho.v*sin(theta.v), maxorder=maxorder) %*% zcoef
       } else {
-        wf.v <- zapm_cart(x=rho.v*cos(theta.v), y=rho.v*sin(theta.v), maxorder=maxorder) %*% zcoef
+        wf.v <- zapm_iso(rho.v, theta.v, eps=cp$obstruct, maxorder=maxorder) %*% zcoef
       }
     } else {
-      if (use.circ) {
+      if (usecirc | (cp$obstruct == 0)) {
         wf.v <- zpm(rho.v, theta.v, maxorder = maxorder) %*% zcoef
       } else {
-        wf.v <- zapmC(rho.v, theta.v, maxorder = maxorder) %*% zcoef
+        wf.v <- zapm(rho.v, theta.v, eps=cp$obstruct, maxorder = maxorder) %*% zcoef
       }
     }
   }

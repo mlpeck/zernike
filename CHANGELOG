@@ -641,5 +641,16 @@
 ## improve (I hope) crop function
 ## phase unwrapping options are consistent among analysis functions
 
+## 20220918
+##
+## removed zapmC, zapm_cart
+## added an option to psfit_options()
+## changed pupil() and fitzernikes() for better user control of Zernike use
+
+## 20220919
+##
+## added new zapm, zapm_iso, zapm_128, zapm_iso_128
+## nontrivial examples for all 4
+
 
 

@@ -26,6 +26,7 @@ Get and optionally set parameters controlling various aspects of PSI algorithms,
  \item{maxorder   }{14}
  \item{uselm      }{FALSE}
  \item{isoseq     }{FALSE}
+ \item{usecirc    }{FALSE}
  \item{sgs        }{1}
  \item{nthreads   }{parallel::detectCores()/2}
  \item{plots      }{TRUE}
@@ -48,6 +49,10 @@ Get and optionally set parameters controlling various aspects of PSI algorithms,
   
   \code{maxorder} sets the maximum Zernike polynomial order for wavefront fitting. It must be even and at least 6. The default generally produces a
   good wavefront representation but you may want to experiment with higher order fits.
+
+  Parameters \code{isoseq} and \code{usecirc} control which sets of Zernike (annular) polynomials are called for wavefront fitting. If Zernikes in ANSI/ISO sequence
+  are desired set \code{isoseq = TRUE}. The default \code{FALSE} uses extended Fringe ordering. Set \code{usecirc = TRUE} if you want to use Zernike circle polynomials
+  even for obstructed wavefronts.
   
   \code{puw_alg} specifies the phase unwrapping algorithm. Current options are "qual", "brcut", "lpbrcut", and "lp".
   

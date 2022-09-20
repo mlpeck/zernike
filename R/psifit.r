@@ -5,16 +5,31 @@ psfit_options <- function(colors=topo.colors(256), refine=TRUE, puw_alg = "qual"
                     maxiter=20, ptol=1.e-4, trace=1, nzcs = 2,
                     zc0=6:7,
                     satarget=c(0,0), astig.bath=c(0,0),
-                    maxorder=14, uselm=FALSE, isoseq=FALSE, sgs=1,
+                    maxorder=14, uselm=FALSE, sgs=1,
+                    isoseq=FALSE, usecirc=FALSE, 
                     nthreads=parallel::detectCores()/2,
                     plots=TRUE, crop=FALSE) {
-  list(colors=colors, refine=refine, puw_alg=puw_alg, fringescale=fringescale,
-       wt=wt, bgsub=bgsub,
-       maxiter=maxiter, ptol=ptol, trace=trace, nzcs=nzcs,
-       zc0=zc0, satarget=satarget, astig.bath=astig.bath,
-       maxorder=maxorder, uselm=uselm, isoseq=isoseq, sgs=sgs,
-       nthreads=nthreads,
-       plots=plots, crop=crop)
+  list(colors=colors,             ## color palette for wavefront plots
+       refine=refine,             ## do 2nd pass through psi algorithm?
+       puw_alg=puw_alg,           ## phase unwrapping algorithm
+       fringescale=fringescale,   ## waves per fringe in interferograms (usually 1 or 1/2)
+       wt=wt,                     ## per frame weights in least squares PSI algorithm
+       bgsub=bgsub,               ## subtract a background estimate in PC based PSI algorithms?
+       maxiter=maxiter,           ## maximum no iterations for iterative PSI algorithms
+       ptol=ptol,                 ## convergence tolerance for iterative PSI algorithms
+       trace=trace,               ## some iterative algorithms can return info while working
+       nzcs=nzcs,                 ## number of zernike coefficients to treat as variable in tiltpsiC
+       zc0=zc0,                   ## coefficients to remove in net wavefront
+       satarget=satarget,         ## target SA for numerical nulling
+       astig.bath=astig.bath,     ## amount of astigmatism from Bath interferometer geometry
+       maxorder=maxorder,         ## maximum order for Zernike polynomial fitting
+       uselm=uselm,               ## use R function lm() to fit Zernikes to wavefront data?
+       sgs=sgs,                   ## grid size for wavefront sampling
+       isoseq=isoseq,             ## use ISO sequenced Zernikes?
+       usecirc=usecirc,           ## use circular Zernikes even for obstructed apertures?
+       nthreads=nthreads,         ## no threads to use with zpmCP
+       plots=plots,               ## plot results in wavefront summaries?
+       crop=crop)                 ## crop wavefront related matrixes?
 }
 
 psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options=psfit_options()) {

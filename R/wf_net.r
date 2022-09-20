@@ -25,7 +25,8 @@ wf_net <- function(wf.raw, cp, options) {
                      maxorder=options$maxorder, 
                      nthreads=options$nthreads, 
                      uselm=options$uselm,
-                     isoseq=options$isoseq)
+                     isoseq=options$isoseq,
+                     usecirc=options$usecirc)
   if (options$uselm) {
     cfit <- coef(fit)
   } else {
@@ -58,7 +59,8 @@ wf_net <- function(wf.raw, cp, options) {
   if (is.element(6, options$zc0)) {
     zc.low[ind.coma] <- cfit[ind.coma]
   }
-  wf.net <- wf.raw - pupil(zcoef=zc.low, maxorder=6, isoseq=options$isoseq,
+  wf.net <- wf.raw - pupil(zcoef=zc.low, maxorder=6, 
+                           isoseq=options$isoseq, usecirc=options$usecirc,
                            nrow=nr, ncol=nc, cp=cp)
   if (options$plots) {
     if (tolower(.Platform$OS.type) == "windows") {
@@ -73,7 +75,8 @@ wf_net <- function(wf.raw, cp, options) {
   }
   zcoef.net <- cfit
   zcoef.net[1:length(zc.low)] <- zcoef.net[1:length(zc.low)] - zc.low
-  wf.smooth <- pupil(zcoef=zcoef.net, maxorder=options$maxorder, isoseq=options$isoseq, 
+  wf.smooth <- pupil(zcoef=zcoef.net, maxorder=options$maxorder, 
+                     isoseq=options$isoseq, usecirc=options$usecirc,
                      cp=cp, nrow=nr, ncol=nc)
   if (options$plots) {
     screen(2)

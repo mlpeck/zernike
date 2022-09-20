@@ -9,7 +9,6 @@
 \usage{
 zpm(rho, theta, phi= 0 , maxorder = 14, nthreads=parallel::detectCores()/2)
 zpmC(rho, theta, maxorder)
-zapmC(rho, theta, maxorder)
 zpmCP(rho, theta, maxorder)
 zpm.arb(rho, theta, phi = 0, zlist = makezlist())
 }

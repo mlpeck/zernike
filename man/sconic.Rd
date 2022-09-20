@@ -30,10 +30,14 @@ sconic(D, rc, b = -1, eps = 0., lambda = 632.8, nmax = 6)
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+For the typical use case \code{D} and \code{rc} should be
+in millimeters and \code{lambda} in nanometers.
+
+If \code{eps > 0} Zernike annular coefficients will be computed and returned.
 }
 \value{
-Zernike polynomial coefficients
+Zernike polynomial coefficients. The default returns the 4th and 6th order
+coefficients in a length two vector.
 }
 \references{
 %% ~put references to the literature/web site here ~

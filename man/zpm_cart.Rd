@@ -30,6 +30,7 @@ except directional derivatives aren't calculated.
 }
 \examples{
   ##illustrates difference in smoothed wavefront from using zpm_cart with ISO sequence of same order
+
   require(zernike)
   fpath <- file.path(find.package(package="zernike"), "psidata")
   files <- scan(file.path(fpath, "files.txt"), what="character")

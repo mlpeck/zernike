@@ -6,14 +6,10 @@
 
 // Fill a matrix with Zernike polynomial values
 
-// [[Rcpp::depends(RcppArmadillo)]]
 
-
-#include <RcppArmadillo.h>
 #include <Rcpp.h>
 
 using namespace Rcpp;
-using namespace arma;
 
 // [[Rcpp::export]]
 
@@ -90,70 +86,4 @@ NumericMatrix zpmC(const NumericVector& rho, const NumericVector& theta, const i
     }
   }
   return zm;
-}
-
-/*****************
- * 
- * Approximate Zernike Annular polynomials by numerically orthogonalizing
- * sub-matrixes for each m separately using thin QR decomposition.
- * This version is for extended Fringe set order and polar coordinates.
- * 
-******************/
-
-// [[Rcpp::export]]
-mat zapmC(const NumericVector& rho, const NumericVector& theta, const int& maxorder=12) {
-  
-  uword nrow = rho.size();
-  int mmax = maxorder/2;
-  int ncol = (mmax+1)*(mmax+1);
-  int i, j, m, nj;
-  double zpnorm = std::sqrt((double) nrow);
-  mat zm(nrow, ncol), annzm(nrow, ncol);
-  
-  //do some rudimentary error checking
-  
-  if (rho.size() != theta.size()) stop("Numeric vectors must be same length");
-  if ((maxorder % 2) != 0) stop("maxorder must be even");
-  
-  //good enough
-  
-  zm = as<arma::mat>(zpmC(rho, theta, maxorder));
-  
-  // for each azimuthal index m find the column indexes
-  // of the zp matrix having that value of m. That
-  // subset is what we need to orthogonalize.
-  // Note this is done separately for "sine" and "cosine" components.
-  
-  nj = maxorder/2 + 1;
-  for (m=0; m<mmax; m++) {
-    uvec jsin(nj);
-    uvec jcos(nj);
-    mat Q(nrow, nj);
-    mat R(nj, nj);
-    vec sgn(nj);
-    for (i=0; i<nj; i++) {
-      jcos(i) = (m+i+1)*(m+i+1) - 2*m -1;
-      jsin(i) = jcos(i) + 1;
-    }
-    
-    qr_econ(Q, R, zm.cols(jcos));
-    sgn = sign(R.diag());
-    
-    annzm.cols(jcos) = zpnorm * Q * diagmat(sgn);
-    if (m > 0) {
-      qr_econ(Q, R, zm.cols(jsin));
-      sgn = sign(R.diag());
-      annzm.cols(jsin) = zpnorm * Q * diagmat(sgn);
-    }
-    --nj;
-  }
-  
-  //  highest order only has one term
-  
-  j = mmax*mmax;
-  
-  annzm.col(j) = zm.col(j) * zpnorm / norm(zm.col(j));
-  annzm.col(j+1) = zm.col(j+1) * zpnorm / norm(zm.col(j+1));
-  
-  return annzm;
 }
