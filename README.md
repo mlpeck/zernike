@@ -1,6 +1,6 @@
 Welcome to my R package for interferogram analysis and manipulation of Zernike polynomials. If you are new to R this README gives installation and basic usage instructions for Windows users. There are a number of required and optional packages to be installed, so please follow these instructions carefully. You need:
 
-* A recent version of R itself (v3.6.3 or later is required). The current version at this writing is 4.1.0. If you're making a fresh installation just go with the current release. The windows binary installer can be downloaded from http://cran.r-project.org. Installation works like any Windows program -- I like to have the installer create desktop shortcuts and edit its properties to have it start up in the directory where I've stored data. If you are running a 64 bit version of Windows both 32 and 64 bit binaries will be installed. The 64 bit version's performance is slightly better and it can use all available memory, which may be useful if you work with large interferogram images. The only customization I make at install time is to select "SDI" windowing mode. This will display graphs in separate windows on the desktop.
+* A recent version of R itself (v3.6.3 or later is required). The current version at this writing is 4.2.1. If you're making a fresh installation just go with the current release. The windows binary installer can be downloaded from http://cran.r-project.org. Installation works like any Windows program -- I like to have the installer create desktop shortcuts and edit its properties to have it start up in the directory where I've stored data. If you are running a 64 bit version of Windows both 32 and 64 bit binaries will be installed. The 64 bit version's performance is slightly better and it can use all available memory, which may be useful if you work with large interferogram images. The only customization I make at install time is to select "SDI" windowing mode. This will display graphs in separate windows on the desktop.
 
 * Download the Windows binary of this package from the [releases](../releases) section. Do not unzip it!
 
@@ -13,6 +13,8 @@ Welcome to my R package for interferogram analysis and manipulation of Zernike p
     + RcppParallel.
     
     + RcppArmadillo.
+    
+    + BH.
     
     + rgl. This package provides interactive 3D graphics and is strictly speaking optional.
     
@@ -38,9 +40,9 @@ demo(pcaest, package="zernike", ask=FALSE)
 ```
 These demos illustrate basic PSI analysis, a sliding window analysis of a multiple cycle PSI sequence, and some alternative algorithms for generalized phase shifting interferometry.
 
-* The main PSI analysis routine is `psifit()`. Type `example(psifit, package="zernike", ask=FALSE)` to see an example of its use. This uses the same data set as the demo programs.
+* The main PSI analysis routine is `psifit()`. Type `example(psifit, package="zernike", ask=FALSE, echo=FALSE)` to see an example of its use. This uses the same data set as the demo programs.
 
-* I now have substantial examples for several high and not so high level functions in the package. Besides `psifit()` these include `vortexfit()`, `wf_net()`, and `zpm_cart()`. These are run in the same way as described for `psifit()` above.
+* I now have substantial examples for several high and not so high level functions in the package. Besides `psifit()` these include `vortexfit()`, `wf_net()`, `zpm_cart()`, `zapm()`, `zapm_iso()`, `zapm_128()`, and `zapm_iso_128()`. These are run in the same way as described for `psifit()` above.
 
 * To access R's help in html format type `help.start()`. This will open up a window in your default browser with a help page containing links to the help files for all installed packages on your system as well as manuals, FAQs, and help files for R itself.
 

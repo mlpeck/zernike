@@ -1,7 +1,19 @@
+## Version 3.7.4
+
+* Removed functions `zapmC` and `zapm_cart` for approximate Zernike Annular polynomials.
+* Added C++ functions `zapm`, `zapm_iso`, `zapm_128`, `zapm_iso_128` for nominally exact Zernike Annular polynomials, and their R wrappers.
+  These return matrixes of annular Zernikes in extended Fringe or ISO/ANSI ordering. The functions `*_128` use 128 bit floats
+  for somewhat higher numerical precision.
+* Example code is included for the above functions.
+* added boolean variable `usecirc` to the list of options returned by `psfit_options()`. If set to `TRUE` functions that use Zernikes for
+  wavefront representations will use Zernike circle polynomials even for obstructed apertures. For the default value `FALSE` functions like
+  `wf_net()` and `pupil` will toggle between Zernikes and annular Zernikes depending on whether the obstruction fraction is > 0.
+* The boost library in package `BH` is now linked to and therefore must be installed (?? IS THIS TRUE FOR USERS ??)
+
 ## Version 3.7.2
 
 * `crop` will return a square matrix with an even number of pixels per side. Side length is optionally specifiable. Interferograms should be completely contained within frames with some padding on all sides.  This function does absolutely no error checking.
-* added option `lpbrcut` to list of available phase unwrapping routines set in `psfit_options{}$puw_alg`. This will result in `lppuw::brcutpuw` being called as the phase unwrapper. Option `brcut` will result in calling `zernike::brcutpuw`.
+* added option `lpbrcut` to list of available phase unwrapping routines set in `psfit_options()$puw_alg`. This will result in `lppuw::brcutpuw` being called as the phase unwrapper. Option `brcut` will result in calling `zernike::brcutpuw`.
 * Consistent calls to phase unwrapping routine in `fftfit` and `vortexfit`.
 
 
