@@ -10,7 +10,6 @@
 using namespace Rcpp;
 using namespace arma;
 namespace mp = boost::multiprecision;
-using namespace std;
 
 /****************************
  * 
@@ -53,7 +52,7 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
   
   uword nr = rho.n_elem;
   int nz = (n-m)/2 + 1;
-  int nmax = min(2*nz, m+1);
+  int nmax = std::min(2*nz, m+1);
   
   vec u(nr);
   u = rho % rho;
@@ -65,6 +64,7 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
   double eps2 = eps*eps;
   double e1 = (1. - eps2);
   mp::float128 epsl(eps);
+  mp::float128 e1l(1. - epsl*epsl);
   mp::float128 ak((1. + epsl*epsl)/2.);
   
   rm = pow(rho, m);
@@ -87,7 +87,7 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
     c[0] = e1;
     for (int j = 1; j < nz; j++) {
       alphal[j] = ak;
-      betal[j] = j * j * (1.-eps)*(1.-eps)*(1.+eps)*(1+eps)/4./(2.*j + 1.0)/(2.*j - 1.0);
+      betal[j] = j * j * e1l * e1l/4./(2.*j + 1.0)/(2.*j - 1.0);
       c[j] = betal[j] * c[j-1];
     }
   } else { // m > 0
@@ -96,7 +96,7 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
       nu[j] = 0.0;
     }
     for (int j = 1; j < 2*nz; j++) {
-      b[j] = j * j * (1.-epsl)*(1.-epsl)*(1.+epsl)*(1+epsl)/4./(2.*j + 1.0)/(2.*j - 1.0);
+      b[j] = j * j * e1l * e1l/4./(2.*j + 1.0)/(2.*j - 1.0);
     }
     
     

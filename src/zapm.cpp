@@ -4,7 +4,6 @@
 # include <RcppArmadillo.h>
 using namespace Rcpp;
 using namespace arma;
-using namespace std;
 
 /*************************
  * 
@@ -41,7 +40,7 @@ vec gol_welsch(const double& eps, vec& qwts) {
   
   J.diag().fill(ak);
   for (int i = 1; i < nq; i++) {
-    sqbi = i * 0.5 * (1.-eps)*(1.+eps)/std::sqrt(4.*i*i - 1.);
+    sqbi = i * 0.5 * mu0/std::sqrt(4.*i*i - 1.);
     J(i-1, i) = sqbi;
     J(i, i-1) = sqbi;
   }
@@ -101,7 +100,7 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
   uword nr = rho.n_elem;
   int nq = xq.n_elem;
   int nz = (n-m)/2 + 1;      // input n is the maximum radial order required. nz is the total number to be generated
-  int nmax = min(2*nz, m+1); //number of modified moments that are non-zero
+  int nmax = std::min(2*nz, m+1); //number of modified moments that are non-zero
   
   vec u(nr);
   u = rho % rho;
@@ -110,8 +109,8 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
 
   mat RZ(nr, nz);
   vec rm(nr);
-  double e1 = (1. - eps*eps);
   double eps2 = eps*eps;
+  double e1 = 1. - eps2;
   double ak = (1 + eps2)/2.;
   
   rm = pow(rho, m);
@@ -132,12 +131,12 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
     alpha.fill(ak);
     c(0) = e1;
     for (int j = 1; j < nz; j++) {
-      beta(j) = j * j * 0.25 * (1.-eps)*(1.-eps)*(1.+eps)*(1+eps)/(4.*j*j - 1.0);
+      beta(j) = j * j * 0.25 * e1 * e1/(4.*j*j - 1.0);
       c(j) = beta(j) * c(j-1);
     }
   } else {
     for (int j = 1; j < 2*nz; j++) {
-      b(j) = j * j * 0.25 * (1.-eps)*(1.-eps)*(1.+eps)*(1+eps)/(4.*j*j - 1.0);
+      b(j) = j * j * 0.25 * e1 * e1/(4.*j*j - 1.0);
     }
     
     

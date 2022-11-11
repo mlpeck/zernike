@@ -1,7 +1,6 @@
 PKG_CFLAGS += -fPIC -O3
 CXX_STD = CXX11
-I += /usr/include/lapacke
-PKG_LIBS += -llapacke -llapack -lblas -lgfortran
+PKG_LIBS += -lRlapack -lRblas -lgfortran
 PKG_LIBS += -lraw -ltiff -ljpeg -lz -lm
 PKG_LIBS += $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::RcppParallelLibs()")
 PKG_CPPFLAGS += -DTIFF_OK -O3
