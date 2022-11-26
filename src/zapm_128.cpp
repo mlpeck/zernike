@@ -425,7 +425,7 @@ mat zapm_iso_128(const vec& rho, const vec& theta, const double eps, const int& 
   
   RZ = rzernike_ann_128(rho, eps, maxorder, 0, nq, xq, qwts);
   for (int n=0; n<=maxorder; n += 2) {
-    k = (n*n+2*n+2)/2 - 1;
+    k = (n*n+2*n)/2;
     zm.col(k) = std::sqrt(n+1.)*RZ.col(n/2);
   }
   
