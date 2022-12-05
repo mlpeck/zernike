@@ -652,5 +652,9 @@
 ## added new zapm, zapm_iso, zapm_128, zapm_iso_128
 ## nontrivial examples for all 4
 
-
-
+## 20221205
+##
+## added functions rzernike_ann_direct, zapm_direct, zapm_iso_direct
+## These use formulas published in Mahajan (1994)
+##
+## added `annzern.pdf` to docs
