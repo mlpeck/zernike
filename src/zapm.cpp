@@ -36,10 +36,9 @@ vec gol_welsch(const double& eps, vec& qwts) {
   double ak = (1. + eps*eps)/2.;
   double sqbi;
   double mu0 = 1. - eps*eps;
-  uword i;
   
   J.diag().fill(ak);
-  for (int i = 1; i < nq; i++) {
+  for (uword i = 1; i < nq; i++) {
     sqbi = i * 0.5 * mu0/std::sqrt(4.*i*i - 1.);
     J(i-1, i) = sqbi;
     J(i, i-1) = sqbi;
