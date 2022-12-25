@@ -188,8 +188,8 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
 //'
 //' @details The *radial* polynomials are calculated using recurrence relations
 //'  generated numerically using chebyshev's algorithm with modified moments.
-//'  See the documentation for [rzernike_ann()]. A formal presentation will be
-//'  included in a future release.
+//'  See the documentation for [rzernike_ann()]. A formal presentation is
+//'  included in the package documentation.
 //' @examples
 //'   sample_az_128 <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
 //'   
@@ -330,8 +330,8 @@ mat zapm_128(const vec& rho, const vec& theta, const double& eps, const int& max
 //'
 //' @details The *radial* polynomials are calculated using recurrence relations
 //'  generated numerically using chebyshev's algorithm with modified moments.
-//'  See the documentation for [rzernike_ann()]. A formal presentation will be
-//'  included in a future release.
+//'  See the documentation for [rzernike_ann()]. A formal presentation is
+//'  included in the package documentation.
 //'
 //' @examples
 //'   sample_az_iso_128 <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {

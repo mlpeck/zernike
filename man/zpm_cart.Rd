@@ -13,7 +13,7 @@ zpm_cart(x, y, maxorder = 12L, unit_variance = TRUE)
 
 \item{maxorder}{the maximum radial polynomial order (defaults to 12).}
 
-\item{unit_variance}{logical: return with orthonormal scaling? (default \code{false})}
+\item{unit_variance}{logical: return with orthonormal scaling? (default \code{true})}
 }
 \value{
 a matrix of Zernike polynomial values evaluated at the input

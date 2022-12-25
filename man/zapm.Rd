@@ -29,8 +29,8 @@ extended Fringe sequence for a set of polar coordinates.
 \details{
 The \emph{radial} polynomials are calculated using recurrence relations
 generated numerically using chebyshev's algorithm with modified moments.
-See the documentation for \code{\link[=rzernike_ann]{rzernike_ann()}}. A formal presentation will be
-included in a future release.
+See the documentation for \code{\link[=rzernike_ann]{rzernike_ann()}}. A formal presentation is
+included in the package documentation.
 }
 \examples{
   sample_az <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {

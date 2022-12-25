@@ -238,7 +238,7 @@ List gradzpm_cart(const NumericVector& x, const NumericVector& y, const int& max
 //' @param x a vector of x coordinates for points on a unit disk.
 //' @param y a vector of y coordinates.
 //' @param maxorder the maximum radial polynomial order (defaults to 12).
-//' @param unit_variance logical: return with orthonormal scaling? (default `false`)
+//' @param unit_variance logical: return with orthonormal scaling? (default `true`)
 //'
 //' @return a matrix of Zernike polynomial values evaluated at the input
 //'  Cartesian coordinates and all radial and azimuthal orders from

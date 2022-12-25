@@ -168,8 +168,8 @@ rzernike_ann <- function(rho, eps, n, m, xq, qwts) {
 #'
 #' @details The *radial* polynomials are calculated using recurrence relations
 #'  generated numerically using chebyshev's algorithm with modified moments.
-#'  See the documentation for [rzernike_ann()]. A formal presentation will be
-#'  included in a future release.
+#'  See the documentation for [rzernike_ann()]. A formal presentation is
+#'  included in the package documentation.
 #' @examples
 #'   sample_az <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
 #'   
@@ -242,8 +242,8 @@ zapm <- function(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L) {
 #'
 #' @details The *radial* polynomials are calculated using recurrence relations
 #'  generated numerically using chebyshev's algorithm with modified moments.
-#'  See the documentation for [rzernike_ann()]. A formal presentation will be
-#'  included in a future release.
+#'  See the documentation for [rzernike_ann()]. A formal presentation is
+#'  included in the package documentation.
 #'
 #' @examples
 #'   sample_az_iso <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
@@ -317,8 +317,8 @@ zapm_iso <- function(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L) {
 #'
 #' @details The *radial* polynomials are calculated using recurrence relations
 #'  generated numerically using chebyshev's algorithm with modified moments.
-#'  See the documentation for [rzernike_ann()]. A formal presentation will be
-#'  included in a future release.
+#'  See the documentation for [rzernike_ann()]. A formal presentation is
+#'  included in the package documentation.
 #' @examples
 #'   sample_az_128 <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
 #'   
@@ -391,8 +391,8 @@ zapm_128 <- function(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L) {
 #'
 #' @details The *radial* polynomials are calculated using recurrence relations
 #'  generated numerically using chebyshev's algorithm with modified moments.
-#'  See the documentation for [rzernike_ann()]. A formal presentation will be
-#'  included in a future release.
+#'  See the documentation for [rzernike_ann()]. A formal presentation is
+#'  included in the package documentation.
 #'
 #' @examples
 #'   sample_az_iso_128 <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
@@ -538,7 +538,7 @@ gradzpm_cart <- function(x, y, maxorder = 12L, unit_variance = FALSE, return_zpm
 #' @param x a vector of x coordinates for points on a unit disk.
 #' @param y a vector of y coordinates.
 #' @param maxorder the maximum radial polynomial order (defaults to 12).
-#' @param unit_variance logical: return with orthonormal scaling? (default `false`)
+#' @param unit_variance logical: return with orthonormal scaling? (default `true`)
 #'
 #' @return a matrix of Zernike polynomial values evaluated at the input
 #'  Cartesian coordinates and all radial and azimuthal orders from
