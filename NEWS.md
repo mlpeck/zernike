@@ -2,6 +2,8 @@
 
 * Formal writeup of the procedure for recursive generation of Zernike annular polynomials
   is included with the documentation.
+* Added functions `rzernike_ann_direct`, `zapm_direct`, `zapm_iso_direct` to calculate radial and Zernike annular polynomials
+  directly from formulas published by Mahajan.
 
 ## Version 3.7.4
 
@@ -10,6 +12,9 @@
   These return matrixes of annular Zernikes in extended Fringe or ISO/ANSI ordering. The functions `*_128` use 128 bit floats
   for somewhat higher numerical precision.
 * Example code is included for the above functions.
+* Also new are `rzernike_ann` and `rzernike_ann_128` to calculate the radial annular Zernikes. Finally, function `gol_welsch` calculates
+  nodes and weights for Gauss-Legendre quadrature in the interval (eps^2, 1). This would normally not be called by the user, but it
+  is in the namespace and documented. All of these are mostly for testing purposes.
 * added boolean variable `usecirc` to the list of options returned by `psfit_options()`. If set to `TRUE` functions that use Zernikes for
   wavefront representations will use Zernike circle polynomials even for obstructed apertures. For the default value `FALSE` functions like
   `wf_net()` and `pupil` will toggle between Zernikes and annular Zernikes depending on whether the obstruction fraction is > 0.
@@ -34,7 +39,8 @@ New in this version: support for Zernike Annular polynomials approximated by ort
 
 A number of additions and changes have been made for this release, and some of the changes may break previously working code. This list _may_ not be comprehensive:
 
-* Added `gradzpm_cart`, `zpm_cart`, and `norm_zpm` to create matrixes of Zernike polynomials and their derivatives in ISO/ANSI sequence and Cartesian coordinates. See the documentation for further details.
+* Added `gradzpm_cart`, `zpm_cart`, and `norm_zpm` to create matrixes of Zernike polynomials and their derivatives in ISO/ANSI sequence and Cartesian coordinates. 
+  See the documentation for further details.
 * Added the item `isoseq` to the list in `psfit_options()` to tell other routines when to use `zpm_cart` instead of `zpm`. This is checked in the function `wf_net()` and if true `zpm_cart` is used in the Zernike fitting.
 * Added function `makezlist.iso` to make a list of Zernike polynomial indexes in ISO/ANSI sequence.
 * Added print, summary, and plot methods for the return lists from `psifit()`, `vortexfit()`, and `fftfit()`. These have been assigned the S3 class `wf_fitted`.
