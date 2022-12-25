@@ -1,3 +1,8 @@
+## Version 3.7.5
+
+* Formal writeup of the procedure for recursive generation of Zernike annular polynomials
+  is included with the documentation.
+
 ## Version 3.7.4
 
 * Removed functions `zapmC` and `zapm_cart` for approximate Zernike Annular polynomials.
