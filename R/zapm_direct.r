@@ -136,6 +136,59 @@ zapm_direct <- function(rho, theta, eps) {
 #'    Use [zapm_iso()] or [zapm_iso_128()] for complete sequences
 #'    of values to arbitrary order.
 #'
+#' @examples
+#' sample_az_iso_direct <- function(eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
+#' 
+#'  ## get coordinates for obstructed aperture
+#'  cp <- cp.default
+#'  cp$obstruct <- eps
+#'  prt <- pupil.rhotheta(nrow.default,ncol.default,cp=cp)
+#'  rho <- prt$rho[!is.na(prt$rho)]
+#'  theta <- prt$theta[!is.na(prt$theta)]
+#'  
+#'  ## fill up matrixes of Annular Zernikes using direct and recursive formulas
+#'  
+#'  zam_dir <- zapm_iso_direct(rho, theta, eps=eps)
+#'  zam_iso <- zapm_iso(rho, theta, eps=eps, maxorder=6)
+#'  
+#'  ## pick a column at random and look up its index pair
+#'  
+#'  zlist <- makezlist.iso(6)
+#'  i <- sample(2:ncol(zam_iso), 1)
+#'  n <- zlist$n[i]
+#'  m <- zlist$m[i]
+#'  
+#'  ## fill up the wavefront representations and plot them
+#'  
+#'  wf_dir <- prt$rho
+#'  wf_dir[!is.na(wf_dir)] <- zam_dir[,i]
+#'  class(wf_dir) <- "pupil"
+#'  
+#'  wf_zapm <- wf_dir
+#'  wf_zapm[!is.na(wf_zapm)] <- zam_iso[,i]
+#'  class(wf_zapm) <- "pupil"
+#'  
+#'  plot(wf_dir, cp=cp, col=col, addContours=addContours, cscale=cscale)
+#'  mtext(paste("Annular Zernike from formula, n =", n, " m =", m))
+#'  
+#'  x11()
+#'  plot(wf_zapm, cp=cp, col=col, addContours=addContours, cscale=cscale)
+#'  mtext(paste("Annular Zernike from `zapm_iso`, n =", n, " m =", m))
+#'  
+#'  cat(paste("Sample wavefronts: SD of diffs", format(sd(wf_dir-wf_zapm, na.rm=TRUE), digits=6), "; range of diffs", 
+#'      format(min(wf_zapm-wf_dir, na.rm=TRUE), digits=6),":",
+#'      format(max(wf_zapm-wf_dir, na.rm=TRUE), digits=6),"\n\n"))
+#'  
+#'  cat(paste("Zernike matrixes: SD of diffs", format(sd(zam_dir-zam_iso), digits=6), "; range of diffs", 
+#'  format(min(zam_dir-zam_iso), digits=6),":",
+#'  format(max(zam_dir-zam_iso), digits=6),"\n"))
+#'  
+#'  ## return Zernike matrices and wavefronts invisibly
+#'  ## just in case user wants to do something with them
+#'  
+#'  invisible(list(zam_dir=zam_dir, zam_iso=zam_iso, wf_dir=wf_dir, wf_zapm=wf_zapm))
+#' }
+#'
 #' @md
 zapm_iso_direct <- function(rho, theta, eps) {
   if (length(rho) != length(theta)) {
