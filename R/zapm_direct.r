@@ -189,6 +189,8 @@ zapm_direct <- function(rho, theta, eps) {
 #'  invisible(list(zam_dir=zam_dir, zam_iso=zam_iso, wf_dir=wf_dir, wf_zapm=wf_zapm))
 #' }
 #'
+#' sample_az_iso_direct()
+#'
 #' @md
 zapm_iso_direct <- function(rho, theta, eps) {
   if (length(rho) != length(theta)) {

@@ -78,6 +78,8 @@ sample_az_iso_direct <- function(eps=0.33, col=rev(zernike::rygcb(400)), addCont
  invisible(list(zam_dir=zam_dir, zam_iso=zam_iso, wf_dir=wf_dir, wf_zapm=wf_zapm))
 }
 
+sample_az_iso_direct()
+
 }
 \seealso{
 Calls \code{\link[=rzernike_ann_direct]{rzernike_ann_direct()}} for radial Zernike annular values.
