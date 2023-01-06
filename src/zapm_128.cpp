@@ -164,7 +164,7 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
   }
 
   RZ.col(0).fill(1.0);
-  RZ.col(1) = (u - alpha(0)) % RZ.col(0);
+  RZ.col(1) = (u - alpha(0));
   for (int i = 1; i < (nz-1); i++) {
     RZ.col(i+1) = (u - alpha(i)) % RZ.col(i) - beta(i) * RZ.col(i-1);
   }
