@@ -115,56 +115,60 @@ summary.pupil <- function(wf, digits=3) {
 
 plot.pupil <- function(wf, cp=NULL, col=topo.colors(256), addContours=TRUE, 
                        cscale=FALSE, eqa=FALSE, zlim=NULL, ...) {
-    nr <- nrow(wf)
-    nc <- ncol(wf)
-    if(is.null(zlim)) zlim <- range(wf, finite=TRUE)
-    if(eqa) wfcdf <- ecdf(wf[!is.na(wf)])
+  nr <- nrow(wf)
+  nc <- ncol(wf)
+  if(is.null(zlim)) zlim <- range(wf, finite=TRUE)
+    if(eqa) {
+      wfcdf <- ecdf(wf[!is.na(wf)])
+    }
     if (cscale) {
-        mar.orig <- (par.orig <- par(c("mar", "las", "mfrow")))$mar
-        on.exit(par(par.orig))
-        w <- (3 + mar.orig[2]) * par("csi") * 2.54
-        layout(matrix(c(2, 1), ncol = 2), widths = c(1, lcm(w)))
-        par(las = 1)
-        mar <- mar.orig
-        mar[4] <- mar[2]
-        mar[2] <- 1
-        par(mar = mar)
-        levels <- seq(zlim[1], zlim[2], length=length(col)+1)
-        plot.new()
-        plot.window(xlim=c(0,1),ylim=range(levels), xaxs="i", yaxs="i")
-        if (eqa) {
-            vcol <- col[round((length(col)-1)*wfcdf(seq(zlim[1],zlim[2],length=length(col)))+1)]
-        } else vcol <- col
-	rect(0, levels[-length(levels)], 1, levels[-1], col=vcol, density=NA)
-        axis(4)
-        box()
-        mar <- mar.orig
-        mar[4] <- 0
-        par(mar = mar)
+      mar.orig <- (par.orig <- par(c("mar", "las", "mfrow")))$mar
+      on.exit(par(par.orig))
+      w <- (3 + mar.orig[2]) * par("csi") * 2.54
+      layout(matrix(c(2, 1), ncol = 2), widths = c(1, lcm(w)))
+      par(las = 1)
+      mar <- mar.orig
+      mar[4] <- mar[2]
+      mar[2] <- 1
+      par(mar = mar)
+      levels <- seq(zlim[1], zlim[2], length=length(col)+1)
+      plot.new()
+      plot.window(xlim=c(0,1),ylim=range(levels), xaxs="i", yaxs="i")
+      if (eqa) {
+        vcol <- col[round((length(col)-1)*wfcdf(seq(zlim[1],zlim[2],length=length(col)))+1)]
+      } else {
+        vcol <- col
+      }
+      rect(0, levels[-length(levels)], 1, levels[-1], col=vcol, density=NA)
+      axis(4)
+      box()
+      mar <- mar.orig
+      mar[4] <- 0
+      par(mar = mar)
     }
     if (is.null(cp)) {
-        axis1 <- 1:nr
-        axis2 <- 1:nc
+      axis1 <- 1:nr
+      axis2 <- 1:nc
     } else {
-        axis1 <- ((1:nr)-cp$xc)/cp$rx
-        axis2 <- ((1:nc)-cp$yc)/cp$ry
+      axis1 <- ((1:nr)-cp$xc)/cp$rx
+      axis2 <- ((1:nc)-cp$yc)/cp$ry
     }
     if (eqa) {
-        iwf <- wfcdf(wf[!is.na(wf)])
-        iwfm <- wf
-        iwfm[!is.na(iwfm)] <- iwf
-        zlim <- wfcdf(zlim)
-        col1 <- round((length(col)-1)*zlim[1]+1)
-        col2 <- round((length(col)-1)*zlim[2]+1)
-        image(axis1, axis2, iwfm, zlim=zlim, asp=1, col=col[col1:col2], 
-              xlab="X", ylab="Y", useRaster=TRUE, ...)
+      iwf <- wfcdf(wf[!is.na(wf)])
+      iwfm <- wf
+      iwfm[!is.na(iwfm)] <- iwf
+      zlim <- wfcdf(zlim)
+      col1 <- round((length(col)-1)*zlim[1]+1)
+      col2 <- round((length(col)-1)*zlim[2]+1)
+      image(axis1, axis2, iwfm, zlim=zlim, asp=1, col=col[col1:col2], 
+            xlab="X", ylab="Y", useRaster=TRUE, ...)
     } else {
-        image(axis1, axis2, wf, zlim=zlim, asp=1, col=col, 
-                  xlab="X", ylab="Y", useRaster=TRUE, ...)
+      image(axis1, axis2, wf, zlim=zlim, asp=1, col=col, 
+            xlab="X", ylab="Y", useRaster=TRUE, ...)
     }
     if (addContours) contour(axis1, axis2, wf, add=TRUE)
 }
-
+                       
 ## RGL animated 3D plot
 
 ## administrative stuff needed to make this a method for class "pupil"
@@ -172,35 +176,45 @@ plot.pupil <- function(wf, cp=NULL, col=topo.colors(256), addContours=TRUE,
 wf3d <- function(wf, ...) UseMethod("wf3d", wf)
 
 col3d <- function(wf, surf.col=topo.colors(256), zlim = NULL, eqa=FALSE) {
-	if (is.null(zlim)) zlim <- range(wf, na.rm=TRUE)
-    if (eqa) {
-        wfcdf <- ecdf(wf[!is.na(wf)])
-        iwf <- wfcdf(wf[!is.na(wf)])
-        wf[!is.na(wf)] <- iwf
-        zlim <- wfcdf(zlim)
-    }
-    surf.col[(length(surf.col)-1)*(wf-zlim[1])/(zlim[2]-zlim[1])+1]
+	if (is.null(zlim)) {
+    zlim <- range(wf, na.rm=TRUE)
+  }
+  if (eqa) {
+    wfcdf <- ecdf(wf[!is.na(wf)])
+    iwf <- wfcdf(wf[!is.na(wf)])
+    wf[!is.na(wf)] <- iwf
+    zlim <- wfcdf(zlim)
+  }
+  surf.col[(length(surf.col)-1)*(wf-zlim[1])/(zlim[2]-zlim[1])+1]
 }
 
 wf3d.pupil <- function(wf, cp=NULL, zoom.wf=1, surf.col=topo.colors(256), bg.col="black",
-                eqa=FALSE) {
-    require(rgl)
-    zlim <- range(wf, na.rm=TRUE)
-    col <- col3d(wf, surf.col, zlim, eqa)
-    if (is.null(cp)) {
-        axis1 <- seq(-1, 1, length=nrow(wf))
-        axis2 <- seq(-1, 1, length=ncol(wf))*(ncol(wf)/nrow(wf))
-    } else {
-        axis1 <- ((1:nrow(wf))-cp$xc)/cp$rx
-        axis2 <- ((1:ncol(wf))-cp$yc)/cp$ry
-    }
-
-    rgl.bg(sphere=FALSE, fogtype="exp2", color=bg.col)
-    rgl.surface(-axis1, axis2, wf*zoom.wf, color=col, shininess=100)
-    rgl.lines(c(-1,-1.25)*max(axis1),c(0,0),c(0,0),color="red", lit=FALSE)
-    rgl.lines(c(0,0),c(0,0),c(1,1.25)*max(axis2),color="red", lit=FALSE)
-    rgl.texts(-1.3*max(axis1),0,0, "X", color="red")
-    rgl.texts(0,0,1.3*max(axis2), "Y", color="red")
+                       eqa=FALSE, new.window=TRUE) {
+  avail <- require(rgl)
+  if (!avail) {
+    stop("Package rgl must be installed for this function to work")
+  }
+  zlim <- range(wf, na.rm=TRUE)
+  col <- col3d(wf, surf.col, zlim, eqa)
+  if (is.null(cp)) {
+    axis1 <- seq(-1, 1, length=nrow(wf))
+    axis2 <- seq(-1, 1, length=ncol(wf))*(ncol(wf)/nrow(wf))
+  } else {
+    axis1 <- ((1:nrow(wf))-cp$xc)/cp$rx
+    axis2 <- ((1:ncol(wf))-cp$yc)/cp$ry
+  }
+  
+  if (new.window) {
+    open3d()
+  } else {
+    clear3d()
+  }
+  bg3d(sphere=FALSE, fogtype="exp2", color=bg.col)
+  surface3d(x = axis1, y = axis2, z = wf*zoom.wf, color=col, shininess=100)
+  segments3d(x = c(1,1.25)*max(axis1), y = c(0,0), z = c(0,0), color="red", lit=FALSE)
+  segments3d(x = c(0,0), y = c(1,1.25)*max(axis2), z = c(0,0), color="red", lit=FALSE)
+  texts3d(x = 1.3*max(axis1), y = 0, z = 0, "X", color="red")
+  texts3d(x = 0, y = 1.3*max(axis2), z = 0, "Y", color="red")
 }
 
 ## polar coordinates inside the unit radius pupil

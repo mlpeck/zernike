@@ -1,8 +1,8 @@
 Package: zernike
 Title: Zernike Polynomials
-Version: 3.7.5
+Version: 3.7.6
 Author: M.L. Peck <mpeck1@ix.netcom.com>
-Depends: R (>= 3.6.3)
+Depends: R (>= 4.1.0)
 Suggests: rgl, robustbase, clue, data.table, dplyr, pixmap, mvtnorm
 Imports: Rcpp (>= 1.0.0), RcppParallel
 LinkingTo: Rcpp, RcppArmadillo, RcppParallel, BH

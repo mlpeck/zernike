@@ -658,3 +658,8 @@
 ## These use formulas published in Mahajan (1994)
 ##
 ## added `annzern.pdf` to docs
+
+## 20230602
+##
+## modified wf3d.pupil for compatibility with recent versions of rgl
+##

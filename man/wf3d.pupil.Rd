@@ -8,7 +8,7 @@
 }
 \usage{
 wf3d.pupil(wf, cp=NULL, zoom.wf = 1, surf.col = topo.colors(256), bg.col = "black",
-    eqa=FALSE)
+    eqa=FALSE, new.window=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,7 +18,10 @@ wf3d.pupil(wf, cp=NULL, zoom.wf = 1, surf.col = topo.colors(256), bg.col = "blac
   \item{surf.col}{Color palette for surface}
   \item{bg.col}{Background color}
   \item{eqa}{Equal area per color?}
-}
+  \item{new.window}{If TRUE (the default), open a new rgl deice.
+                    Otherwise clears and re-uses an existing window if available}
+  }
+
 \details{
   The default color palette will match the colors in the default
   version of \code{\link{plot.pupil}}.
@@ -27,9 +30,7 @@ wf3d.pupil(wf, cp=NULL, zoom.wf = 1, surf.col = topo.colors(256), bg.col = "blac
   none
 }
 \references{
-  The \pkg{rgl} package is described at 
-  \url{http://rgl.neoscientists.org/about.shtml},
-  and available from CRAN.
+  The \pkg{rgl} package is available from CRAN.
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
 \seealso{
