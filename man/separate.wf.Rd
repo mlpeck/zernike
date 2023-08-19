@@ -21,7 +21,7 @@ separate.wf(
 
 \item{th}{the orientation angle(s) of object under test, in degrees.}
 
-\item{zcm}{Zernike coefficient matrix from the \code{zcoef.net} entry in the wavefront fits, minus the first 3 elements.}
+\item{zcm}{Zernike coefficient matrix from addfit.}
 
 \item{theta}{vector of angles from addfit.}
 
@@ -32,15 +32,23 @@ separate.wf(
 \item{ncol}{number of columns in the reconstructed wavefronts.}
 
 \item{cp}{list of values describing the location and size of the wavefront as returned by \link{circle.pars} or \link{pupil.pars}.}
-
-\item{zcb}{a data frame with zernike coefficients and standard errors of estimates for intrinsic and instrumental aberrations.}
-
-\item{sumstats}{a data frame with summary statistics describing the fits to each set of coefficients.}
-
-\item{wf.mirror}{the estimated derotated wavefront, stored in a matrix of size nrow x ncol with class \code{pupil}.}
 }
 \value{
+Lists with the following elements
 
+function \code{addfit}
+
+{zcm} {Zernike coefficient matrix from the \code{zcoef.net} entry in the wavefront fits, minus the first 3 elements.}
+
+function \code{separate.wf}
+
+{zcb} {a data frame with zernike coefficients and standard errors of estimates for intrinsic and instrumental aberrations.}
+
+{sumstats} {a data frame with summary statistics describing the fits to each set of coefficients.}
+
+{wf.mirror} {the estimated derotated wavefront, stored in a matrix of size nrow x ncol with class \code{pupil}.}
+
+{wf.inst} {the estimated instrumental (test stand) contribution to the wavefront.}}
 }
 \description{
 Separate a set of wavefronts measured at different orientations into "polished in" and
@@ -63,8 +71,8 @@ some possibly useful summary statistics from the fits are returned in the data f
 }
 \section{Functions}{
 \itemize{
-\item \code{addfit}: Add a wavefront fit to tracking list
+\item \code{addfit()}: Add a wavefront fit to tracking list
 
-\item \code{separate.wf}: Separate wavefronts
+\item \code{separate.wf()}: Separate wavefronts
+
 }}
-

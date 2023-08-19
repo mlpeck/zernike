@@ -65,14 +65,18 @@ addfit <- function(..., th=0, zcm=NULL, theta=numeric(0)) {
 #' @param ncol number of columns in the reconstructed wavefronts.
 #' @param cp list of values describing the location and size of the wavefront as returned by [circle.pars] or [pupil.pars].
 #'
-#' @return
+#' @returns Lists with the following elements
+#' @returns function `addfit`
 #'
-#' @param zcm Zernike coefficient matrix from the `zcoef.net` entry in the wavefront fits, minus the first 3 elements.
-#` @param theta vector of orientation angles in radians, with the same number of elements as columns of `zcm`.
+#' @returns {zcm} {Zernike coefficient matrix from the `zcoef.net` entry in the wavefront fits, minus the first 3 elements.}
+#` @returns {theta} {vector of orientation angles in radians, with the same number of elements as columns of `zcm`.}
 #'
-#' @param zcb a data frame with zernike coefficients and standard errors of estimates for intrinsic and instrumental aberrations.
-#' @param sumstats a data frame with summary statistics describing the fits to each set of coefficients.
-#' @param wf.mirror the estimated derotated wavefront, stored in a matrix of size nrow x ncol with class `pupil`.
+#' @returns function `separate.wf`
+#'
+#' @returns {zcb} {a data frame with zernike coefficients and standard errors of estimates for intrinsic and instrumental aberrations.}
+#' @returns {sumstats} {a data frame with summary statistics describing the fits to each set of coefficients.}
+#' @returns {wf.mirror} {the estimated derotated wavefront, stored in a matrix of size nrow x ncol with class `pupil`.}
+#' @returns {wf.inst} {the estimated instrumental (test stand) contribution to the wavefront.}}
 #'
 #'
 #' @details
@@ -98,7 +102,9 @@ separate.wf <- function(zcm, theta, maxorder=14,
   nt <- length(theta)
   zlist <- makezlist(4, maxorder)
   nz <- length(zlist$n)
-  zcb <- matrix(0, nz, 4)
+  zcb <- data.frame(n=zlist$n, m=zlist$m, t=zlist$t, 
+                    zc_mirror=rep(0,nz), zc_inst=rep(0,nz),
+                    se_zc_mirror=rep(0,nz), se_zc_inst=rep(0,nz))
   sumstats <- NULL
   cx <- c(rep(1,nt),rep(0,nt))
   cy <- c(rep(0,nt),rep(1,nt))
@@ -106,10 +112,10 @@ separate.wf <- function(zcm, theta, maxorder=14,
   repeat {
     if (i > nz) break
       if (zlist$m[i] == 0) {
-        zcb[i,1] <- mean(zcm[i,])
-        zcb[i,3] <- sd(zcm[i,])/sqrt(nt)
-        sumstats <- rbind(sumstats, c(zlist$n[i], zlist$m[i], zcb[i,1],
-                                      NA, zcb[i, 3], rep(NA, 4)))
+        zcb[i,4] <- mean(zcm[i,])
+        zcb[i,6] <- sd(zcm[i,])/sqrt(nt)
+        sumstats <- rbind(sumstats, c(zlist$n[i], zlist$m[i], zcb[i,4],
+                                      NA, zcb[i, 6], rep(NA, 4)))
         i <- i+1
       } else {
         y <- c(zcm[i,],zcm[i+1,])
@@ -117,25 +123,23 @@ separate.wf <- function(zcm, theta, maxorder=14,
         ry <- c(-sin(zlist$m[i]*theta),cos(zlist$m[i]*theta))
         lsm <- lm(y ~ -1+rx+ry+cx+cy)
         cc <- coef(summary(lsm))[,1:2]
-        zcb[i:(i+1),1] <- cc[1:2,1]
-        zcb[i:(i+1),3] <- cc[1:2,2]
+        zcb[i:(i+1),4] <- cc[1:2,1]
+        zcb[i:(i+1),6] <- cc[1:2,2]
         if (nrow(cc)==4) {
-          zcb[i:(i+1),2] <- cc[3:4,1]
-          zcb[i:(i+1),4] <- cc[3:4,2]
+          zcb[i:(i+1),5] <- cc[3:4,1]
+          zcb[i:(i+1),7] <- cc[3:4,2]
         }
         lsm <- summary(lsm)
         sumstats <- rbind(sumstats,c(zlist$n[i],zlist$m[i],
-                                     hypot(zcb[i:(i+1),1]), hypot(zcb[i:(i+1),2]),
+                                     hypot(zcb[i:(i+1),4]), hypot(zcb[i:(i+1),5]),
                                      lsm$sigma, lsm$r.squared,lsm$fstatistic))
         i <- i+2
       }
   }
-  zcb[is.na(zcb)] <- 0
-  colnames(zcb) <- c("zc_mirror", "zc_inst", "se_zc_mirror", "se_zc_inst")
   colnames(sumstats)[1:7] <- c("n","m","rms_mirror", "rms_inst", "sigma","R2", "F")
-  wf.mirror <- pupil.arb(zcoef=zcb[,1], zlist=zlist, nrow=nrow, ncol=ncol, cp=cp)
-  wf.inst <- pupil.arb(zcoef=zcb[,2], zlist=zlist, nrow=nrow, ncol=ncol, cp=cp)
-  list(zcb=data.frame(zcb),sumstats=data.frame(sumstats),
+  wf.mirror <- pupil.arb(zcoef=zcb[,4], zlist=zlist, nrow=nrow, ncol=ncol, cp=cp)
+  wf.inst <- pupil.arb(zcoef=zcb[,5], zlist=zlist, nrow=nrow, ncol=ncol, cp=cp)
+  list(zcb=zcb,sumstats=data.frame(sumstats),
        wf.mirror=wf.mirror, wf.inst=wf.inst)
                         }
                         
