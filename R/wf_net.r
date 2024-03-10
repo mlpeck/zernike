@@ -90,45 +90,93 @@ wf_net <- function(wf.raw, cp, options) {
     mtext(paste("RMS = ", format(pupilrms(wf.residual),digits=3)))
     close.screen(all.screens=TRUE)
   }
-  list(wf.net=wf.net, wf.smooth=wf.smooth, wf.residual=wf.residual, 
+  outs <- list(wf.net=wf.net, wf.smooth=wf.smooth, wf.residual=wf.residual, 
        fit=fit, zcoef.net=zcoef.net[-1])
+  class(outs) <- c(class(outs), "wf_fitted")
+  outs
 }
 
 #' Methods for class "wf_fitted"
 #' 
-#' Summary, print, and plot methods for the returned list of values
+#' Summary, print, plot, and invert methods for the returned list of values
 #'  from [psifit()], [fftfit()], or [vortexfit()]
 #'
-#' @param wffit the return values from one of the fringe analysis routines
+#' @param wffit the return values from one of the fringe analysis routines or [wf_net()]
 #' @param digits number of digits to display in print and summary methods
 #' @param ... values passed to [plot.pupil()]
-#' @return print method returns data frame with Zernike coefficients
-summary.wf_fitted <- function(wffit, digits=3) {
-  cat("Image size(s)     : ", nrow(wffit$wf.smooth), " x ", ncol(wffit$wf.smooth), "\n")
-  cat("Unsmoothed RMS    : ", format(pupilrms(wffit$wf.net), digits=digits), "\n")
-  cat("Zernike fit RMS   : ", format(sqrt(crossprod(wffit$zcoef.net)), digits=digits), "\n")
-  cat("Zernike fit Strehl: ", format(strehlratio(sqrt(crossprod(wffit$zcoef.net))), digits=digits), "\n")
-  cat("Zernike fit P-V   : ", format(pupilpv(wffit$wf.smooth), digits=digits), "\n")
-  cat("PVr               : ", format(PVr(wffit$wf.smooth, wffit$wf.residual), digits=digits), "\n")
+#'
+#' @details The invert method negates the values of wavefronts and Zernike coefficients and returns the adjusted input
+#'
+#' @return summary and print methods return data frame with wavefront summaries and Zernike coefficients
+summary.wf_fitted <- function(wffit, digits=3, printnow=TRUE) {
+  df.sum <- data.frame(row.names=c("Current time      : ",
+                                   "Run time          : ",
+                                   "Algorithm         : ",
+                                   "Image size(s)     : ",
+                                   "Unsmoothed RMS    : ",
+                                   "Zernike fit RMS   : ",
+                                   "Zernike fit Strehl: ",
+                                   "Zernike fit P-V   : ",
+                                   "PVr               : "),
+                       Value  = c(date(),
+                                  if (!is.null(wffit$rundate)) wffit$rundate else "",
+                                  if (!is.null(wffit$algorithm)) wffit$algorithm else "unknown",
+                                  paste(nrow(wffit$wf.smooth), "x", ncol(wffit$wf.smooth)),
+                                  format(pupilrms(wffit$wf.net),digits=digits),
+                                  format(hypot(wffit$zcoef.net),digits=digits),
+                                  format(strehlratio(hypot(wffit$zcoef.net)),digits=digits),
+                                  format(pupilpv(wffit$wf.smooth),digits=digits),
+                                  format(PVr(wffit$wf.smooth, wffit$wf.residual),digits=digits))
+  )
+  if (printnow) {
+    print(df.sum, digits=digits, right=FALSE, justify="left")
+  }
+  invisible(df.sum)
 }
 
-print.wf_fitted <- function(wffit, digits=3) {
+print.wf_fitted <- function(wffit, digits=3, printnow=TRUE) {
   if (is.element("lm", class(wffit$fit))) {
     fit <- coef(wffit$fit)
   } else {
     fit <- wffit$fit
   }
-  nz <- length(wffit$zcoef.net)
-  znames <- paste("Z", 0:nz, sep="")
-  df.zernikes <- data.frame(Z = znames, Zcoef.Raw = fit, Zcoef.net = c(0, wffit$zcoef.net))
-  summary.wf_fitted(wffit, digits=digits)
-  cat("\n")
-  print(df.zernikes, digits=digits, row.names=FALSE)
+  nz <- length(fit)
+  sqnz <- sqrt(nz)
+  if (sqnz %% 1 > sqrt(.Machine$double.eps)) {
+    ## Zernikes are (probably) in ISO sequence
+    maxorder <- (-3 + sqrt(1+8*nz))/2
+    zlist <- makezlist.iso(maxorder=maxorder)
+  } else {
+    maxorder <- 2*(sqnz-1)
+    zlist <- makezlist(maxorder=maxorder)
+  }
+  znames <- paste("Z", 0:(nz-1), sep="")
+  mmult <- 1 - 2*as.numeric(zlist$t == "s")
+  df.zernikes <- data.frame(row.names = znames, n=zlist$n, m=zlist$m*mmult,
+                            zcoef.raw = fit, zcoef.net = c(0, wffit$zcoef.net))
+  if (printnow) {
+    summary(wffit, digits=digits)
+    cat("\n")
+    print(df.zernikes, digits=digits, row.names=TRUE)
+  }
   invisible(df.zernikes)
 }
 
 plot.wf_fitted <- function(wffit, wftype="smooth", ...) {
   wf <- get(paste("wf", wftype, sep="."), wffit)
   plot.pupil(wf, cp=wffit$cp, ...)
+}
+
+invert <- function(wffit) UseMethod("invert", wffit)
+
+invert.wf_fitted <- function(wffit) {
+  wffit$wf.net <- -wffit$wf.net
+  wffit$wf.smooth <- -wffit$wf.smooth
+  wffit$wf.residual <- -wffit$wf.residual
+  wffit$zcoef.net <- -wffit$zcoef.net
+  if (!is.element("lm", class(wffit$fit))) {
+    wffit$fit <- -wffit$fit
+  }
+  wffit
 }
   

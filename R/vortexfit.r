@@ -116,11 +116,14 @@ vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=psfit_op
   wf.raw <- options$fringescale*wf.raw
   class(wf.raw) <- "pupil"
   wf.nets <- wf_net(wf.raw, cp, options)
-  outs <- list(im.bgclean=im.nb[1:nr, 1:nc], orient=orient, dir=dir, phi=phi, mod=mod, 
+  rundate <- date()
+  algorithm <- "Vortex"
+  outs <- list(rundate=rundate, algorithm=algorithm,
+       im.bgclean=im.nb[1:nr, 1:nc], orient=orient, dir=dir, phi=phi, mod=mod, 
        cp=cp, cp.orig=cp.orig,
        wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
        wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net)
-  class(outs) <- append(class(outs), "wf_fitted")
+  class(outs) <- c(class(outs), "wf_fitted")
   outs
 }
                       

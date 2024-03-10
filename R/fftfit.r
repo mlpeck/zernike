@@ -115,10 +115,13 @@ fftfit <- function(imagedata, cp=NULL,
   wf.raw <- options$fringescale*wf.raw
   class(wf.raw) <- "pupil"
   wf.nets <- wf_net(wf.raw, cp, options)
-  outs <- list(phi=phi, mod=mod, cp=cp, cp.orig=cp.orig,
+  rundate <- date()
+  algorithm <- "classical FFT"
+  outs <- list(rundate=rundate, algorithm=algorithm,
+       phi=phi, mod=mod, cp=cp, cp.orig=cp.orig,
        wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
        wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net)
-  class(outs) <- append(class(outs), "wf_fitted")
+  class(outs) <- c(class(outs), "wf_fitted")
   outs
 }
                    
