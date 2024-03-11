@@ -277,7 +277,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
        cp=cp, cp.orig=cp.orig,
        wf.net=wfnets$wf.net, wf.smooth=wfnets$wf.smooth,wf.residual=wfnets$wf.residual,
        fit=wfnets$fit, zcoef.net=wfnets$zcoef.net, extras=extras)
-  class(outs) <- c(class(outs), "wf_fitted")
+  class(outs) <- c(class(outs), "wf_zfit")
   outs
 }
 

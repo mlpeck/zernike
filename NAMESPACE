@@ -5,10 +5,10 @@ S3method(summary, pupil)
 S3method(plot, pupil)
 S3method(wf3d, pupil)
 
-S3method(summary, wf_fitted)
-S3method(print, wf_fitted)
-S3method(plot, wf_fitted)
-S3method(invert, wf_fitted)
+S3method(summary, wf_zfit)
+S3method(print, wf_zfit)
+S3method(plot, wf_zfit)
+S3method(invert, wf_zfit)
 
 useDynLib(zernike, .registration=TRUE)
 

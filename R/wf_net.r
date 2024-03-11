@@ -92,23 +92,24 @@ wf_net <- function(wf.raw, cp, options) {
   }
   outs <- list(wf.net=wf.net, wf.smooth=wf.smooth, wf.residual=wf.residual, 
        fit=fit, zcoef.net=zcoef.net[-1])
-  class(outs) <- c(class(outs), "wf_fitted")
+  class(outs) <- c(class(outs), "wf_zfit")
   outs
 }
 
-#' Methods for class "wf_fitted"
+#' Methods for class "wf_zfit"
 #' 
 #' Summary, print, plot, and invert methods for the returned list of values
 #'  from [psifit()], [fftfit()], or [vortexfit()]
 #'
 #' @param wffit the return values from one of the fringe analysis routines or [wf_net()]
 #' @param digits number of digits to display in print and summary methods
+#' @param printnow send output to console?
 #' @param ... values passed to [plot.pupil()]
 #'
 #' @details The invert method negates the values of wavefronts and Zernike coefficients and returns the adjusted input
 #'
 #' @return summary and print methods return data frame with wavefront summaries and Zernike coefficients
-summary.wf_fitted <- function(wffit, digits=3, printnow=TRUE) {
+summary.wf_zfit <- function(wffit, digits=3, printnow=TRUE) {
   df.sum <- data.frame(row.names=c("Current time      : ",
                                    "Run time          : ",
                                    "Algorithm         : ",
@@ -134,7 +135,7 @@ summary.wf_fitted <- function(wffit, digits=3, printnow=TRUE) {
   invisible(df.sum)
 }
 
-print.wf_fitted <- function(wffit, digits=3, printnow=TRUE) {
+print.wf_zfit <- function(wffit, digits=3, printnow=TRUE) {
   if (is.element("lm", class(wffit$fit))) {
     fit <- coef(wffit$fit)
   } else {
@@ -162,14 +163,14 @@ print.wf_fitted <- function(wffit, digits=3, printnow=TRUE) {
   invisible(df.zernikes)
 }
 
-plot.wf_fitted <- function(wffit, wftype="smooth", ...) {
+plot.wf_zfit <- function(wffit, wftype="smooth", ...) {
   wf <- get(paste("wf", wftype, sep="."), wffit)
   plot.pupil(wf, cp=wffit$cp, ...)
 }
 
 invert <- function(wffit) UseMethod("invert", wffit)
 
-invert.wf_fitted <- function(wffit) {
+invert.wf_zfit <- function(wffit) {
   wffit$wf.net <- -wffit$wf.net
   wffit$wf.smooth <- -wffit$wf.smooth
   wffit$wf.residual <- -wffit$wf.residual

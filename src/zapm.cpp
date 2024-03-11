@@ -290,7 +290,7 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
 // [[Rcpp::export]]
 mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorder=12, const int& nq=21) {
   
-  int j, k, n0, nmax, nz, mmax = maxorder/2;
+  int j, k, nmax, nz, mmax = maxorder/2;
   uword nr = rho.size();
   int ncol = (mmax+1)*(mmax+1);
   mat cosmtheta(nr, mmax), sinmtheta(nr, mmax);
