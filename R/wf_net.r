@@ -110,7 +110,7 @@ wf_net <- function(wf.raw, cp, options) {
 #'
 #' @return summary and print methods return data frame with wavefront summaries and Zernike coefficients
 summary.wf_zfit <- function(wffit, digits=3, printnow=TRUE) {
-  df.sum <- data.frame(row.names=c("Current time      : ",
+  df.sum <- data.frame(Name    = c("Current time      : ",
                                    "Run time          : ",
                                    "Algorithm         : ",
                                    "Image size(s)     : ",
@@ -130,12 +130,12 @@ summary.wf_zfit <- function(wffit, digits=3, printnow=TRUE) {
                                   format(PVr(wffit$wf.smooth, wffit$wf.residual),digits=digits))
   )
   if (printnow) {
-    print(df.sum, digits=digits, right=FALSE, justify="left")
+    print(df.sum, digits=digits, right=FALSE, justify="left", row.names=FALSE)
   }
   invisible(df.sum)
 }
 
-print.wf_zfit <- function(wffit, digits=3, printnow=TRUE) {
+print.wf_zfit <- function(wffit, digits=3, abnames=TRUE, printnow=TRUE) {
   if (is.element("lm", class(wffit$fit))) {
     fit <- coef(wffit$fit)
   } else {
@@ -153,12 +153,37 @@ print.wf_zfit <- function(wffit, digits=3, printnow=TRUE) {
   }
   znames <- paste("Z", 0:(nz-1), sep="")
   mmult <- 1 - 2*as.numeric(zlist$t == "s")
-  df.zernikes <- data.frame(row.names = znames, n=zlist$n, m=zlist$m*mmult,
-                            zcoef.raw = fit, zcoef.net = c(0, wffit$zcoef.net))
+  n <- zlist$n
+  m <- zlist$m * mmult
+  if (abnames) {
+    ab <- rep("", nz)
+    ab[n==0 & m==0] <- "piston"
+    ab[n==2 & m==0] <- "defocus"
+    ab[n>=4 & m==0] <- paste("spherical ", n[n>=4 & m==0], "'th", sep="")
+    
+    ab[n==1 & m==1] <- "x tilt"
+    ab[n==1 & m==-1] <- "y tilt"
+    cond <- n>=3 & m==1
+    ab[cond] <- paste("x coma ", n[cond] + 1, "'th", sep="")
+    cond <- n>=3 & m== -1
+    ab[cond] <- paste("y coma ", n[cond] + 1, "'th", sep="")
+    
+    ab[m==2] <- paste("cos astigmatism ", n[m==2] + 2, "'th", sep="")
+    ab[m== -2] <- paste("sin astigmatism ", n[m== -2] + 2, "'th", sep="")
+    
+    ab[m==3] <- paste("cos trefoil ", n[m==3] + 3, "'th", sep="")
+    ab[m== -3] <- paste("sin trefoil ", n[m== -3] + 3, "'th", sep="")
+    
+    df.zernikes <- data.frame(Z = znames, n=n, m=m, aberration=ab,
+                              zcoef.raw = fit, zcoef.net = c(0, wffit$zcoef.net))
+  } else {
+    df.zernikes <- data.frame(Z = znames, n=n, m=m,
+                              zcoef.raw = fit, zcoef.net = c(0, wffit$zcoef.net))
+  }
   if (printnow) {
     summary(wffit, digits=digits)
     cat("\n")
-    print(df.zernikes, digits=digits, row.names=TRUE)
+    print(df.zernikes, digits=digits, row.names=FALSE)
   }
   invisible(df.zernikes)
 }
@@ -171,6 +196,12 @@ plot.wf_zfit <- function(wffit, wftype="smooth", ...) {
 invert <- function(wffit) UseMethod("invert", wffit)
 
 invert.wf_zfit <- function(wffit) {
+  if (exists("phi", wffit)) {
+    wffit$phi <- -wffit$phi
+  }
+  if (exists("phases", wffit)) {
+    wffit$phases <- -wffit$phases
+  }
   wffit$wf.net <- -wffit$wf.net
   wffit$wf.smooth <- -wffit$wf.smooth
   wffit$wf.residual <- -wffit$wf.residual
@@ -180,4 +211,4 @@ invert.wf_zfit <- function(wffit) {
   }
   wffit
 }
-  
+
