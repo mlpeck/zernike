@@ -3,7 +3,6 @@
 \alias{padmatrix}
 \alias{submatrix}
 \alias{fftshift}
-\alias{.up2}
 \title{FFT Utilities}
 \description{
   Miscellaneous utilities for working with 

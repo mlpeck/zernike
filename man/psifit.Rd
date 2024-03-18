@@ -28,10 +28,12 @@ psifit(images, phases, cp = NULL, satarget = NULL, psialg = "ls", options = psfi
   \describe{
   \item{ls}{least squares with known phase shifts}
   \item{aia}{the ``advanced iterative algorithm`` \code{\link{aiapsi}}}
-  \item{pc1}{pca with group_diag = "v"}
-  \item{pc2}{pca with group_diag = "u"}
+  \item{pc1}{pca with pcalg="pc1"}
+  \item{pc2}{pca with pcalg="pc2"}
+  \item{pc3}{pca with pcalg="pc3"}
   \item{gpc}{my generalized PC algorithm in \code{\link{gpcapsi}}}
-  \item{gpcthentilt}{first \code{\link{gpcapsi}} the \code{\link{tiltpsi}}}
+  \item{pc1thenaia}{first \code{\link{pcapsi}} then \code{\link{aiapsi}}}
+  \item{gpcthentilt}{first \code{\link{gpcapsi}} then \code{\link{tiltpsi}}}
   \item{tilt}{tiltpsi}
   }
   
