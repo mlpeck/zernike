@@ -10,7 +10,7 @@ pcapsi(im.mat, bgsub = TRUE, group_diag = "v")
 \arguments{
   \item{im.mat}{A \emph{matrix} of interferogram values}
   \item{bgsub}{Boolean - subtract the pixelwise mean as background estimate?}
-  \item{group_diag}{controls treatment of singular values of the data matrix}
+  \item{pcalg}{controls treatment of singular values of the data matrix}
 }
 \details{Images are input into an array by \code{\link{load.images}}. This must
 be reshaped into a matrix for this function. Also, a mask should be applied if
@@ -20,6 +20,7 @@ available prior to the call.}
 	\item{phi}{The wrapped phase estimate. This is a vector as long as the number of rows in \code{im.mat}.}
 	\item{mod}{Modulation estimate.}
 	\item{phases}{Phase shift estimates.}
+	\item{wt}{implied least squares weights.}
 	\item{snr}{An estimate of the signal to noise ratio in the input data.}
 	\item{eigen}{Singular values of the crossproduct matrix.}
 }

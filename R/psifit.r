@@ -61,8 +61,8 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
         wt <- rep(1, nf)
       } else {
         wt <- options$wt
-      };
-      psfit <- lspsiC(im.mat, phases, wt);
+      }
+      psfit <- lspsiC(im.mat, phases, wt)
       extras <- NULL
     },
     aia = {
@@ -70,38 +70,30 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
         ptol <- 0.001
       } else {
         ptol <- options$ptol
-      };
+      }
       if (is.null(options$maxiter)) {
         maxiter <- 20
       } else {
         maxiter <- options$maxiter
-      };
+      }
       if (is.null(options$trace)) {
         trace <- 1
       } else {
         trace <- options$trace
-      };
-      psfit <- aiapsiC(im.mat, phases, ptol, maxiter, trace);
-      phases <- psfit$phases;
-    },
-    pc1 = {
-       if (is.null(options$bgsub)) {
-        bgsub <- TRUE
-      } else {
-        bgsub <- options$bgsub
-      };
-      group_diag <- "v";
-      psfit <- pcapsi(im.mat, bgsub, group_diag);
+      }
+      psfit <- aiapsiC(im.mat, phases, ptol, maxiter, trace)
       phases <- psfit$phases
     },
-    pc2 = {
+    pc1thenaia = ,
+    pc1 = ,
+    pc2 = ,
+    pc3 = {
        if (is.null(options$bgsub)) {
         bgsub <- TRUE
       } else {
         bgsub <- options$bgsub
-      };
-      group_diag <- "u";
-      psfit <- pcapsi(im.mat, bgsub, group_diag);
+      }
+      psfit <- pcapsi(im.mat, bgsub, pcalg = psialg)
       phases <- psfit$phases
     },
     gpc = ,
@@ -110,22 +102,22 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
         ptol <- 0.001
       } else {
         ptol <- options$ptol
-      };
+      }
       if (is.null(options$maxiter)) {
         maxiter <- 20
       } else {
         maxiter <- options$maxiter
-      };
+      }
       if (is.null(options$trace)) {
         trace <- 1
       } else {
         trace <- options$trace
-      };
-      psfit <- gpcapsiC(im.mat, ptol, maxiter, trace);
+      }
+      psfit <- gpcapsiC(im.mat, ptol, maxiter, trace)
       phases <- psfit$phases
     },
     tilt = {
-      if (is.null(cp)) stop("This algorithm must have measured interferogram outline");
+      if (is.null(cp)) stop("This algorithm must have measured interferogram outline")
       if (is.null(options$ptol)) {
         ptol <- 0.001
       } else {
@@ -147,7 +139,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
         nzcs <- min(options$nzcs, 8)
       }
       rho <- prt$rho
-      theta <- prt$theta;
+      theta <- prt$theta
       rho <- rho[!is.na(rho)]
       theta <- theta[!is.na(theta)]
       if (cp$obstruct == 0. || options$usecirc) {
@@ -158,7 +150,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
       coords <- coords[, 2:(nzcs+1)]
       psfit <- tiltpsiC(im.mat, phases, coords,
                        maxiter=maxiter, ptol=ptol, trace=trace)
-      phases <- psfit$phases;
+      phases <- psfit$phases
     },
     { ## if no match to ls
       if (is.null(options$wt)) {
@@ -180,7 +172,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
     cp <- circle.pars(mod, plot=options$plots)
     prt <- pupil.rhotheta(nr, nc, cp)
   }
-  if (refine || psialg=="gpcthentilt") {
+  if (refine || psialg=="gpcthentilt" || psialg =="pc1thenaia") {
     mask <- as.vector(prt$rho)
     im.mat <- matrix(images, ncol=nf)
     im.mat <- im.mat[!is.na(mask),]
@@ -188,16 +180,15 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
       ls = {
         mask <- numeric(nr*nc)
       },
+      pc1thenaia = ,
       aia = {
         psfit <- aiapsiC(im.mat, phases, ptol, maxiter, trace)
-        phases <- psfit$phases;
-      },
-      pc1 = {
-        psfit <- pcapsi(im.mat, bgsub, group_diag)
         phases <- psfit$phases
       },
-      pc2 = {
-        psfit <- pcapsi(im.mat, bgsub, group_diag)
+      pc1 = ,
+      pc2 = ,
+      pc3 = {
+        psfit <- pcapsi(im.mat, bgsub, pcalg)
         phases <- psfit$phases
       },
       gpc = {
@@ -226,9 +217,9 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
         } else {
           nzcs <- min(options$nzcs, 8)
         }
-        rho <- prt$rho;
-        theta <- prt$theta;
-        rho <- rho[!is.na(rho)];
+        rho <- prt$rho
+        theta <- prt$theta
+        rho <- rho[!is.na(rho)]
         theta <- theta[!is.na(theta)]
         if (cp$obstruct == 0. || options$usecirc) {
           coords <- zpmC(rho, theta, maxorder=4)

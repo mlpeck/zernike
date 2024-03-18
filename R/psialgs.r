@@ -13,35 +13,35 @@ lspsi <- function(images, phases, wt=rep(1, length(phases))) {
 
 ## Vargas et al.'s (2011) Principal Components method
 
-pcapsi <- function(im.mat, bgsub=TRUE, group_diag="v") {
+pcapsi <- function(im.mat, bgsub=TRUE, pcalg="pc1") {
     if (bgsub) im.mat <- im.mat-rowMeans(im.mat)
 
 	# svd of the crossproduct is faster!
 	
     svd.cp <- svd(crossprod(im.mat))
-    if (tolower(group_diag) == "v") {
+    if (tolower(pcalg) == "pc1") {
         ph <- atan2(svd.cp$v[,2]*sqrt(svd.cp$d[2]),svd.cp$v[,1]*sqrt(svd.cp$d[1]))
+				wt <- sqrt(svd.cp$v[,2]^2*svd.cp$d[2] + svd.cp$v[,1]^2*svd.cp$d[1])
         u <- im.mat %*% (svd.cp$u[,1:2] %*% diag(1/sqrt(svd.cp$d[1:2])))
     } else {
         ph <- atan2(svd.cp$v[,2],svd.cp$v[,1])
+				wt <- sqrt(svd.cp$v[,2]^2+svd.cp$v[,1]^2)
         u <- im.mat %*% svd.cp$u[,1:2]
     }
+    if (tolower(pcalg) == "pc3") {
+			rho <- sum(abs(u[,1]))/sum(abs(u[,2]))
+			u[,1] <- rho*u[,1]
+			ph <- atan2(svd.cp$v[,2], svd.cp$v[,1]/rho)
+			wt <- sqrt(svd.cp$v[,2]^2+(svd.cp$v[,1]/rho)^2)
+		}
     ph <- wrap(ph-ph[1])
+		wt <- wt/mean(wt)
     phi <- atan2(-u[,2],u[,1])
     mod <- sqrt(u[,1]^2+u[,2]^2)
     r2 <- (svd.cp$d[1]+svd.cp$d[2])/sum(svd.cp$d)
-    list(phi=phi, mod=mod/max(mod), phases=ph, snr=sqrt(r2/(1-r2)), eigen=svd.cp$d)
+    list(phi=phi, mod=mod/max(mod), phases=ph, wt=wt, snr=sqrt(r2/(1-r2)), eigen=svd.cp$d)
 }
 
-## Moore-Penrose generalized inverse (needed for genpca below)
-
-mpinv <- function(X) {
-    S <- svd(X)
-    eps <- .Machine$double.eps * max(dim(X)) * S$d[1]
-    dinv <- numeric(length(S$d))
-    dinv[S$d >= eps] <- 1/S$d[S$d >= eps]
-    tcrossprod(S$v %*% diag(dinv), S$u)
-}
 
 ## my variation on a PCA based algorithm
 
