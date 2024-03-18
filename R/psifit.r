@@ -182,6 +182,21 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
       },
       pc1thenaia = ,
       aia = {
+        if (is.null(options$ptol)) {
+          ptol <- 0.001
+        } else {
+          ptol <- options$ptol
+        }
+        if (is.null(options$maxiter)) {
+          maxiter <- 20
+        } else {
+          maxiter <- options$maxiter
+        }
+        if (is.null(options$trace)) {
+          trace <- 1
+        } else {
+          trace <- options$trace
+        }
         psfit <- aiapsiC(im.mat, phases, ptol, maxiter, trace)
         phases <- psfit$phases
       },
