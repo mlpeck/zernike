@@ -188,7 +188,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
       pc1 = ,
       pc2 = ,
       pc3 = {
-        psfit <- pcapsi(im.mat, bgsub, pcalg)
+        psfit <- pcapsi(im.mat, bgsub, pcalg = psialg)
         phases <- psfit$phases
       },
       gpc = {
