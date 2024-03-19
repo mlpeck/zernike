@@ -1,10 +1,10 @@
 Welcome to my R package for interferogram analysis and manipulation of Zernike polynomials. If you are new to R this README gives installation and basic usage instructions for Windows users. There are a number of required and optional packages to be installed, so please follow these instructions carefully. You need:
 
-* A recent version of R itself (v4.1.0 or later is required). The current version at this writing is 4.3.0. If you're making a fresh installation just go with the current release. The windows binary installer can be downloaded from http://cran.r-project.org. Installation works like any Windows program -- I like to have the installer create desktop shortcuts and edit its properties to have it start up in the directory where I've stored data. The only customization I make at install time is to select "SDI" windowing mode. This will display graphs in separate windows on the desktop.
+* A recent version of R itself (v4.1.0 or later is required). The current version at this writing is 4.3.3. If you're making a fresh installation just go with the current release. The windows binary installer can be downloaded from http://cran.r-project.org. Installation works like any Windows program -- I like to have the installer create desktop shortcuts and edit its properties to have it start up in the directory where I've stored data. The only customization I make at install time is to select "SDI" windowing mode. This will display graphs in separate windows on the desktop.
 
 * Download the Windows binary of this package from the [releases](../releases) section. Do not unzip it!
 
-* The following steps are done within R itself. It may be useful to run R as an administrator for these initial steps, but if you don't packages should still install somewhere accessible to you as an ordinary user. When you start R a console window opens with a small number of menu items and a text entry area. Commands are typed at the ">" prompt. You should have an active internet connection for the following steps:
+* The following steps are done within R itself. When you start R a console window opens with a small number of menu items and a text entry area. Commands are typed at the ">" prompt. You should have an active internet connection for the following steps:
 
 * Install the following packages. This can be done with the menu item Packages/Install package(s)... The first time you select this in a session it will prompt you for a mirrored download site. Next it will display a selection box with all available packages. The ones you need are:
 
@@ -16,15 +16,20 @@ Welcome to my R package for interferogram analysis and manipulation of Zernike p
     
     + BH.
     
-    + rgl. This package provides interactive 3D graphics and is strictly speaking optional.
+* Optional but highly recommended packages
     
-    + robustbase. The function `nlsrob` is used as the new default parameter estimation routine by the automated edgefinding function `circle.pars` and is also strictly speaking optional.
+    + rgl. This package provides interactive 3D graphics.
+    
+    + robustbase. The function `nlsrob` is used as the new default parameter estimation routine by the automated edgefinding function `circle.pars`.
+    
+    + tinytable. Used to produce html formatted reports for the fringe analysis routines.
     
 * You need not install these initially but they may be useful for certain tasks.
     
     + clue. The function `solve_LSAP` is used by the branch cut algorithm for phase unwrapping implemented in the function `brcutpuw`. This may outperform the default phase unwrapping routine in some situations.
     
     + data.table, dplyr, pixmap, mvtnorm.
+    
 
 * Now install package "zernike". This can be done with the menu item Packages/Install from local zip file... At the prompt just navigate to wherever you saved the zip file and select it. If it installs successfully a brief message will be sent to the console. You may get a warning message if you're running a different version of R from the one the package was built in. You can probably ignore this -- if the demos run you're in good shape.
 

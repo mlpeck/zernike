@@ -98,7 +98,7 @@ wf_net <- function(wf.raw, cp, options) {
 
 #' Methods for class "wf_zfit"
 #' 
-#' Summary, print, plot, and invert methods for the returned list of values
+#' Summary, print, plot, report, and invert methods for the returned list of values
 #'  from [psifit()], [fftfit()], or [vortexfit()]
 #'
 #' @param wffit the return values from one of the fringe analysis routines or [wf_net()]
@@ -106,7 +106,8 @@ wf_net <- function(wf.raw, cp, options) {
 #' @param printnow send output to console?
 #' @param ... values passed to [plot.pupil()]
 #'
-#' @details The invert method negates the values of wavefronts and Zernike coefficients and returns the adjusted input
+#' @details The report method combines the plot, summary, and print methods into an html document and displays it in a browser.
+#' The invert method negates the values of wavefronts and Zernike coefficients and returns the adjusted input
 #'
 #' @return summary and print methods return data frame with wavefront summaries and Zernike coefficients
 summary.wf_zfit <- function(wffit, digits=3, printnow=TRUE) {
@@ -191,6 +192,56 @@ print.wf_zfit <- function(wffit, digits=3, abnames=TRUE, printnow=TRUE) {
 plot.wf_zfit <- function(wffit, wftype="smooth", ...) {
   wf <- get(paste("wf", wftype, sep="."), wffit)
   plot.pupil(wf, cp=wffit$cp, ...)
+}
+
+report <- function(wffit) UseMethod("report", wffit)
+
+report.wf_zfit <- function(wffit, digits=3, col=rev(rygcb(400)), figheight=30, ...) {
+  require(tinytable)
+  fname <- file.path(tempdir(), "report.html")
+  fwfnet <- "wf_net.png"
+  fwfz <- "wf_zfit.png"
+  df.plot <- data.frame("wf.net" = "", "wf.zernike" = "")
+  wf.net <- wffit$wf.net
+  wf.smooth <- wffit$wf.smooth
+  if (exists("cp", wffit)) {
+    cp <- wffit$cp
+  } else {
+    cp <- NULL
+  }
+  grDevices::png(file=fwfnet, width=512, height=512, bg="white")
+  zernike::plot.pupil(wf.net, cp=cp, col=col, addContours=FALSE, ...)
+  mtext(paste("RMS =", format(zernike::pupilrms(wf.net), digits=3)))
+  dev.off()
+  grDevices::png(file=fwfz, width=512, height=512, bg="white")
+  zernike::plot.pupil(wf.smooth, cp=cp, col=col, addContours=TRUE, ...)
+  mtext(paste("RMS =", format(zernike::pupilrms(wf.smooth), digits=3)))
+  dev.off()
+  
+  img <- c(fwfnet, fwfz)
+  
+  df.plot.tt <- tt(df.plot) |>
+  plot_tt(i=1, j=1:2, images=img, height=figheight, asp=1)
+  
+  df.sum <- summary(wffit, digits=digits, printnow=FALSE)
+  colnames(df.sum) <- NULL
+  df.det <- print(wffit, digits=digits, printnow=FALSE)
+  nc.det <- ncol(df.det)
+  nr.det <- nrow(df.det)
+  
+  df.sum.tt <- tt(df.sum) |> 
+  group_tt(j = list("Wavefront summary" = 1:2))
+  
+  df.det.tt <- tt(df.det) |>
+  group_tt(j = list("Zernike coefficients" = 1:nc.det)) |>
+  format_tt(j = c("zcoef.raw", "zcoef.net"), digits=digits, num_fmt="decimal") |>
+    style_tt(j=1:nc.det, align="lrrlrr")
+    str.plot.tt <- save_tt(df.plot.tt, output="html")
+    str.sum.tt <- save_tt(df.sum.tt, output="html")
+    str.det.tt <- save_tt(df.det.tt, output="html")
+    cat(c(str.plot.tt, str.sum.tt, str.det.tt), file=fname)
+    browseURL(fname)
+    invisible(fname)
 }
 
 invert <- function(wffit) UseMethod("invert", wffit)

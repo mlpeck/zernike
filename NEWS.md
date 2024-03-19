@@ -1,8 +1,15 @@
+## Version 3.7.7
+* functions `psifit`, `vortexfit`, `fftfit` and `wf_net` have S3 class `wf_zfit` with plot, summary, and print methods. 
+  These were available previously but have been improved and are now more or less documented.
+* Added S3Method `report` for objects of class `wf_zfit`. This produces an html report and displays in a browser.
+* Added some options to list of psi algorithms.
+* `pcapsi` has an additional option `pc3` for a new variant of the PCA based PSI analysis. Arguments have been changed.
+
 ## Version 3.7.6
 * Modified `wf3d.pupil` to be compatible with recent versions of `rgl`.
   Also added an optional argument `new.window` with default value `TRUE`.
 * Bumped required R version to >4.1.0
-* Added some graphics to ``anzern.pdf''
+* Added some graphics to `anzern.pdf`
 * Windows binary will now be 64 bit (x86-64) only.
 
 ## Version 3.7.5

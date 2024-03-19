@@ -9,6 +9,7 @@ S3method(summary, wf_zfit)
 S3method(print, wf_zfit)
 S3method(plot, wf_zfit)
 S3method(invert, wf_zfit)
+S3method(report, wf_zfit)
 
 useDynLib(zernike, .registration=TRUE)
 

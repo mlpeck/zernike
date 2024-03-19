@@ -663,3 +663,10 @@
 ##
 ## modified wf3d.pupil for compatibility with recent versions of rgl
 ##
+
+## 20240317-19
+##
+## added a pc based psi option
+## added some extra psi analysis options in psifit()
+## added class "wf_zfit" and wrote a report method
+##
