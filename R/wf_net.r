@@ -197,10 +197,12 @@ plot.wf_zfit <- function(wffit, wftype="smooth", ...) {
 report <- function(wffit) UseMethod("report", wffit)
 
 report.wf_zfit <- function(wffit, digits=3, col=rev(rygcb(400)), figheight=30, ...) {
-  require(tinytable)
+  if (!require(tinytable)) {
+    stop("report method requires package tinytable\n")
+  }
   fname <- file.path(tempdir(), "report.html")
-  fwfnet <- "wf_net.png"
-  fwfz <- "wf_zfit.png"
+  fwfnet <- file.path(tempdir(), "wf_net.png")
+  fwfz <- file.path(tempdir(), "wf_zfit.png")
   df.plot <- data.frame("wf.net" = "", "wf.zernike" = "")
   wf.net <- wffit$wf.net
   wf.smooth <- wffit$wf.smooth
@@ -218,7 +220,7 @@ report.wf_zfit <- function(wffit, digits=3, col=rev(rygcb(400)), figheight=30, .
   mtext(paste("RMS =", format(zernike::pupilrms(wf.smooth), digits=3)))
   dev.off()
   
-  img <- c(fwfnet, fwfz)
+  img <- c("wf_net.png", "wf_zfit.png")
   
   df.plot.tt <- tt(df.plot) |>
   plot_tt(i=1, j=1:2, images=img, height=figheight, asp=1)
