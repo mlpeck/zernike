@@ -194,7 +194,7 @@ plot.wf_zfit <- function(wffit, wftype="smooth", ...) {
   plot.pupil(wf, cp=wffit$cp, ...)
 }
 
-report <- function(wffit) UseMethod("report", wffit)
+report <- function(wffit, ...) UseMethod("report", wffit)
 
 report.wf_zfit <- function(wffit, digits=3, col=rev(rygcb(400)), figheight=30, ...) {
   if (!require(tinytable)) {
