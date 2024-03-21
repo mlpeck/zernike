@@ -232,7 +232,7 @@ report.wf_zfit <- function(wffit, digits=3, col=rev(rygcb(400)), figheight=30, .
   nr.det <- nrow(df.det)
   
   df.sum.tt <- tt(df.sum) |> 
-  group_tt(j = list("Wavefront summary" = 1:2))
+  group_tt(j = list("Metadata and Wavefront summary" = 1:2))
   
   df.det.tt <- tt(df.det) |>
   group_tt(j = list("Zernike coefficients" = 1:nc.det)) |>
