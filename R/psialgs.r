@@ -29,7 +29,7 @@ pcapsi <- function(im.mat, bgsub=TRUE, pcalg="pc1") {
         u <- im.mat %*% svd.cp$u[,1:2]
     }
     if (tolower(pcalg) == "pc3") {
-			rho <- sum(abs(u[,1]))/sum(abs(u[,2]))
+			rho <- sum(abs(u[,2]))/sum(abs(u[,1]))
 			u[,1] <- rho*u[,1]
 			ph <- atan2(svd.cp$v[,2], svd.cp$v[,1]/rho)
 			wt <- sqrt(svd.cp$v[,2]^2+(svd.cp$v[,1]/rho)^2)
