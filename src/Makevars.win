@@ -1,6 +1,6 @@
-CXX_STD = CXX11
+CXX_STD = CXX14
 PKG_CXXFLAGS += -DRCPP_PARALLEL_USE_TBB=1
-PKG_CPPFLAGS += -std=c++11 -mtune=native -O3 -DLIBRAW_NODLL -DLIBRAW_NOTHREADS -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK
+PKG_CPPFLAGS += -std=c++14 -mtune=native -O3 -DLIBRAW_NODLL -DLIBRAW_NOTHREADS -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK
 PKG_LIBS += -lRlapack -lRblas -lraw -ltiff -lzmq -lzstd -lz -llzma -lwebp -ljasper -llcms2 -ljpeg -lm -lgfortran -lquadmath -lws2_32
 PKG_LIBS += $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" \
               -e "RcppParallel::RcppParallelLibs()")

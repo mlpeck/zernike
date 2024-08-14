@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
 
 /* get lineal pos from x,y,c(hannel),w(idth),h(eight) */
@@ -226,7 +227,7 @@ void read_tiff_img (char **filename, int *width, int *height, int *depth,
 					double *channels, double *image, int *ret){
 	char *fname = *filename;
 	TIFF *tiff_image;
-	uint32 twidth, theight, *raster;
+	uint32_t twidth, theight, *raster;
 	unsigned long imagesize, i, j, line, plane_size;
 	int *img_in = malloc((*width)*(*height)*(*depth)*sizeof(int));
 
@@ -240,7 +241,7 @@ void read_tiff_img (char **filename, int *width, int *height, int *depth,
 	TIFFGetField(tiff_image, TIFFTAG_IMAGELENGTH, &theight);
 	imagesize = theight * twidth + 1;
 
-	if ((raster = (uint32 *) malloc(sizeof(uint32) * imagesize)) == NULL){
+	if ((raster = (uint32_t *) malloc(sizeof(uint32_t) * imagesize)) == NULL){
 		fprintf(stderr, "Could not allocate enough memory\n");
 		*ret = -1;
 		return;
