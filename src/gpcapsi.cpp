@@ -49,7 +49,7 @@ List gpcapsiC(const mat& images, const double& ptol, const int& maxiter, const b
   DV = V_full.cols(0, 1) * diagmat(d_full.subvec(0, 1));
   phases_last = atan2(-DV.col(1), DV.col(0)).as_row();
   phases_last =  phases_last - phases_last(0);
-  cout << "Initial phase shift guess" << phases_last << endl;
+  Rcout << "Initial phase shift guess" << phases_last << endl;
   S = join_cols(ones<rowvec>(N), cos(phases_last), sin(phases_last));
 
   svd_econ(U_full, d_full, V_full, images);
@@ -68,7 +68,7 @@ List gpcapsiC(const mat& images, const double& ptol, const int& maxiter, const b
     sdp = norm(sin(phases-phases_last), 2);
     normp = norm(P - P_last, 2);
     if (trace) {
-      cout << "Iteration: " << i << " sdp = " << sdp << " normp = " << normp << " phases = " << phases;
+      Rcout << "Iteration: " << i << " sdp = " << sdp << " normp = " << normp << " phases = " << phases;
     }
     if (sdp < ptol || normp < ptol) break;
     phases_last = phases;

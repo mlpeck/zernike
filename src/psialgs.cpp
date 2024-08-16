@@ -81,7 +81,7 @@ List aiapsiC(const mat& images, const rowvec& phases_init, const double& ptol, c
     sdp = norm(sin(phases-phases_last), 2);
     
     if (trace) {
-      cout << "iteration: "<< i << " sdp = " << sdp << " Phases = " << phases;
+      Rcout << "iteration: "<< i << " sdp = " << sdp << " Phases = " << phases;
     }
     
     // repeat until convergence

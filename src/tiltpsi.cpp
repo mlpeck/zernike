@@ -113,8 +113,6 @@ mat pxls(const mat& im, const rowvec& phases, const mat& zcs, const mat& coords)
 
 // residuals and analytic Jacobian for mylevmar. Exported just in case I want to use minpack.lm
 
-// [[Rcpp::export]]
-
 vec res_frame(const vec& pars, const List& adata) {
   vec img = adata["img"];
   mat coords = adata["coords"];
@@ -126,8 +124,6 @@ vec res_frame(const vec& pars, const List& adata) {
   ph = pars[0] + coords * pars.tail(np-1);
   return img - abar - bbar * cos(phi + ph);
 }
-
-// [[Rcpp::export]]
 
 mat jac_frame(const vec& pars, const List& adata) {
   vec img = adata["img"];
@@ -236,7 +232,7 @@ List tiltpsiC(const mat& images, const rowvec& phases_init, const mat& coords,
     pt = join_cols(phases, zcs);
     dpt = norm(pt - pt_last, 2);
     if (trace) {
-      cout << "Iteration " << i << " sse = " << sse(i) << " dpt = " << dpt << endl;
+      Rcout << "Iteration " << i << " sse = " << sse(i) << " dpt = " << dpt << endl;
     }
     if (dpt < ptol) break;
     Phi = pxls(images, phases, zcs, coords);
