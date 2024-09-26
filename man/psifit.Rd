@@ -33,6 +33,7 @@ psifit(images, phases, cp = NULL, satarget = NULL, psialg = "ls", options = psfi
   \item{pc3}{pca with pcalg="pc3"}
   \item{gpc}{my generalized PC algorithm in \code{\link{gpcapsi}}}
   \item{pc1thenaia}{first \code{\link{pcapsi}} then \code{\link{aiapsi}}}
+  \item{pc1thentilt}{first \code{\link{pcapsi}} then \code{\link{tiltpsi}}}
   \item{gpcthentilt}{first \code{\link{gpcapsi}} then \code{\link{tiltpsi}}}
   \item{tilt}{tiltpsi}
   }

@@ -5,8 +5,7 @@ psfit_options <- function(colors=topo.colors(256), refine=TRUE, puw_alg = "qual"
                     maxiter=20, ptol=1.e-4, trace=1, nzcs = 2,
                     zc0=6:7,
                     satarget=c(0,0), astig.bath=c(0,0),
-                    maxorder=14, uselm=FALSE, sgs=1,
-                    isoseq=FALSE, usecirc=FALSE, 
+                    maxorder=14, isoseq=FALSE, usecirc=FALSE, 
                     nthreads=parallel::detectCores()/2,
                     plots=TRUE, crop=FALSE) {
   list(colors=colors,             ## color palette for wavefront plots
@@ -23,8 +22,6 @@ psfit_options <- function(colors=topo.colors(256), refine=TRUE, puw_alg = "qual"
        satarget=satarget,         ## target SA for numerical nulling
        astig.bath=astig.bath,     ## amount of astigmatism from Bath interferometer geometry
        maxorder=maxorder,         ## maximum order for Zernike polynomial fitting
-       uselm=uselm,               ## use R function lm() to fit Zernikes to wavefront data?
-       sgs=sgs,                   ## grid size for wavefront sampling
        isoseq=isoseq,             ## use ISO sequenced Zernikes?
        usecirc=usecirc,           ## use circular Zernikes even for obstructed apertures?
        nthreads=nthreads,         ## no threads to use with zpmCP
@@ -50,7 +47,9 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
   if (!is.null(cp)) {
     prt <- pupil.rhotheta(nr, nc, cp)
     mask <- as.vector(prt$rho)
-    im.mat <- im.mat[!is.na(mask),]
+    if (psialg != "ls") {
+      im.mat <- im.mat[!is.na(mask),]
+    }
     refine <- FALSE
   } else {
     mask <- numeric(nr*nc)
@@ -85,6 +84,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
       phases <- psfit$phases
     },
     pc1thenaia = ,
+    pc1thentilt = ,
     pc1 = ,
     pc2 = ,
     pc3 = {
@@ -93,7 +93,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
       } else {
         bgsub <- options$bgsub
       }
-      psfit <- pcapsi(im.mat, bgsub, pcalg = psialg)
+      psfit <- pcapsi(im.mat, bgsub, pcalg = substr(psialg, 1, 3))
       phases <- psfit$phases
     },
     gpc = ,
@@ -172,7 +172,8 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
     cp <- circle.pars(mod, plot=options$plots)
     prt <- pupil.rhotheta(nr, nc, cp)
   }
-  if (refine || psialg=="gpcthentilt" || psialg =="pc1thenaia") {
+  if (refine || psialg=="gpcthentilt" || psialg =="pc1thenaia" ||
+      psialg == "pc1thentilt") {
     mask <- as.vector(prt$rho)
     im.mat <- matrix(images, ncol=nf)
     im.mat <- im.mat[!is.na(mask),]
@@ -210,6 +211,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
         psfit <- gpcapsiC(im.mat, ptol, maxiter, trace)
         phases <- psfit$phases
       },
+      pc1thentilt = ,
       gpcthentilt = ,
       tilt = {
         if (is.null(options$ptol)) {
@@ -252,37 +254,15 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
     phi[!is.na(mask)] <- psfit$phi
     mod[!is.na(mask)] <- psfit$mod
   }
-  phi[is.na(prt$rho)] <- NA
-  class(phi) <- "pupil"
-  cp.orig <- cp
-  if (options$crop) {
-    phi <- crop(phi, cp)
-    mod <- crop(mod, cp)$im
-    cp <- phi$cp
-    phi <- phi$im
-    nr <- nrow(phi)
-    nc <- ncol(phi)
-  }
-  wf.raw <- switch(options$puw_alg,
-                qual = qpuw(phi, mod),
-                brcut = zernike::brcutpuw(phi),
-                lpbrcut = lppuw::brcutpuw(phi),
-                lp = lppuw::netflowpuw(phi, mod),
-                qpuw(phi, mod)
-  )
-  wf.raw <- options$fringescale * wf.raw
-  class(wf.raw) <- "pupil"
-  wfnets <- wf_net(wf.raw, cp, options)
+  wfnets <- wf_net(phi, mod, cp, options)
   if(length(psfit) > 3) {
     extras <- psfit[4:length(psfit)]
   }
   rundate <- date()
   algorithm <- paste(psialg, "with", nf, "frames")
-  outs <- list(rundate=rundate, algorithm=algorithm,
-       phi=phi, mod=mod, phases=wrap(as.vector(phases)), 
-       cp=cp, cp.orig=cp.orig,
-       wf.net=wfnets$wf.net, wf.smooth=wfnets$wf.smooth,wf.residual=wfnets$wf.residual,
-       fit=wfnets$fit, zcoef.net=wfnets$zcoef.net, extras=extras)
+  outs0 <- list(rundate=rundate, algorithm=algorithm, 
+                phases=wrap(as.vector(phases)), extras=extras)
+  outs <- c(outs0, wfnets)
   class(outs) <- c(class(outs), "wf_zfit")
   outs
 }

@@ -1,25 +1,37 @@
 ## calculate net and zernike fit wavefronts from any of psifit, fftfit, vortexfit
 
-wf_net <- function(wf.raw, cp, options) {
+wf_net <- function(phi, mod, cp, options) {
 
-  nr <- nrow(wf.raw)
-  nc <- ncol(wf.raw)
+  if (is.null(cp)) {
+    cp <- circle.pars(mod, plot=options$plots)
+  }
+  cp.orig <- cp
+  if (options$crop) {
+    mod <- crop(mod, cp)$im
+    phi <- crop(phi, cp)
+    cp <- phi$cp
+    phi <- phi$im
+  }
+  nr <- nrow(phi)
+  nc <- ncol(phi)
   prt <- pupil.rhotheta(nr, nc, cp)
+  phi[is.na(prt$rho)] <- NA
+  class(phi) <- "pupil"
+  wf.raw <- switch(options$puw_alg,
+                   qual = qpuw(phi, mod),
+                   brcut = zernike::brcutpuw(phi),
+                   lpbrcut = lppuw::brcutpuw(phi),
+                   lp = lppuw::netflowpuw(phi, mod),
+                   qpuw(phi, mod)
+  )
+  wf.raw <- options$fringescale*wf.raw
+  class(wf.raw) <- "pupil"
   rho <- prt$rho
   theta <- prt$theta
-  if (options$sgs > 1) {
-    subs <- matrix(FALSE, nr, nc)
-    subs[seq(1, nr, by=options$sgs), seq(1, nc, by=options$sgs)] <- TRUE
-    subs[is.na(rho)] <- FALSE
-  } else {
-    subs <- !is.na(rho)
-  }
-  wf.v <- wf.raw[subs]
-  rho.v <- rho[subs]
-  th.v <- theta[subs]
-  rho.v <- rho.v[!is.na(wf.v)]
-  th.v <- th.v[!is.na(wf.v)]
-  wf.v <- wf.v[!is.na(wf.v)]
+  wfok <- !is.na(rho) & !is.na(wf.raw)
+  wf.v <- wf.raw[wfok]
+  rho.v <- rho[wfok]
+  th.v <- theta[wfok]
   fit <- fitzernikes(wf.v, rho.v, th.v,
                      eps=cp$obstruct,
                      maxorder=options$maxorder, 
@@ -27,11 +39,6 @@ wf_net <- function(wf.raw, cp, options) {
                      uselm=options$uselm,
                      isoseq=options$isoseq,
                      usecirc=options$usecirc)
-  if (options$uselm) {
-    cfit <- coef(fit)
-  } else {
-    cfit <- fit
-  }
   if (options$isoseq) {
     ind.ptf <- c(1:3, 5)
     ind.sa4 <- 13
@@ -47,17 +54,16 @@ wf_net <- function(wf.raw, cp, options) {
     ind.coma <- 7:8
     zc.low <- numeric(16)
   }
-  if (sign(cfit[ind.sa4])*sign(options$satarget[1]) < 0) {
-    cfit <- -cfit
+  if (sign(fit[ind.sa4])*sign(options$satarget[1]) < 0) {
+    fit <- -fit
     wf.raw <- -wf.raw
-    if (!options$uselm) fit <- -fit
   }
   
-  zc.low[ind.ptf] <- cfit[ind.ptf]
+  zc.low[ind.ptf] <- fit[ind.ptf]
   zc.low[c(ind.sa4, ind.sa6)] <- zc.low[c(ind.sa4, ind.sa6)] + options$satarget
   zc.low[ind.astig] <- zc.low[ind.astig] + options$astig.bath
   if (is.element(6, options$zc0)) {
-    zc.low[ind.coma] <- cfit[ind.coma]
+    zc.low[ind.coma] <- fit[ind.coma]
   }
   wf.net <- wf.raw - pupil(zcoef=zc.low, maxorder=6, 
                            isoseq=options$isoseq, usecirc=options$usecirc,
@@ -73,7 +79,7 @@ wf_net <- function(wf.raw, cp, options) {
     plot(wf.net, cp=cp, col=options$colors, addContours=FALSE)
     mtext(paste("RMS = ", format(pupilrms(wf.net),digits=3)))
   }
-  zcoef.net <- cfit
+  zcoef.net <- fit
   zcoef.net[1:length(zc.low)] <- zcoef.net[1:length(zc.low)] - zc.low
   wf.smooth <- pupil(zcoef=zcoef.net, maxorder=options$maxorder, 
                      isoseq=options$isoseq, usecirc=options$usecirc,
@@ -90,8 +96,9 @@ wf_net <- function(wf.raw, cp, options) {
     mtext(paste("RMS = ", format(pupilrms(wf.residual),digits=3)))
     close.screen(all.screens=TRUE)
   }
-  outs <- list(wf.net=wf.net, wf.smooth=wf.smooth, wf.residual=wf.residual, 
-       fit=fit, zcoef.net=zcoef.net[-1])
+  outs <- list(phi=phi, mod=mod, cp=cp, cp.orig=cp.orig, 
+               wf.net=wf.net, wf.smooth=wf.smooth, wf.residual=wf.residual, 
+               fit=fit, zcoef.net=zcoef.net[-1])
   class(outs) <- c(class(outs), "wf_zfit")
   outs
 }

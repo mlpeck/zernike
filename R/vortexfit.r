@@ -91,38 +91,10 @@ vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=psfit_op
   phi <- atan2(Q, im.nb[1:nr, 1:nc])
   mod <- sqrt(Q^2+(im.nb[1:nr, 1:nc])^2)
   mod <- (mod-min(mod))/(max(mod)-min(mod))
-  if (is.null(cp)) {
-    cp <- circle.pars(mod, plot=options$plots)
-  }
-  cp.orig <- cp
-  if (options$crop) {
-    mod <- crop(mod, cp)$im
-    phi <- crop(phi, cp)
-    cp <- phi$cp
-    phi <- phi$im
-  }
-  nr <- nrow(phi)
-  nc <- ncol(phi)
-  prt <- pupil.rhotheta(nr, nc, cp)
-  phi[is.na(prt$rho)] <- NA
-  class(phi) <- "pupil"
-  wf.raw <- switch(options$puw_alg,
-                qual = qpuw(phi, mod),
-                brcut = zernike::brcutpuw(phi),
-                lpbrcut = lppuw::brcutpuw(phi),
-                lp = lppuw::netflowpuw(phi, mod),
-                qpuw(phi, mod)
-  )
-  wf.raw <- options$fringescale*wf.raw
-  class(wf.raw) <- "pupil"
-  wf.nets <- wf_net(wf.raw, cp, options)
-  rundate <- date()
-  algorithm <- "Vortex"
-  outs <- list(rundate=rundate, algorithm=algorithm,
-       im.bgclean=im.nb[1:nr, 1:nc], orient=orient, dir=dir, phi=phi, mod=mod, 
-       cp=cp, cp.orig=cp.orig,
-       wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
-       wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net)
+  wfnets <- wf_net(phi, mod, cp, options)
+  outs0 <- list(rundate = date(), algorithm = "Vortex",
+                im.bgclean=im.nb[1:nr, 1:nc], orient=orient, dir=dir)
+  outs <- c(outs0, wfnets)
   class(outs) <- c(class(outs), "wf_zfit")
   outs
 }

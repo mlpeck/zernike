@@ -670,3 +670,8 @@
 ## added some extra psi analysis options in psifit()
 ## added class "wf_zfit" and wrote a report method
 ##
+
+## 20240925
+## added option `pc1thentilt` to psi alg choices
+## psifit with option "ls" should always use entire image array
+##

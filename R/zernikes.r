@@ -141,14 +141,8 @@ fitzernikes <- function(wf, rho, theta, eps=0, phi=0, maxorder = 14,
       zm <- zapm(rho, theta - pi * phi/180, eps, maxorder=maxorder)
     }
   }
-  if (uselm) {
-    zm.names <- paste("Z", 0:(ncol(zm)-1), sep="")
-    fmla <- as.formula(paste("wf ~ -1 + ", paste(zm.names, collapse="+")))
-    dataf <- data.frame(cbind(wf, zm))
-    fit <- lm(fmla, data=dataf)
-  } else {
-    fit <- qr.solve(crossprod(zm),crossprod(zm, wf))
-  }
+  fit <- qr.solve(crossprod(zm),crossprod(zm, wf))
+  names(fit) <- paste("Z", 0:(ncol(zm)-1), sep="")
   fit
 }
 

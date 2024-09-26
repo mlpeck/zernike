@@ -90,31 +90,7 @@ fftfit <- function(imagedata, cp=NULL,
   phi <- Arg(cphi)
   mod <- Mod(cphi)
   mod <- mod/max(mod)
-  if (is.null(cp)) {
-    cp <- circle.pars(mod, plot=options$plots)
-  }
-  cp.orig <- cp
-  if (options$crop) {
-    mod <- crop(mod, cp)$im
-    phi <- crop(phi, cp)
-    cp <- phi$cp
-    phi <- phi$im
-  }
-  nr <- nrow(phi)
-  nc <- ncol(phi)
-  prt <- pupil.rhotheta(nr, nc, cp)
-  phi[is.na(prt$rho)] <- NA
-  class(phi) <- "pupil"
-  wf.raw <- switch(options$puw_alg,
-                qual = qpuw(phi, mod),
-                brcut = zernike::brcutpuw(phi),
-                lpbrcut = lppuw::brcutpuw(phi),
-                lp = lppuw::netflowpuw(phi, mod),
-                qpuw(phi, mod)
-  )
-  wf.raw <- options$fringescale*wf.raw
-  class(wf.raw) <- "pupil"
-  wf.nets <- wf_net(wf.raw, cp, options)
+  wf.nets <- wf_net(phi, mod, cp, options)
   rundate <- date()
   algorithm <- "classical FFT"
   outs <- list(rundate=rundate, algorithm=algorithm,
