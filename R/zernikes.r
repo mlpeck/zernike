@@ -125,7 +125,7 @@ zpm <- function(rho, theta, phi=0, maxorder = 14, nthreads=parallel::detectCores
 ## fit zernikes to data
 
 fitzernikes <- function(wf, rho, theta, eps=0, phi=0, maxorder = 14, 
-                        nthreads=parallel::detectCores()/2, uselm=FALSE, 
+                        nthreads=parallel::detectCores()/2,
                         isoseq=FALSE, usecirc=FALSE) {
   if (isoseq) {
     theta <- theta - pi * phi/180
@@ -142,7 +142,6 @@ fitzernikes <- function(wf, rho, theta, eps=0, phi=0, maxorder = 14,
     }
   }
   fit <- qr.solve(crossprod(zm),crossprod(zm, wf))
-  names(fit) <- paste("Z", 0:(ncol(zm)-1), sep="")
   fit
 }
 

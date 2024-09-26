@@ -1,29 +1,11 @@
 ########
-## Utilities for fft fringe analysis
+## classical fft fringe analysis
 ########
 
 
 .up2 <- function(nr, nc=nr) 2^(ceiling(log2(max(nr,nc))))
 
 ## FFT fit routine
-#
-## parameters:
-## FFT fit routine
-#
-## parameters:
-#
-#	imagedata: matrix containing greyscale values of interferogram image
-#	cp: a list with components (xc, yc, rx, ry, obstruct) describing pupil parameters
-#	fringescale: scale factor for fringes: 1 for single pass, .5 for double
-#	sl: approximate location of desired sidelobe in the form c(x,y)
-#	filter: size of filter around DC
-#	taper: amount to taper edge of half plane cut
-#	zlist: Zernikes to fit. Defaults to order 14
-#	zc0: Zernikes we want zeroed. Defaults to tilts, defocus, and coma
-#	satarget: SA term for desired asphere, if appropriate
-#	astig.bath: astigmatism due to Bath geometry
-#	puw.alg: phase unwrapping algorithm
-
 
 
 fftfit <- function(imagedata, cp=NULL, 
@@ -90,13 +72,9 @@ fftfit <- function(imagedata, cp=NULL,
   phi <- Arg(cphi)
   mod <- Mod(cphi)
   mod <- mod/max(mod)
-  wf.nets <- wf_net(phi, mod, cp, options)
-  rundate <- date()
-  algorithm <- "classical FFT"
-  outs <- list(rundate=rundate, algorithm=algorithm,
-       phi=phi, mod=mod, cp=cp, cp.orig=cp.orig,
-       wf.net=wf.nets$wf.net, wf.smooth=wf.nets$wf.smooth, 
-       wf.residual=wf.nets$wf.residual, fit=wf.nets$fit, zcoef.net=wf.nets$zcoef.net)
+  wfnets <- wf_net(phi, mod, cp, options)
+  outs0 <- list(rundate = date(), algorithm="classical FFT")
+  outs <- c(outs0, wfnets)
   class(outs) <- c(class(outs), "wf_zfit")
   outs
 }
