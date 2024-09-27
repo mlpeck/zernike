@@ -25,6 +25,7 @@ vortexfit(
 }
 \value{
 a list with wavefront estimates, wrapped phase, modulation, etc.
+The return has S3 class 'wf_zfit' with plot, print, summary, and report methods.
 }
 \description{
 Fringe analysis by Vortex aka Spiral Quadrature transform.
@@ -66,6 +67,12 @@ mtext("Sample Interferogram")
 
 if (tolower(.Platform$OS.type) == "windows") windows() else x11()
 vfit <- vortexfit(img, filter=15, fw.o=10, options=zopt)
+
+# do "classical FFT" based fit and compare results
+
+ftfit <- fftfit(img, cp=vfit$cp, sl=c(32, 0), filter=15, options=zopt)
+
+plotn(ftfit, vfit)
 }
 \seealso{
 This is one of two routines provided for analysis of single interferograms,

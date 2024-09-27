@@ -9,6 +9,7 @@
 ##' @param options A list with general fitting and display options. See [psfit_options()].
 ##' 
 ##' @return a list with wavefront estimates, wrapped phase, modulation, etc.
+##'         The return has S3 class 'wf_zfit' with plot, print, summary, and report methods.
 ##' 
 ##' @seealso This is one of two routines provided for analysis of single interferograms,
 ##'   along with [fftfit()]. This \emph{may} be suitable for interferograms with
@@ -48,6 +49,12 @@
 ##' 
 ##' if (tolower(.Platform$OS.type) == "windows") windows() else x11()
 ##' vfit <- vortexfit(img, filter=15, fw.o=10, options=zopt)
+##'
+##' # do "classical FFT" based fit and compare results
+##'
+##' ftfit <- fftfit(img, cp=vfit$cp, sl=c(32, 0), filter=15, options=zopt)
+##'
+##' plotn(ftfit, vfit)
 vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=psfit_options()) {
   
   nr <- nrow(imagedata)
