@@ -671,7 +671,11 @@
 ## added class "wf_zfit" and wrote a report method
 ##
 
-## 20240925
+## 20240925-27
 ## added option `pc1thentilt` to psi alg choices
 ## psifit with option "ls" should always use entire image array
-##
+## removed options 'sgs' and 'uselm'
+## examples for vortexfit and fftfit
+## FFT based algorithms will use fftw if fftwtools is installed
+## cleaned up some return values in miscellaneous routines
+

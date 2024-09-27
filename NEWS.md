@@ -1,5 +1,11 @@
+## Version 3.7.8-3.7.9
+* `wf_net` now does *all* of the post-processing of phase estimates from any of the fringe analysis routines. Function arguments have changed.
+* Removed options `sgs` and `uselm` from `fitzernikes` and return values from `psfit_options()`.
+* Changed the way initial guess for phase shifts is made in `gpcapsi`.
+* Use `Rcout` instead of `cout` in C++ routines that report progress. 
+
 ## Version 3.7.7
-* functions `psifit`, `vortexfit`, `fftfit` and `wf_net` have S3 class `wf_zfit` with plot, summary, and print methods. 
+* Return values from functions `psifit`, `vortexfit`, `fftfit` and `wf_net` have S3 class `wf_zfit` with plot, summary, and print methods. 
   These were available previously but have been improved and are now more or less documented.
 * Added S3Method `report` for objects of class `wf_zfit`. This produces an html report and displays in a browser.
 * Added some options to list of psi algorithms.

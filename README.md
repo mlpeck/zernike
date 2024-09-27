@@ -1,6 +1,6 @@
 Welcome to my R package for interferogram analysis and manipulation of Zernike polynomials. If you are new to R this README gives installation and basic usage instructions for Windows users. There are a number of required and optional packages to be installed, so please follow these instructions carefully. You need:
 
-* A recent version of R itself (v4.1.0 or later is required). The current version at this writing is 4.3.3. If you're making a fresh installation just go with the current release. The windows binary installer can be downloaded from http://cran.r-project.org. Installation works like any Windows program -- I like to have the installer create desktop shortcuts and edit its properties to have it start up in the directory where I've stored data. The only customization I make at install time is to select "SDI" windowing mode. This will display graphs in separate windows on the desktop.
+* A recent version of R itself (v4.1.0 or later is required). The current version at this writing is 4.4.1. If you're making a fresh installation just go with the current release. The windows binary installer can be downloaded from http://cran.r-project.org. Installation works like any Windows program -- I like to have the installer create desktop shortcuts and edit its properties to have it start up in the directory where I've stored data. The only customization I make at install time is to select "SDI" windowing mode. This will display graphs in separate windows on the desktop.
 
 * Download the Windows binary of this package from the [releases](../releases) section. Do not unzip it!
 
@@ -24,11 +24,15 @@ Welcome to my R package for interferogram analysis and manipulation of Zernike p
     
     + tinytable. Used to produce html formatted reports for the fringe analysis routines.
     
+    + fftwtools. If installed the FFT based fringe analysis routines `vortexfit` and `fftfit` will use `fftw` for FFTs instead of the base R function. This may slightly improve the execution time of these functions.
+    
 * You need not install these initially but they may be useful for certain tasks.
     
     + clue. The function `solve_LSAP` is used by the branch cut algorithm for phase unwrapping implemented in the function `brcutpuw`. This may outperform the default phase unwrapping routine in some situations.
     
     + data.table, dplyr, pixmap, mvtnorm.
+    
+    + my package lppuw, available on github at [github.com/mlpeck/lppuw](https://github.com/mlpeck/lppuw), which contains some advanced methods of phase unwrapping. This also requires a package named [rcbc](https://dirkschumacher.github.io/rcbc/). A Windows binary is provided in the releases section of `lppuw` for anyone who needs it.
     
 
 * Now install package "zernike". This can be done with the menu item Packages/Install from local zip file... At the prompt just navigate to wherever you saved the zip file and select it. If it installs successfully a brief message will be sent to the console. You may get a warning message if you're running a different version of R from the one the package was built in. You can probably ignore this -- if the demos run you're in good shape.
