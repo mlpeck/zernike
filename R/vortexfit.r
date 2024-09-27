@@ -58,6 +58,10 @@
 ##' plotn(ftfit, vfit, labels=c("fft", "vortex"))
 vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=psfit_options()) {
   
+  if (require(fftwtools)) {
+    fft <- fftwtools::fftw2d
+  }
+  
   nr <- nrow(imagedata)
   nc <- ncol(imagedata)
   npad <- nextn(max(nr,nc))
@@ -75,9 +79,9 @@ vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=psfit_op
   }
   theta <- function(x,y) atan2(y,x)
   phi <- outer(xs, xs, theta)
-  im.nb <- Re(fft(fftshift(im.fft), inv=TRUE))/(npad^2)
-  D <- fft(fftshift(exp(1i*phi)*im.fft), inv=TRUE)/(npad^2)
-  D2 <- fft(fftshift(exp(2*1i*phi)*im.fft), inv=TRUE)/(npad^2)
+  im.nb <- Re(fft(fftshift(im.fft), inverse=TRUE))/(npad^2)
+  D <- fft(fftshift(exp(1i*phi)*im.fft), inverse=TRUE)/(npad^2)
+  D2 <- fft(fftshift(exp(2*1i*phi)*im.fft), inverse=TRUE)/(npad^2)
   sx <- (D^2-im.nb*D2)[1:nr, 1:nc]
   if (fw.o > 0) {
     rsx <- gblur(Re(sx), fw=fw.o)

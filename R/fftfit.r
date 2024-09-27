@@ -11,6 +11,10 @@
 fftfit <- function(imagedata, cp=NULL, 
                    sl=c(1,1), filter=NULL, taper=2, options = psfit_options()) {
   
+  if (require(fftwtools)) {
+    fft <- fftwtools::fftw2d
+  }
+  
   nr <- nrow(imagedata)
   nc <- ncol(imagedata)
   npad <- nextn(max(nr,nc))
@@ -68,7 +72,7 @@ fftfit <- function(imagedata, cp=NULL,
   if (options$plots) {
     plot.cmat(submatrix(sl.fft, size=npad/2))
   }
-  cphi <- fft(fftshift(sl.fft), inv=TRUE)[1:nr, 1:nc]
+  cphi <- fft(fftshift(sl.fft), inverse=TRUE)[1:nr, 1:nc]
   phi <- Arg(cphi)
   mod <- Mod(cphi)
   mod <- mod/max(mod)
