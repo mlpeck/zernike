@@ -36,7 +36,6 @@ wf_net <- function(phi, mod, cp, options) {
                      eps=cp$obstruct,
                      maxorder=options$maxorder, 
                      nthreads=options$nthreads, 
-                     uselm=options$uselm,
                      isoseq=options$isoseq,
                      usecirc=options$usecirc)
   if (options$isoseq) {

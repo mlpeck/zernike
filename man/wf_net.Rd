@@ -1,25 +1,35 @@
 \name{wf_net}
 \alias{wf_net}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{Wavefront smoothing}
+\title{Wavefront post-processing}
 \description{
-  Calculate net and smoothed wavefronts from a raw wavefront containing
-  low order nuisance aberrations.
+  Perform post-processing of phase and modulation estimates performed by
+  any of the fringe analysis routines
 }
 \usage{
-wf_net(wf.raw, cp, options)
+wf_net(phi, mod, cp, options)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{wf.raw}{Raw wavefront to be processed}
+  \item{phi}{wrapped phase map}
+  \item{mod}{modulation estimate}
   \item{cp}{a list describing the pupil boundary}
   \item{options}{a list of options. See \code{\link{psfit_options}}}
 }
 \details{
-Called by \code{\link{psifit}}
+Called by \code{\link{psifit}, \link{vortexfit}, \link{fftfit}}.
+This now performs all of the post-processing on a calculated wrapped phase
+and modulus estimate from any of the fringe analysis routines in this package.
+This includes calculating the actual interferogram location parameters if
+not specified at call time, cropping if desired, unwrapping the phase,
+calculating a net and Zernike fit wavefront. 
 }
 \value{
   A list with the following components:
+  \item{phi}{the input phase, cropped if requested}
+  \item{mod}{the input modulus}
+  \item{cp}{interferogram location parameters as returned by \code{\link{circle.pars}}}
+  \item{cp.orig}{input cp}
   \item{wf.net}{Net unsmoothed wavefront; a matrix of class \code{"\link{pupil}"}}
   \item{wf.smooth}{Net smoothed wavefront}
   \item{wf.residual}{Difference between net wavefront and polynomial fit}
@@ -61,13 +71,11 @@ phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
 # target SA coefficients for numerical null.
 
 sa.t <- sconic(diam,roc,lambda=wavelength)
-zopt <- psfit_options()
-zopt$satarget <- sa.t
+zopt <- psfit_options(satarget=sa.t)
 psfit <- psifit(images, phases, psialg="ls", options=zopt)
 
 # get back the raw wavefront
 
-wf.raw <- qpuw(psfit$phi, psfit$mod)
 cp <- psfit$cp
 
 eps <- seq(0.1, 0.5, by=0.1)
@@ -82,7 +90,7 @@ for (i in seq_along(eps)) {
   cp$obstruct <- eps[i]
   sa.t <- sconic(diam, roc, eps=eps[i], lambda=wavelength)
   zopt$satarget <- sa.t
-  fiti <- wf_net(wf.raw, cp=cp, options=zopt)
+  fiti <- wf_net(psfit$phi, psfit$mod, cp=cp, options=zopt)
   df.annfits[i+1, 2:ncol(df.annfits)] <- c(sa.t[1], fiti$fit[9], fiti$zcoef.net[8], sqrt(crossprod(fiti$zcoef.net)), fiti$fit[4])
 }
 

@@ -6,7 +6,7 @@
   Zernike polynomials to a vector of wavefront measurements.
 }
 \usage{
-fitzernikes(wf, rho, theta, eps=0, phi = 0, maxorder = 14, uselm = FALSE, isoseq = FALSE)
+fitzernikes(wf, rho, theta, eps=0, phi = 0, maxorder = 14, isoseq = FALSE)
 }
 \arguments{
   \item{wf}{A vector of wavefront values}
@@ -15,7 +15,6 @@ fitzernikes(wf, rho, theta, eps=0, phi = 0, maxorder = 14, uselm = FALSE, isoseq
   \item{eps}{Obstruction fraction of annular aperture.}
   \item{phi}{Orientation of the image, in degrees}
   \item{maxorder}{Maximum Zernike polynomial order}
-  \item{uselm}{Boolean: use lm() for least squares fit}
   \item{isoseq}{Boolean: use ISO/ANSI sequencing}
 }
 \details{
@@ -25,13 +24,10 @@ fitzernikes(wf, rho, theta, eps=0, phi = 0, maxorder = 14, uselm = FALSE, isoseq
   be used through a call to \code{\link{zpm_cart}}.
 }
 \value{
-  The model fit as returned by \code{\link{lm}},
-  or the coefficients of the least squares fit using \code{qr.solve}
-  if \code{uselm} is \code{FALSE}.  
+  The coefficients of the least squares fit using \code{qr.solve}
 }
 \author{M.L. Peck \email{mpeck1@ix.netcom.com}}
 \note{
-  The model fit is of the form \code{wf ~ Z0+Z1+Z2+\dots}.
   With the standard ordering of Zernikes Z0 is the piston
   term, Z1 and Z2 are x and y tilts, Z3 is defocus, etc.
 }

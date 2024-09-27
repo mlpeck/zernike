@@ -240,7 +240,7 @@ startest <- function(wf=NULL, zcoef=NULL, maxorder=14L, phi=0,
             lines(freqx,mtfideal, lty=5)
             grid()
     }
-    list(psf=psf, otf=otf, mtf=mtf)
+    invisible(list(psf=psf, otf=otf, mtf=mtf))
 }
 
 ## Kolmogorov turbulence
@@ -306,7 +306,7 @@ foucogram <- function(wf, edgex = 0, phradius = 0, slit=FALSE, pad=4, gamma=1,
         contour(wf,add=TRUE,levels=seq(zmin,zmax,by=lev),
                 axes=FALSE,frame.plot=FALSE,col="red")
     }
-    ike/max(ike)
+    invisible(ike/max(ike))
 }
 
 ## Synthetic interferogram
@@ -392,9 +392,9 @@ convolve2d <- function(im, kern) {
 	npad <- nextn(max(nrp, ncp))
 	kern <- padmatrix(kern, npad=npad)
 	im <- padmatrix(im, npad=npad)
-	im.f <- Re(fft(fft(kern)*fft(im), inv=T))
+	im.f <- Re(fft(fft(kern)*fft(im), inv=TRUE))
 	im.f <- im.f[xs:(nr+xs-1),ys:(nc+ys-1)]/(npad^2)
-	return(im.f)
+	im.f
 }
 
 
@@ -402,7 +402,9 @@ convolve2d <- function(im, kern) {
 ## of the gaussian convolution kernel, in pixels.
 
 gblur <- function(X, fw = 0, details=FALSE) {
-  if (fw == 0) return(X)
+  if (fw == 0) {
+    return(X)
+  }
   XP <- X
   XP[is.na(XP)] <- 0
   nr <- nrow(X)
@@ -420,9 +422,12 @@ gblur <- function(X, fw = 0, details=FALSE) {
   XP <- Re(fft(fft(XP)*fft(kernp), inv=TRUE))/(npad^2)/sum(gkern)
   XP <- XP[xc:(nr+xc-1), xc:(nc+xc-1)]
   XP[is.na(X)] <- NA
-  if (details) 
-	  return(list(gkern=gkern, X=XP))
-  else return(XP)
+  if (details) {
+	  list(gkern=gkern, X=XP)
+  }
+  else {
+    XP
+  }
 }
  
 
@@ -464,7 +469,7 @@ pick.sidelobe <- function(imagedata, logm=FALSE, gamma=3) {
 	edge <- locator(n=1, type="n")
 	hw <- round(sqrt((edge$x)^2+(edge$y)^2))
 	symbols(0, 0, circles=hw, inches=FALSE, add=TRUE, fg="red")
-	return(list(sl=c(round(peak$x), round(peak$y)), filter=hw))
+	list(sl=c(round(peak$x), round(peak$y)), filter=hw)
 }
 
 
