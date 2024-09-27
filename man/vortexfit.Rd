@@ -70,9 +70,10 @@ vfit <- vortexfit(img, filter=15, fw.o=10, options=zopt)
 
 # do "classical FFT" based fit and compare results
 
+dev.set(dev.next())
 ftfit <- fftfit(img, cp=vfit$cp, sl=c(32, 0), filter=15, options=zopt)
 
-plotn(ftfit, vfit)
+plotn(ftfit, vfit, labels=c("fft", "vortex"))
 }
 \seealso{
 This is one of two routines provided for analysis of single interferograms,

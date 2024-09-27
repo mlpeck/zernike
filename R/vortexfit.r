@@ -52,9 +52,10 @@
 ##'
 ##' # do "classical FFT" based fit and compare results
 ##'
+##' dev.set(dev.next())
 ##' ftfit <- fftfit(img, cp=vfit$cp, sl=c(32, 0), filter=15, options=zopt)
 ##'
-##' plotn(ftfit, vfit)
+##' plotn(ftfit, vfit, labels=c("fft", "vortex"))
 vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=psfit_options()) {
   
   nr <- nrow(imagedata)

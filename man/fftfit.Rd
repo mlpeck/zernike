@@ -49,7 +49,13 @@ fftfit(imagedata, cp = NULL,
 \note{
   These functions are based largely on the work of Roddier and Roddier (1987).
 }
+\examples{
+  # just run the example for 'vortexfit()'
+  
+  example(vortexfit, package="zernike", ask=FALSE)
+}
 \seealso{
+  \code{\link{vortexfit}},
   \code{\link{wf_net}},
   \code{\link{pupil.pars}},
   \code{\link{pick.sidelobe}}.
