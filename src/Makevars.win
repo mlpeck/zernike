@@ -1,8 +1,8 @@
 CXX_STD = CXX14
 PKG_CXXFLAGS += -DRCPP_PARALLEL_USE_TBB=1
-PKG_CPPFLAGS += -std=c++14 -mtune=native -O3 -DLIBRAW_NODLL -DLIBRAW_NOTHREADS -DINLINE=static -DAVOID_WIN32_FILEIO -DTIFF_OK
+PKG_CPPFLAGS += -std=c++14 -mtune=native -O3 -DLIBRAW_NODLL -DLIBRAW_NOTHREADS -DINLINE=static -DAVOID_WIN32_FILEIO
 PKG_LIBS += -lRlapack -lRblas 
-PKG_LIBS += -lraw -ltiff -lzmq -lzstd -lz -llzma -lwebp -ljasper -llcms2 -ljpeg 
+PKG_LIBS += -lraw -lzmq -lzstd -lz -llzma -lwebp -ljasper -llcms2
 PKG_LIBS +=   -ldeflate -llerc -lsharpyuv
 PKG_LIBS += -lm -lgfortran -lquadmath -lws2_32
 PKG_LIBS += $(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" \
