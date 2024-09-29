@@ -1,7 +1,7 @@
 PKG_CFLAGS += -fPIC -O3
 CXX_STD = CXX14
 PKG_LIBS += -llapack -lblas -lgfortran
-PKG_LIBS += -lraw -lz -lm
+PKG_LIBS += -lraw -lz -ljpeg -lm
 PKG_LIBS += $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::RcppParallelLibs()")
 PKG_CPPFLAGS += -O3
 
