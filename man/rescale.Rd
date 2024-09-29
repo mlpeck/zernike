@@ -5,11 +5,11 @@
 \description{Rescale a matrix containing a bitmapped image
   using bilinear interpolation.}
 \usage{
-rescale(im, scale)
+rescale(img, scale)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{im}{A matrix with image data.}
+  \item{img}{A matrix with image data.}
   \item{scale}{Scale factor.}
 }
 \details{A value <1 will shrink the image.}

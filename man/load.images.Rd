@@ -3,7 +3,7 @@
 \alias{load.pgm}
 \title{Read images}
 \description{
-  Loads image files in jpeg, tiff or raw format.
+  Loads image files in jpeg, tiff, png, or raw format.
   \code{load.pgm} provides legacy support for reading
   files in pgm format.
 }
@@ -20,7 +20,7 @@ load.pgm(files, imdiff=NULL)
 \details{
   set FLIP=TRUE to reverse mirror imaged interferograms.
   
-  Any file extension other than jpg, jpeg, tif, tiff is assumed to be in RAW format. Supported raw formats
+  Any file extension other than jpg, jpeg, tif, tiff, or png is assumed to be in RAW format. Supported raw formats
   are determined by libraw and may not be up to date
 }
 \value{

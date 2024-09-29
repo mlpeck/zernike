@@ -17,6 +17,8 @@ Welcome to my R package for interferogram analysis and manipulation of Zernike p
     + BH.
     
 * Optional but highly recommended packages
+
+    + jpeg, tiff, png. As of version 3.8.0 these are required to read interferogram image files of the respective types (previously "home grown" code was used to read jpeg or tiff files). Most raw format image files can be read with no additional package requirements.
     
     + rgl. This package provides interactive 3D graphics.
     
@@ -51,11 +53,13 @@ These demos illustrate basic PSI analysis, a sliding window analysis of a multip
 
 * The main PSI analysis routine is `psifit()`. Type `example(psifit, package="zernike", ask=FALSE, echo=FALSE)` to see an example of its use. This uses the same data set as the demo programs.
 
-* I now have substantial examples for several high and not so high level functions in the package. Besides `psifit()` these include `vortexfit()`, `wf_net()`, `zpm_cart()`, `zapm()`, `zapm_iso()`, `zapm_128()`, and `zapm_iso_128()`. These are run in the same way as described for `psifit()` above.
+* I now have substantial examples for several high and not so high level functions in the package. Besides `psifit()` these include `vortexfit()`, `fftfit()`, `wf_net()`, `zpm_cart()`, `zapm()`, `zapm_iso()`, `zapm_128()`, and `zapm_iso_128()`. These are run in the same way as described for `psifit()` above.
 
 * To access R's help in html format type `help.start()`. This will open up a window in your default browser with a help page containing links to the help files for all installed packages on your system as well as manuals, FAQs, and help files for R itself.
 
 * You can exit R by typing q() or just closing the console window. You will be prompted whether to save the workspace. If you enter y any data in your workspace will be saved in binary format to a file named .RData, and commands entered in the current session will be saved to an ordinary text file named .Rhistory.
+
+This package runs very well in Linux, in fact it is developed on a PC running Fedora Linux. Building from source is straightforward provided you have appropriate development tools and libraries installed. It also runs in WSL on Windows 11, or with a little more effort even Windows 10. I have no access to Mac's and therefore can't help with installation on MacOS.
 
 There is a vast quantity of documentation and literature about the R system. At a minimum you should read the [R for Windows FAQ](https://cran.r-project.org/bin/windows/base/rw-FAQ.html) and the introduction to R included as a PDF file in the software installation.
 

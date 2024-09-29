@@ -12,6 +12,20 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// gpcapsiC
+List gpcapsiC(const mat& images, const double& ptol, const int& maxiter, const bool& trace);
+RcppExport SEXP _zernike_gpcapsiC(SEXP imagesSEXP, SEXP ptolSEXP, SEXP maxiterSEXP, SEXP traceSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const mat& >::type images(imagesSEXP);
+    Rcpp::traits::input_parameter< const double& >::type ptol(ptolSEXP);
+    Rcpp::traits::input_parameter< const int& >::type maxiter(maxiterSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type trace(traceSEXP);
+    rcpp_result_gen = Rcpp::wrap(gpcapsiC(images, ptol, maxiter, trace));
+    return rcpp_result_gen;
+END_RCPP
+}
 // id_dxy_uw
 NumericVector id_dxy_uw(const int& nr, const int& nc, const NumericVector& phase, const NumericVector& mask, const NumericVector& dx, const NumericVector& dy, IntegerVector uw);
 RcppExport SEXP _zernike_id_dxy_uw(SEXP nrSEXP, SEXP ncSEXP, SEXP phaseSEXP, SEXP maskSEXP, SEXP dxSEXP, SEXP dySEXP, SEXP uwSEXP) {
@@ -70,20 +84,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// gpcapsiC
-List gpcapsiC(const mat& images, const double& ptol, const int& maxiter, const bool& trace);
-RcppExport SEXP _zernike_gpcapsiC(SEXP imagesSEXP, SEXP ptolSEXP, SEXP maxiterSEXP, SEXP traceSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const mat& >::type images(imagesSEXP);
-    Rcpp::traits::input_parameter< const double& >::type ptol(ptolSEXP);
-    Rcpp::traits::input_parameter< const int& >::type maxiter(maxiterSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type trace(traceSEXP);
-    rcpp_result_gen = Rcpp::wrap(gpcapsiC(images, ptol, maxiter, trace));
-    return rcpp_result_gen;
-END_RCPP
-}
 // q_uw
 NumericVector q_uw(const int& nr, const int& nc, const NumericVector& phase, const NumericVector& qual);
 RcppExport SEXP _zernike_q_uw(SEXP nrSEXP, SEXP ncSEXP, SEXP phaseSEXP, SEXP qualSEXP) {
@@ -110,6 +110,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rescale
+mat rescale(const mat& img, const double scale);
+RcppExport SEXP _zernike_rescale(SEXP imgSEXP, SEXP scaleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const mat& >::type img(imgSEXP);
+    Rcpp::traits::input_parameter< const double >::type scale(scaleSEXP);
+    rcpp_result_gen = Rcpp::wrap(rescale(img, scale));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rzernike
 NumericVector rzernike(NumericVector rho, int n, int m);
 RcppExport SEXP _zernike_rzernike(SEXP rhoSEXP, SEXP nSEXP, SEXP mSEXP) {
@@ -120,30 +132,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< int >::type m(mSEXP);
     rcpp_result_gen = Rcpp::wrap(rzernike(rho, n, m));
-    return rcpp_result_gen;
-END_RCPP
-}
-// res_frame
-vec res_frame(const vec& pars, const List& adata);
-RcppExport SEXP _zernike_res_frame(SEXP parsSEXP, SEXP adataSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const vec& >::type pars(parsSEXP);
-    Rcpp::traits::input_parameter< const List& >::type adata(adataSEXP);
-    rcpp_result_gen = Rcpp::wrap(res_frame(pars, adata));
-    return rcpp_result_gen;
-END_RCPP
-}
-// jac_frame
-mat jac_frame(const vec& pars, const List& adata);
-RcppExport SEXP _zernike_jac_frame(SEXP parsSEXP, SEXP adataSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const vec& >::type pars(parsSEXP);
-    Rcpp::traits::input_parameter< const List& >::type adata(adataSEXP);
-    rcpp_result_gen = Rcpp::wrap(jac_frame(pars, adata));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -330,23 +318,16 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport void read_jpg_img(void *, void *, void *, void *, void *, void *, void *);
-RcppExport void read_jpg_img_info(void *, void *, void *, void *, void *);
-RcppExport void read_tiff_img(void *, void *, void *, void *, void *, void *, void *);
-RcppExport void read_tiff_img_info(void *, void *, void *, void *, void *);
-RcppExport void resize_image(void *, void *, void *, void *, void *, void *, void *);
-
 static const R_CallMethodDef CallEntries[] = {
+    {"_zernike_gpcapsiC", (DL_FUNC) &_zernike_gpcapsiC, 4},
     {"_zernike_id_dxy_uw", (DL_FUNC) &_zernike_id_dxy_uw, 7},
     {"_zernike_id_uw", (DL_FUNC) &_zernike_id_uw, 3},
     {"_zernike_lspsiC", (DL_FUNC) &_zernike_lspsiC, 3},
     {"_zernike_aiapsiC", (DL_FUNC) &_zernike_aiapsiC, 5},
-    {"_zernike_gpcapsiC", (DL_FUNC) &_zernike_gpcapsiC, 4},
     {"_zernike_q_uw", (DL_FUNC) &_zernike_q_uw, 4},
     {"_zernike_readraw", (DL_FUNC) &_zernike_readraw, 2},
+    {"_zernike_rescale", (DL_FUNC) &_zernike_rescale, 2},
     {"_zernike_rzernike", (DL_FUNC) &_zernike_rzernike, 3},
-    {"_zernike_res_frame", (DL_FUNC) &_zernike_res_frame, 2},
-    {"_zernike_jac_frame", (DL_FUNC) &_zernike_jac_frame, 2},
     {"_zernike_pwrap", (DL_FUNC) &_zernike_pwrap, 1},
     {"_zernike_tiltpsiC", (DL_FUNC) &_zernike_tiltpsiC, 6},
     {"_zernike_gol_welsch", (DL_FUNC) &_zernike_gol_welsch, 2},
@@ -363,17 +344,7 @@ static const R_CallMethodDef CallEntries[] = {
     {NULL, NULL, 0}
 };
 
-static const R_CMethodDef CMethods[] = {
-    {"read_jpg_img",       (DL_FUNC) &read_jpg_img,       7},
-    {"read_jpg_img_info",  (DL_FUNC) &read_jpg_img_info,  5},
-    {"read_tiff_img",      (DL_FUNC) &read_tiff_img,      7},
-    {"read_tiff_img_info", (DL_FUNC) &read_tiff_img_info, 5},
-    {"resize_image",       (DL_FUNC) &resize_image,       7},
-    {NULL, NULL, 0, NULL}
-};
-
-
 RcppExport void R_init_zernike(DllInfo *dll) {
-    R_registerRoutines(dll, CMethods, CallEntries, NULL, NULL);
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

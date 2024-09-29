@@ -1,3 +1,9 @@
+## Version 3.8.0
+* All C code has been removed.
+* `load.images` uses libraries `jpeg`, `png`, or `tiff` to read image files of respective types.
+* Reading png format files is now explicitly supported.
+* Function `rescale` to rescale an image matrix is written in C++ using Armadillo's `interp2`.
+
 ## Version 3.7.8-3.7.9
 * `wf_net` now does *all* of the post-processing of phase estimates from any of the fringe analysis routines. Function arguments have changed.
 * Removed options `sgs` and `uselm` from `fitzernikes` and return values from `psfit_options()`.

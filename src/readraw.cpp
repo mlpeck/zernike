@@ -27,7 +27,7 @@ NumericMatrix readraw(CharacterVector fname, NumericVector channels) {
   if (ret != 0) stop("LibRaw returned error");
   NumericMatrix img(w, h);
   channels = channels/sum(channels);
-  for (int k=0; k<h*w; k++) {
+  for (std::size_t k=0; k<h*w; k++) {
     i = k % w;
     j = k / w;
     img(i, j) = 0;
