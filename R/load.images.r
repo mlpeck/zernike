@@ -69,19 +69,20 @@ load.images <- function(files, channels=c(1,0,0), scale=1, FLIP=FALSE) {
     if(FLIP) {
       images <- images[nrow(images):1, ]
     }
-    return(images)
+  } else {
+    im1 <- readf(fn, files[1], channels, fromraw)
+    nr <- nrow(im1)
+    nc <- ncol(im1)
+    images <- array(0, dim=c(nr, nc, length(files)))
+    images[,,1] <- im1
+    for (i in 2:length(files)) {
+      images[,,i] <- readf(fn, files[i], channels, fromraw)
+    }
+    if(FLIP) {
+      images <- images[nr:1,,]
+    }
   }
-
-  im1 <- readf(fn, files[1], channels, fromraw)
-  nr <- nrow(im1)
-  nc <- ncol(im1)
-  images <- array(0, dim=c(nr, nc, length(files)))
-  images[,,1] <- im1
-  for (i in 2:length(files)) {
-    images[,,i] <- readf(fn, files[i], channels, fromraw)
-  }
-  if(FLIP) {
-    images <- images[nr:1,,]
-  }
+  ri <- range(images)
+  images <- (images - ri[1])/(ri[2]-ri[1])
   images
 }
