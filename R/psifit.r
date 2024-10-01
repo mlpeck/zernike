@@ -56,6 +56,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
   }
   switch(psialg,
     ls = {
+      mask <- numeric(nr*nc)
       if (is.null(options$wt)) {
         wt <- rep(1, nf)
       } else {
@@ -153,6 +154,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
       phases <- psfit$phases
     },
     { ## if no match to ls
+      mask <- numeric(nr*nc)
       if (is.null(options$wt)) {
         wt <- rep(1, nf)
       } else {

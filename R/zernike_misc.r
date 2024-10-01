@@ -368,8 +368,8 @@ crop <- function(img, cp, npad=20, nxy=NULL) {
   ymin <- max(1, round(cp$yc) - nxy/2)
   ymax <- min(ymin+nxy-1, nc)
   cp.new <- cp
-  cp.new$xc <- cp$xc-xmin
-  cp.new$yc <- cp$yc-ymin
+  cp.new$xc <- cp$xc-xmin+1
+  cp.new$yc <- cp$yc-ymin+1
   if (length(dim(img)) > 2) {
     img <- img[xmin:xmax,ymin:ymax,]
   } else {
