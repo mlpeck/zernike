@@ -364,9 +364,9 @@ crop <- function(img, cp, npad=20, nxy=NULL) {
     nxy <- min(nr, nc, 2*round(cp$rx + npad), 2*round(cp$ry + npad))
   }
   xmin <- max(1, round(cp$xc) - nxy/2)
-  xmax <- xmin+nxy-1
+  xmax <- min(xmin+nxy-1, nr)
   ymin <- max(1, round(cp$yc) - nxy/2)
-  ymax <- ymin+nxy-1
+  ymax <- min(ymin+nxy-1, nc)
   cp.new <- cp
   cp.new$xc <- cp$xc-xmin
   cp.new$yc <- cp$yc-ymin
