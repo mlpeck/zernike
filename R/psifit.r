@@ -5,7 +5,8 @@ psfit_options <- function(colors=topo.colors(256), refine=TRUE, puw_alg = "qual"
                     maxiter=20, ptol=1.e-4, trace=1, nzcs = 2,
                     zc0=6:7,
                     satarget=c(0,0), astig.bath=c(0,0),
-                    maxorder=14, isoseq=FALSE, usecirc=FALSE, 
+                    maxorder=14, isoseq=FALSE, 
+                    usecirc=FALSE, ext_prec=FALSE,
                     nthreads=parallel::detectCores()/2,
                     plots=TRUE, crop=FALSE) {
   list(colors=colors,             ## color palette for wavefront plots
@@ -24,6 +25,7 @@ psfit_options <- function(colors=topo.colors(256), refine=TRUE, puw_alg = "qual"
        maxorder=maxorder,         ## maximum order for Zernike polynomial fitting
        isoseq=isoseq,             ## use ISO sequenced Zernikes?
        usecirc=usecirc,           ## use circular Zernikes even for obstructed apertures?
+       ext_prec=ext_prec,         ## extended precision annular Zernikes?
        nthreads=nthreads,         ## no threads to use with zpmCP
        plots=plots,               ## plot results in wavefront summaries?
        crop=crop)                 ## crop wavefront related matrixes?
@@ -241,7 +243,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
         rho <- rho[!is.na(rho)]
         theta <- theta[!is.na(theta)]
         if (cp$obstruct == 0. || options$usecirc) {
-          coords <- zpmC(rho, theta, maxorder=4)
+          coords <- zpm(rho, theta, maxorder=4)
         } else {
           coords <- zapm(rho, theta, eps=cp$obstruct, maxorder=4)
         }

@@ -1,11 +1,13 @@
 
 // [[Rcpp::depends(RcppArmadillo)]]
+// [[Rcpp::plugins(openmp)]]
 
 #define _USE_MATH_DEFINES
 
 #include <RcppArmadillo.h>
 #include <cmath>
 #include <iostream>
+#include <omp.h>
 
 using namespace Rcpp;
 using namespace arma;
@@ -91,25 +93,6 @@ lmreturn mylevmar(vec (*res_fun)(const vec&, const List&),
   
 }
 
-// pixel-wise least squares with known phases, tilts, etc.
-
-mat pxls(const mat& im, const rowvec& phases, const mat& zcs, const mat& coords) {
-  uword nr = im.n_rows;
-  uword nf = im.n_cols;
-
-  rowvec ph(nf);
-  mat A(3, nf);
-  rowvec b(3);
-  mat B(nr, 3);
-  
-  for (uword n=0; n<nr; n++) {
-    ph = phases + coords.row(n) * zcs;
-    A = join_cols(join_cols(ones<rowvec>(nf), cos(ph)), sin(ph));
-    b = im.row(n) * pinv(A);
-    B.row(n) = b;
-  }
-  return B;
-}
 
 // residuals and analytic Jacobian for mylevmar. Exported just in case I want to use minpack.lm
 
@@ -165,6 +148,26 @@ mat pwrap(const mat& phase) {
   return wphase;
 }
 
+// pixel-wise least squares with known phases, tilts, etc.
+
+mat pxls(const mat& im, const rowvec& phases, const mat& zcs, const mat& coords) {
+  uword nr = im.n_rows;
+  uword nf = im.n_cols;
+  
+  mat B(nr, 3);
+  
+  #pragma omp parallel for
+  for (uword n=0; n<nr; n++) {
+    rowvec ph(nf);
+    mat A(3, nf);
+    rowvec b(3);
+    ph = phases + coords.row(n) * zcs;
+    A = join_cols(join_cols(ones<rowvec>(nf), cos(ph)), sin(ph));
+    b = im.row(n) * pinv(A);
+    B.row(n) = b;
+  }
+  return B;
+}
 
 
 // The main routine. This is what gets called from R

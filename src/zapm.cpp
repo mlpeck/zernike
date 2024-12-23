@@ -430,7 +430,7 @@ mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorde
 //'
 //' @md
 // [[Rcpp::export]]
-mat zapm_iso(const vec& rho, const vec& theta, const double eps, const int& maxorder=12, const int& nq=21) {
+mat zapm_iso(const vec& rho, const vec& theta, const double& eps, const int& maxorder=14, const int& nq=21) {
   
   int j, k, nmax, nz;
   uword nr = rho.size();

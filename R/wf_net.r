@@ -37,7 +37,8 @@ wf_net <- function(phi, mod, cp, options) {
                      maxorder=options$maxorder, 
                      nthreads=options$nthreads, 
                      isoseq=options$isoseq,
-                     usecirc=options$usecirc)
+                     usecirc=options$usecirc,
+                     ext_prec=options$ext_prec)
   if (options$isoseq) {
     ind.ptf <- c(1:3, 5)
     ind.sa4 <- 13
@@ -143,11 +144,7 @@ summary.wf_zfit <- function(wffit, digits=3, printnow=TRUE) {
 }
 
 print.wf_zfit <- function(wffit, digits=3, abnames=TRUE, printnow=TRUE) {
-  if (is.element("lm", class(wffit$fit))) {
-    fit <- coef(wffit$fit)
-  } else {
-    fit <- wffit$fit
-  }
+  fit <- coef(wffit$fit)
   nz <- length(fit)
   sqnz <- sqrt(nz)
   if (sqnz %% 1 > sqrt(.Machine$double.eps)) {
@@ -265,9 +262,8 @@ invert.wf_zfit <- function(wffit) {
   wffit$wf.smooth <- -wffit$wf.smooth
   wffit$wf.residual <- -wffit$wf.residual
   wffit$zcoef.net <- -wffit$zcoef.net
-  if (!is.element("lm", class(wffit$fit))) {
-    wffit$fit <- -wffit$fit
-  }
+  wffit$fit <- -wffit$fit
+
   wffit
 }
 

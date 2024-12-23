@@ -4,23 +4,17 @@
 //	License: MIT <https://opensource.org/licenses/MIT>
 //
 
-/**********************
 
-Copyright © 2022 Michael Peck <mlpeck54 -at- gmail.com>
+// [[Rcpp::depends(RcppArmadillo)]]
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+#include <RcppArmadillo.h>
+#include <Rcpp.h>
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-**************************/
-
-
-
-
-# include <Rcpp.h>
 using namespace Rcpp;
+using namespace arma;
+
+// [[Rcpp::plugins(openmp)]]
+
 
 /*****************
  * 
@@ -47,17 +41,17 @@ using namespace Rcpp;
 //'  only check performed is that the number of columns in the
 //'  matrix matches the expected number given by the argument
 //'  `maxorder`.
-//'  This is called by [gradzpm_cart()] and [zpm_cart()]
+//'  This is called by [gradzpm_arma()] and [zpm_cart()]
 //'  if `unit_variance` is set to `true` in the respective
 //'  function calls.
 //' @md
 // [[Rcpp::export]]
-NumericMatrix norm_zpm(NumericMatrix& uzpm, const int& maxorder = 12) {
-  int ncol = uzpm.cols();
+mat norm_zpm(mat& uzpm, const int& maxorder) {
+  uword ncol = uzpm.n_cols;
   int n, m, mp, j=0;
   double zmult;
   
-  if (ncol != (maxorder+1)*(maxorder+2)/2) stop("Matrix is wrong size for entered order");
+  if (ncol != (maxorder+1)*(maxorder+2)/2) Rcpp::stop("Matrix is wrong size for entered order");
   
   for (n=0; n<=maxorder; n++) {
     for (m=0; m<=n; m++) {
@@ -66,7 +60,7 @@ NumericMatrix norm_zpm(NumericMatrix& uzpm, const int& maxorder = 12) {
       if (mp != 0) {
         zmult *= sqrt(2.0);
       }
-      uzpm(_, j) = zmult * uzpm(_, j);
+      uzpm.col(j) = zmult * uzpm.col(j);
       ++j;
     }
   }
@@ -119,7 +113,7 @@ NumericMatrix norm_zpm(NumericMatrix& uzpm, const int& maxorder = 12) {
 //'  (m=1) non-axisymmetric aberrations will be separated.
 //'
 //'  All three matrices will have the same dimensions on return. Columns 0 and 1 of `dzdx` will be all 0,
-//'  while columns 0 and 2 of `dzdy` are 0.
+//'  while columns 0 and 3 of `dzdy` are 0.
 //'
 //' @seealso [zpm()] uses the same recurrence relations for polar coordinates and extended
 //'  Fringe set ordering, which is the more common indexing scheme for optical design/testing
@@ -132,23 +126,23 @@ NumericMatrix norm_zpm(NumericMatrix& uzpm, const int& maxorder = 12) {
 //'  rt <- expand.grid(theta, rho)
 //'  x <- c(0, rt[,2]*cos(rt[,1]))
 //'  y <- c(0, rt[,2]*sin(rt[,1]))
-//'  gzpm <- gradzpm_cart(x, y)
+//'  gzpm <- gradzpm(x, y)
 //'
 //' @md
 // [[Rcpp::export]]
-List gradzpm_cart(const NumericVector& x, const NumericVector& y, const int& maxorder = 12, 
-             const bool& unit_variance = false, const bool& return_zpm = true) {
+List gradzpm(const vec& x, const vec& y, const int& maxorder = 12, 
+             const bool& unit_variance = true, const bool& return_zpm = true) {
   
   int n, m;
   int ncol = (maxorder+1)*(maxorder+2)/2;
-  unsigned int nrow = x.size();
+  uword nrow = x.size();
   int j;
   bool n_even;
-  NumericMatrix zm(nrow, ncol), dzdx(nrow, ncol), dzdy(nrow, ncol);
+  mat zm(nrow, ncol), dzdx(nrow, ncol), dzdy(nrow, ncol);
   
   //do some rudimentary error checking
   
-  if (x.size() != y.size()) stop("Numeric vectors must be same length");
+  if (x.n_elem != y.n_elem) stop("Numeric vectors must be same length");
   if (maxorder < 1) stop("maxorder must be >= 1");
   
   // good enough
@@ -156,17 +150,17 @@ List gradzpm_cart(const NumericVector& x, const NumericVector& y, const int& max
   
   // starting values for recursions
   
-  zm(_, 0) = rep(1.0, nrow);
-  zm(_, 1) = y;
-  zm(_, 2) = x;
+  zm.col(0).ones();
+  zm.col(1) = y;
+  zm.col(2) = x;
   
-  dzdx(_, 0) = rep(0.0, nrow);
-  dzdx(_, 1) = rep(0.0, nrow);
-  dzdx(_, 2) = rep(1.0, nrow);
+  dzdx.col(0).zeros();
+  dzdx.col(1).zeros();
+  dzdx.col(2).ones();
   
-  dzdy(_, 0) = rep(0.0, nrow);
-  dzdy(_, 1) = rep(1.0, nrow);
-  dzdy(_, 2) = rep(0.0, nrow);
+  dzdy.col(0).zeros();
+  dzdy.col(1).ones();
+  dzdy.col(2).zeros();
   
   j = 3;
   n_even = true;
@@ -174,48 +168,48 @@ List gradzpm_cart(const NumericVector& x, const NumericVector& y, const int& max
     
     // fill in  m=0
     m=0;
-    zm(_, j) = x*zm(_, j-n) + y*zm(_, j-1);
-    dzdx(_, j) = (double) n * zm(_, j-n);
-    dzdy(_, j) = (double) n * zm(_, j-1);
+    zm.col(j) = x % zm.col(j-n) + y % zm.col(j-1);
+    dzdx.col(j) = (double) n * zm.col(j-n);
+    dzdy.col(j) = (double) n * zm.col(j-1);
     ++j;
     
     for (m=1; m < n/2; m++) {
-      zm(_, j) = x*zm(_, j-n) + y*zm(_, j-2*m-1) + x*zm(_, j-n-1) - y*zm(_, j-2*m) - zm(_, j-2*n);
-      dzdx(_, j) = (double) n*zm(_, j-n) + (double) n*zm(_, j-n-1) + dzdx(_, j-2*n);
-      dzdy(_, j) = (double) n*zm(_, j-2*m-1) - (double) n*zm(_, j-2*m) + dzdy(_, j-2*n);
+      zm.col(j) = x % zm.col(j-n) + y % zm.col(j-2*m-1) + x % zm.col(j-n-1) - y % zm.col(j-2*m) - zm.col(j-2*n);
+      dzdx.col(j) = (double) n*zm.col(j-n) + (double) n*zm.col(j-n-1) + dzdx.col(j-2*n);
+      dzdy.col(j) = (double) n*zm.col(j-2*m-1) - (double) n*zm.col(j-2*m) + dzdy.col(j-2*n);
       ++j;
     }
     if (n_even) {
-      zm(_, j) = 2.*x*zm(_, j-n) + 2.*y*zm(_, j-n-1) - zm(_, j-2*n);
-      dzdx(_, j) = 2.*(double) n*zm(_, j-n) + dzdx(_, j-2*n);
-      dzdy(_, j) = 2.*(double) n*zm(_, j-2*m-1) + dzdy(_, j-2*n);
+      zm.col(j) = 2.*x % zm.col(j-n) + 2.*y % zm.col(j-n-1) - zm.col(j-2*n);
+      dzdx.col(j) = 2.*(double) n*zm.col(j-n) + dzdx.col(j-2*n);
+      dzdy.col(j) = 2.*(double) n*zm.col(j-2*m-1) + dzdy.col(j-2*n);
       ++m;
       ++j;
     } else {
-      zm(_, j) = y*zm(_, j-2*m-1) + x*zm(_, j-n-1) - y*zm(_, j-2*m) - zm(_, j-2*n);
-      dzdx(_, j) = (double) n*zm(_, j-n-1) + dzdx(_, j-2*n);
-      dzdy(_, j) = (double) n*(zm(_, j-2*m-1) - zm(_, j-2*m)) + dzdy(_, j-2*n);
+      zm.col(j) = y % zm.col(j-2*m-1) + x % zm.col(j-n-1) - y % zm.col(j-2*m) - zm.col(j-2*n);
+      dzdx.col(j) = (double) n*zm.col(j-n-1) + dzdx.col(j-2*n);
+      dzdy.col(j) = (double) n*(zm.col(j-2*m-1) - zm.col(j-2*m)) + dzdy.col(j-2*n);
       ++m;
       ++j;
       
-      zm(_, j) = x*zm(_, j-n) + y*zm(_, j-2*m-1) + x*zm(_, j-n-1) - zm(_, j-2*n);
-      dzdx(_, j) = (double) n*(zm(_, j-n) + zm(_, j-n-1)) + dzdx(_, j-2*n);
-      dzdy(_, j) = (double) n*zm(_, j-2*m-1) + dzdy(_, j-2*n);
+      zm.col(j) = x % zm.col(j-n) + y % zm.col(j-2*m-1) + x % zm.col(j-n-1) - zm.col(j-2*n);
+      dzdx.col(j) = (double) n*(zm.col(j-n) + zm.col(j-n-1)) + dzdx.col(j-2*n);
+      dzdy.col(j) = (double) n*zm.col(j-2*m-1) + dzdy.col(j-2*n);
       ++m;
       ++j;
     }
     for (m=m; m<n; m++) {
-      zm(_, j) = x*zm(_, j-n) + y*zm(_, j-2*m-1) + x*zm(_, j-n-1) - y*zm(_, j-2*m) - zm(_, j-2*n);
-      dzdx(_, j) = (double) n*zm(_, j-n) + (double) n*zm(_, j-n-1) + dzdx(_, j-2*n);
-      dzdy(_, j) = (double) n*zm(_, j-2*m-1) - (double) n*zm(_, j-2*m) + dzdy(_, j-2*n);
+      zm.col(j) = x % zm.col(j-n) + y % zm.col(j-2*m-1) + x % zm.col(j-n-1) - y % zm.col(j-2*m) - zm.col(j-2*n);
+      dzdx.col(j) = (double) n*zm.col(j-n) + (double) n*zm.col(j-n-1) + dzdx.col(j-2*n);
+      dzdy.col(j) = (double) n*zm.col(j-2*m-1) - (double) n*zm.col(j-2*m) + dzdy.col(j-2*n);
       ++j;
     }
     
     // m = n
     
-    zm(_, j) = x*zm(_, j-n-1) - y*zm(_, j-2*n);
-    dzdx(_, j) = (double) n * zm(_, j-n-1);
-    dzdy(_, j) = (double) -n * zm(_, j-2*n);
+    zm.col(j) = x % zm.col(j-n-1) - y % zm.col(j-2*n);
+    dzdx.col(j) = (double) n * zm.col(j-n-1);
+    dzdy.col(j) = (double) -n * zm.col(j-2*n);
     ++j;
     
     n_even = !n_even;
@@ -231,9 +225,8 @@ List gradzpm_cart(const NumericVector& x, const NumericVector& y, const int& max
   
   if (return_zpm) {
     return List::create(Named("zm") = zm, Named("dzdx") = dzdx, Named("dzdy") = dzdy);
-  } else {
-    return List::create(Named("dzdx") = dzdx, Named("dzdy") = dzdy);
   }
+  return List::create(Named("dzdx") = dzdx, Named("dzdy") = dzdy);
 }
 
 /*****************
@@ -252,72 +245,33 @@ List gradzpm_cart(const NumericVector& x, const NumericVector& y, const int& max
 //' @param x a vector of x coordinates for points on a unit disk.
 //' @param y a vector of y coordinates.
 //' @param maxorder the maximum radial polynomial order (defaults to 12).
-//' @param unit_variance logical: return with orthonormal scaling? (default `true`)
+//' @param unit_variance logical: return with orthonormal scaling? (default `false`)
 //'
 //' @return a matrix of Zernike polynomial values evaluated at the input
 //'  Cartesian coordinates and all radial and azimuthal orders from
 //'  0 through `maxorder`.
 //'
-//' @details This is the same algorithm and essentially the same code as [gradzpm_cart()]
+//' @references
+//'   Anderson, T.B. (2018) Optics Express 26, #5, 18878
+//'   <https://doi.org/10.1364/OE.26.018878> (open access)
+//'
+//' @details This is the same algorithm and essentially the same code as [gradzpm_arma()]
 //'  except directional derivatives aren't calculated.
-//'
-//' @examples
-//'   ##illustrates difference in smoothed wavefront from using zpm_cart with ISO sequence of same order
-//'
-//'   require(zernike)
-//'   fpath <- file.path(find.package(package="zernike"), "psidata")
-//'   files <- scan(file.path(fpath, "files.txt"), what="character")
-//'   for (i in 1:length(files)) files[i] <- file.path(fpath, files[i])
-//'   
-//'   ## load the images into an array
-//'   
-//'   images <- load.images(files)
-//'   
-//'   ## parameters for this run
-//'   
-//'   source(file.path(fpath, "parameters.txt"))
-//'   
-//'   ## phase shifts
-//'   
-//'   phases <- wrap((0:(dim(images)[3]-1))/frames.per.cycle*2*pi)
-//'   phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
-//'   
-//'   ## target SA coefficients for numerical null.
-//'   
-//'   sa.t <- sconic(diam,roc,lambda=wavelength)
-//'   zopt <- psfit_options()
-//'   zopt$satarget <- sa.t
-//'   psfit <- psifit(images, phases, psialg="ls", options=zopt)
-//'   
-//'   ## get back the raw wavefront
-//'   
-//'   wf.raw <- qpuw(psfit$phi, psfit$mod)
-//'   
-//'   ## This will tell wf_net to use zpm_cart instead
-//'   
-//'   zopt$isoseq <- TRUE
-//'   ifit <- wf_net(wf.raw, cp = psfit$cp, options=zopt)
-//'   
-//'   ## plotn does a direct comparison
-//'   
-//'   plotn(psfit, ifit, wftype="smooth", qt=c(0,1))
-//'
 //' @md
 // [[Rcpp::export]]
-NumericMatrix zpm_cart(const NumericVector& x, const NumericVector& y, const int& maxorder = 12, 
+mat zpm_cart(const vec& x, const vec& y, const int& maxorder = 14, 
                        const bool& unit_variance = true) {
   
   int n, m;
   int ncol = (maxorder+1)*(maxorder+2)/2;
-  unsigned int nrow = x.size();
+  uword nrow = x.n_elem;
   int j;
   bool n_even;
-  NumericMatrix zm(nrow, ncol);
-  CharacterVector cnames(ncol);
+  mat zm(nrow, ncol);
   
   //do some rudimentary error checking
   
-  if (x.size() != y.size()) stop("Numeric vectors must be same length");
+  if (x.n_elem != y.n_elem) stop("Numeric vectors must be same length");
   if (maxorder < 1) stop("maxorder must be >= 1");
   
   // good enough
@@ -325,9 +279,10 @@ NumericMatrix zpm_cart(const NumericVector& x, const NumericVector& y, const int
   
   // starting values for recursions
   
-  zm(_, 0) = rep(1.0, nrow);
-  zm(_, 1) = y;
-  zm(_, 2) = x;
+  zm.col(0).ones();
+  zm.col(1) = y;
+  zm.col(2) = x;
+  
   
   j = 3;
   n_even = true;
@@ -335,34 +290,34 @@ NumericMatrix zpm_cart(const NumericVector& x, const NumericVector& y, const int
     
     // fill in  m=0
     m=0;
-    zm(_, j) = x*zm(_, j-n) + y*zm(_, j-1);
+    zm.col(j) = x % zm.col(j-n) + y % zm.col(j-1);
     ++j;
     
     for (m=1; m < n/2; m++) {
-      zm(_, j) = x*zm(_, j-n) + y*zm(_, j-2*m-1) + x*zm(_, j-n-1) - y*zm(_, j-2*m) - zm(_, j-2*n);
+      zm.col(j) = x % zm.col(j-n) + y % zm.col(j-2*m-1) + x % zm.col(j-n-1) - y % zm.col(j-2*m) - zm.col(j-2*n);
       ++j;
     }
     if (n_even) {
-      zm(_, j) = 2.*x*zm(_, j-n) + 2.*y*zm(_, j-n-1) - zm(_, j-2*n);
+      zm.col(j) = 2.*x % zm.col(j-n) + 2.*y % zm.col(j-n-1) - zm.col(j-2*n);
       ++m;
       ++j;
     } else {
-      zm(_, j) = y*zm(_, j-2*m-1) + x*zm(_, j-n-1) - y*zm(_, j-2*m) - zm(_, j-2*n);
+      zm.col(j) = y % zm.col(j-2*m-1) + x % zm.col(j-n-1) - y % zm.col(j-2*m) - zm.col(j-2*n);
       ++m;
       ++j;
       
-      zm(_, j) = x*zm(_, j-n) + y*zm(_, j-2*m-1) + x*zm(_, j-n-1) - zm(_, j-2*n);
+      zm.col(j) = x % zm.col(j-n) + y % zm.col(j-2*m-1) + x % zm.col(j-n-1) - zm.col(j-2*n);
       ++m;
       ++j;
     }
     for (m=m; m<n; m++) {
-      zm(_, j) = x*zm(_, j-n) + y*zm(_, j-2*m-1) + x*zm(_, j-n-1) - y*zm(_, j-2*m) - zm(_, j-2*n);
+      zm.col(j) = x % zm.col(j-n) + y % zm.col(j-2*m-1) + x % zm.col(j-n-1) - y % zm.col(j-2*m) - zm.col(j-2*n);
       ++j;
     }
     
     // m = n
     
-    zm(_, j) = x*zm(_, j-n-1) - y*zm(_, j-2*n);
+    zm.col(j) = x % zm.col(j-n-1) - y % zm.col(j-2*n);
     ++j;
     
     n_even = !n_even;
@@ -374,13 +329,16 @@ NumericMatrix zpm_cart(const NumericVector& x, const NumericVector& y, const int
     zm = norm_zpm(zm, maxorder);
   }
   
-  // add column names
-  
-    for (j=0; j<ncol; j++) {
-    cnames(j) = "Z" + std::to_string(j);
-  }
-  colnames(zm) = cnames;
-
   return zm;
+}
+
+// [[Rcpp::export]]
+vec lsfit_qr(const vec& wf, const mat& zpm) {
+  return solve(zpm, wf);
+}
+
+// [[Rcpp::export]]
+vec lsfit_norm(const vec& wf, const mat& zpm) {
+  return solve(zpm.t() * zpm, zpm.t() * wf);
 }
 

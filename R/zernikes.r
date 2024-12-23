@@ -107,42 +107,42 @@ zpm.arb <- function(rho, theta, phi=0, zlist=makezlist()) {
 	zm
 }
 
-## a faster Zernike matrix fill
-
-zpm <- function(rho, theta, phi=0, maxorder = 14, nthreads=parallel::detectCores()/2) {
-  if (phi != 0) theta <- theta - pi*phi/180
-  if (nthreads == 1) {
-    zm <- zpmC(rho, theta, maxorder)
-  } else {
-    RcppParallel::setThreadOptions(numThreads = nthreads)
-    zm <- zpmCP(rho, theta, maxorder)
-  }
-  colnames(zm) <- paste("Z",0:(ncol(zm)-1), sep="")
-  zm
-}
-
-
-## fit zernikes to data
-
-fitzernikes <- function(wf, rho, theta, eps=0, phi=0, maxorder = 14, 
-                        nthreads=parallel::detectCores()/2,
-                        isoseq=FALSE, usecirc=FALSE) {
-  if (isoseq) {
-    theta <- theta - pi * phi/180
-    if ((eps == 0.) | usecirc) {
-      zm <- zpm_cart(x=rho*cos(theta), y=rho*sin(theta), maxorder=maxorder)
-    } else {
-      zm <- zapm_iso(rho, theta, eps, maxorder=maxorder)
-    }
-  } else {
-    if ((eps == 0) | usecirc) {
-      zm <- zpm(rho, theta, phi=phi, maxorder=maxorder, nthreads=nthreads)
-    } else {
-      zm <- zapm(rho, theta - pi * phi/180, eps, maxorder=maxorder)
-    }
-  }
-  fit <- qr.solve(crossprod(zm),crossprod(zm, wf))
-  fit
-}
-
+# ## a faster Zernike matrix fill
+# 
+# zpm <- function(rho, theta, phi=0, maxorder = 14, nthreads=parallel::detectCores()/2) {
+#   if (phi != 0) theta <- theta - pi*phi/180
+#   if (nthreads == 1) {
+#     zm <- zpmC(rho, theta, maxorder)
+#   } else {
+#     RcppParallel::setThreadOptions(numThreads = nthreads)
+#     zm <- zpmCP(rho, theta, maxorder)
+#   }
+#   colnames(zm) <- paste("Z",0:(ncol(zm)-1), sep="")
+#   zm
+# }
+# 
+# 
+# ## fit zernikes to data
+# 
+# fitzernikes <- function(wf, rho, theta, eps=0, phi=0, maxorder = 14, 
+#                         nthreads=parallel::detectCores()/2,
+#                         isoseq=FALSE, usecirc=FALSE) {
+#   if (isoseq) {
+#     theta <- theta - pi * phi/180
+#     if ((eps == 0.) | usecirc) {
+#       zm <- zpm_cart(x=rho*cos(theta), y=rho*sin(theta), maxorder=maxorder)
+#     } else {
+#       zm <- zapm_iso(rho, theta, eps, maxorder=maxorder)
+#     }
+#   } else {
+#     if ((eps == 0) | usecirc) {
+#       zm <- zpm(rho, theta, phi=phi, maxorder=maxorder, nthreads=nthreads)
+#     } else {
+#       zm <- zapm(rho, theta - pi * phi/180, eps, maxorder=maxorder)
+#     }
+#   }
+#   fit <- qr.solve(crossprod(zm),crossprod(zm, wf))
+#   fit
+# }
+# 
 

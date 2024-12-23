@@ -15,7 +15,7 @@
 using namespace Rcpp;
 using namespace RcppParallel;
 
-inline void zpm_row(const double rho, const double theta, const std::size_t maxorder,
+inline void zpm_row(const double rho, const double theta, const int maxorder,
                     RMatrix<double>::Row zm_row) {
   std::size_t m, n, n0, mmax = maxorder/2;
   std::size_t order, nm, nm1mm1, nm1mp1, nm2m;
@@ -84,7 +84,7 @@ struct FillZPM: public Worker{
   const std::size_t maxorder;
   RMatrix<double> zm;
   
-  FillZPM(const NumericVector rho, const NumericVector theta, const std::size_t maxorder, 
+  FillZPM(const NumericVector rho, const NumericVector theta, const int maxorder, 
           NumericMatrix zm)
     : rho(rho), theta(theta), maxorder(maxorder), zm(zm) {}
   
@@ -98,7 +98,7 @@ struct FillZPM: public Worker{
 
 // [[Rcpp::export]]
 
-NumericMatrix zpmCP(NumericVector rho, NumericVector theta, int maxorder) {
+NumericMatrix zpmCP(const NumericVector& rho, const NumericVector& theta, const int& maxorder = 14) {
   
   //do some rudimentary error checking
   

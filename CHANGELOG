@@ -679,3 +679,9 @@
 ## FFT based algorithms will use fftw if fftwtools is installed
 ## cleaned up some return values in miscellaneous routines
 
+## 20241210-22
+## fitzernikes() is rewritten in C++
+## most zernike polynomial matrix fill routines use Armadillo
+## removed R shell for zpm()
+#@ added openmp directives various to zpm() and tiltpsiC()
+## winfit demo runs from scratch (no longer checks if images in workspace)

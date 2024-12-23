@@ -7,50 +7,55 @@
 // radial Zernike polynomials
 // Iterative version of the recurrence relation
 
-# include <Rcpp.h>
-using namespace Rcpp;
+// [[Rcpp::depends(RcppArmadillo)]]
+
+# include <RcppArmadillo.h>
+using namespace arma;
 
 // [[Rcpp::export]]
 
-NumericVector rzernike(NumericVector rho, int n, int m) {
+vec rzernike(const vec& rho, const int& n, const int& m) {
     
-    unsigned int np=rho.size();
-    unsigned int i;
-    NumericVector rpoly(np);
-    double a, a2, a4;
+    if (((n-m) % 2) != 0 || n<0 || m<0 || n<m) Rcpp::stop("Bad index");
+
+    uword np=rho.n_elem;
+    vec rpoly(np);
     
-    if (((n-m) %2) != 0 || n<0 || m<0 || n<m) stop("Bad index");
     
     if ((n==0) && (m==0)) {
-        rpoly.fill(1.0);
+        rpoly.ones();
         return rpoly;
-    } else if (n == m) {
+    } 
+    
+    if (n == m) {
         return pow(rho, m);
-    } else if ((n==2) && (m==0)) {
-        return 2.*rho*rho - 1;
-    } else {
-        NumericVector r2(np), rp2(np), rm2(np);
-        int j;
-        
-        r2 = rho * rho;
-        rpoly = pow(rho, m);
-        rm2.fill(0.0);
-        for (j=m; j<=n-2; j+=2) {
-            a = (double) ((j+2.)*(j+2.) - m*m)/(j+2.);
-            a2 = (double) (j-m+2.)*(j-m+2.)/(j+2.);
-            a4 = 0.;
-            if (j > 0) {
-                a2 += (double) (j+m)*(j+m)/j;
-                a4 = (double) (m*m - j*j)/j;
-            }
-            for (i=0; i<np; i++) {
-                rp2[i] = ((4.*(j+1.)*r2[i] - a2) * rpoly[i] + a4 * rm2[i])/a;
-                rm2[i] = rpoly[i];
-                rpoly[i] = rp2[i];
-            }
-        }
-        return rpoly;
+    } 
+    
+    if ((n==2) && (m==0)) {
+        return 2.*rho % rho - 1;
     }
+    
+    vec r2(np), rp2(np), rm2(np);
+    double a, a2, a4;
+    uword i;
+        
+    r2 = rho % rho;
+    rpoly = pow(rho, m);
+    rm2.zeros();
+    for (int j=m; j<=n-2; j+=2) {
+        a = (double) ((j+2.)*(j+2.) - m*m)/(j+2.);
+        a2 = (double) (j-m+2.)*(j-m+2.)/(j+2.);
+        a4 = 0.;
+        if (j > 0) {
+            a2 += (double) (j+m)*(j+m)/j;
+            a4 = (double) (m*m - j*j)/j;
+        }
+        
+        rp2 = ((4.*(j+1.)*r2 - a2) % rpoly + a4 * rm2)/a;
+        rm2 = rpoly;
+        rpoly = rp2;
+    }
+    return rpoly;
 }
 
         

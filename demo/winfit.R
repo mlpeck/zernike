@@ -4,29 +4,26 @@ require(zernike)
 
 # check to see if object "images" is in workspace. If not, read in data.
 
-if (!exists("images")) {
-  fpath <- file.path(find.package(package="zernike"), "psidata")
-  files <- scan(file.path(fpath, "files.txt"), what="character")
-  for (i in 1:length(files)) files[i] <- file.path(fpath, files[i])
+fpath <- file.path(find.package(package="zernike"), "psidata")
+files <- scan(file.path(fpath, "files.txt"), what="character")
+for (i in 1:length(files)) files[i] <- file.path(fpath, files[i])
     
-    # load the images into an array
+  # load the images into an array
     
-  images <- load.images(files)
+images <- load.images(files)
     
-    # parameters for this run
+  # parameters for this run
     
-  source(file.path(fpath, "parameters.txt"))
+source(file.path(fpath, "parameters.txt"))
     
-    # phase shifts
+  # phase shifts
     
-  phases <- wrap((0:(frames.per.cycle-1))/frames.per.cycle*2*pi)
-  phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
+phases <- wrap((0:(frames.per.cycle-1))/frames.per.cycle*2*pi)
+phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
     
-    # target SA coefficients for numerical null.
+  # target SA coefficients for numerical null.
     
-  sa.t <- sconic(diam,roc,lambda=wavelength)
-    
-}
+sa.t <- sconic(diam,roc,lambda=wavelength)
 
 zopt <- psfit_options()
 zopt$plots <- FALSE
