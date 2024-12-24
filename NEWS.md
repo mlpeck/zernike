@@ -1,3 +1,11 @@
+## Version 3.8.1
+* renamed `zpmC.cpp` to `zpm.cpp` and similarly renamed the function call. The R wrapper function of the same name has been removed.
+* The R function `fitzernikes()` has been replaced with a C++ function of the same name. Least squares fitting of Zernike
+  or Zernike Annular polynomials is done with Armadillo's `solve()`.
+* Added argument `ext_prec` to `psfit_options` and `fitzernikes` argument list to choose extended precision Zernike annular polynomials.
+* Functions to create matrixes of Zernike polynomial values now all use Armadillo matrix and vector types.
+* Added openmp directives for some easily parallelized tasks. Appropriate flags have been added to Makevars and Makevars.win.
+
 ## Version 3.8.0
 * All C code has been removed.
 * `load.images` uses libraries `jpeg`, `png`, or `tiff` to read image files of respective types.
