@@ -144,7 +144,7 @@ summary.wf_zfit <- function(wffit, digits=3, printnow=TRUE) {
 }
 
 print.wf_zfit <- function(wffit, digits=3, abnames=TRUE, printnow=TRUE) {
-  fit <- coef(wffit$fit)
+  fit <- wffit$fit
   nz <- length(fit)
   sqnz <- sqrt(nz)
   if (sqnz %% 1 > sqrt(.Machine$double.eps)) {
