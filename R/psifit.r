@@ -146,7 +146,7 @@ psifit <- function(images, phases, cp=NULL, satarget=NULL, psialg ="ls", options
       rho <- rho[!is.na(rho)]
       theta <- theta[!is.na(theta)]
       if (cp$obstruct == 0. || options$usecirc) {
-        coords <- zpmC(rho, theta, maxorder=4)
+        coords <- zpm(rho, theta, maxorder=4)
       } else {
         coords <- zapm(rho, theta, eps=cp$obstruct, maxorder=4)
       }
