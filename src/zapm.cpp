@@ -13,15 +13,15 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
-# include <cmath>
-# include <RcppArmadillo.h>
+#include <cmath>
+#include <RcppArmadillo.h>
 using namespace Rcpp;
 using namespace arma;
 
 /*************************
- * 
+ *
  * Golub-welsch algorithm to get the nodes and weights for Gauss Legendre quadrature
- * 
+ *
  ************************/
 
 //' Golub-Welsch method to find quadrature points and weights for Gauss-Legendre quadrature
@@ -32,7 +32,7 @@ using namespace arma;
 //' @param eps obstruction fraction 0 <= eps < 1
 //' @param qwts an input R vector with length equal to the number of quatrature points.
 //'
-//' @return a vector of quadrature nodes the same length as `qwts` in the open interval 
+//' @return a vector of quadrature nodes the same length as `qwts` in the open interval
 //'   (eps^2, 1). `qwts` will be overwritten with the quadrature weights.
 //'
 //' @details If N is the maximum polynomial order to be evaluated qwts should be at least
@@ -40,8 +40,8 @@ using namespace arma;
 //'
 //' @seealso Called by [zapm()] and [zapm_iso()].
 // [[Rcpp::export]]
-vec gol_welsch(const double& eps, vec& qwts) {
-  
+vec gol_welsch(double eps, vec& qwts) {
+
   uword nq = qwts.n_elem;
   mat J(nq, nq), evec(nq, nq);
   vec eval(nq);
@@ -49,28 +49,28 @@ vec gol_welsch(const double& eps, vec& qwts) {
   double ak = (1. + eps*eps)/2.;
   double sqbi;
   double mu0 = 1. - eps*eps;
-  
+
   J.diag().fill(ak);
   for (uword i = 1; i < nq; i++) {
     sqbi = i * 0.5 * mu0/std::sqrt(4.*i*i - 1.);
     J(i-1, i) = sqbi;
     J(i, i-1) = sqbi;
   }
-  
+
   eig_sym(eval, evec, J);
   wts = mu0 * square(evec.row(0));
   qwts = wts.as_col();
-  
+
   // eigenvalues are the abscissa values for the quadrature
   return eval;
 }
 
 /********************
- * 
+ *
  * Radial Zernike annular polynomials
- * 
+ *
 ********************/
-  
+
 
 //' Radial Zernike Annular polynomials
 //'
@@ -99,21 +99,21 @@ vec gol_welsch(const double& eps, vec& qwts) {
 //'
 //' @md
 // [[Rcpp::export]]
-mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, const vec& xq, const vec& qwts) {
+mat rzernike_ann(const vec& rho, double eps, int n, int m, const vec& xq, const vec& qwts) {
 
   if (n < m) {
-    stop("n < m");
+    stop(QStringLiteral(u"n < m"));
   }
-  
+
   if ((n-m) % 2 != 0) {
-    stop("n,m must be relatively even");
+    stop(QStringLiteral(u"n,m must be relatively even"));
   }
-  
+
   uword nr = rho.n_elem;
   int nq = xq.n_elem;
   int nz = (n-m)/2 + 1;      // input n is the maximum radial order required. nz is the total number to be generated
   int nmax = std::min(2*nz, m+1); //number of modified moments that are non-zero
-  
+
   vec u(nr);
   u = rho % rho;
 
@@ -124,7 +124,7 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
   double eps2 = eps*eps;
   double e1 = 1. - eps2;
   double ak = (1 + eps2)/2.;
-  
+
   rm = pow(rho, m);
 
   if (nz == 1) {
@@ -133,12 +133,12 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
   }
 
   // things we need to calculate for the recurrences
-  
+
   vec c(nz), alpha(nz), beta(nz);
   vec pn(nq), pnp1(nq), pnm1(nq), w(nq);
   vec nu(2*nz), b(2*nz);
   mat sigma(3, 2*nz);
-  
+
   if (m == 0) {    // know the recursion for this case
     alpha.fill(ak);
     c(0) = e1;
@@ -150,16 +150,16 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
     for (int j = 1; j < 2*nz; j++) {
       b(j) = j * j * 0.25 * e1 * e1/(4.*j*j - 1.0);
     }
-    
-    
+
+
     // calculate modified moments
-    
+
     w = pow(xq, m);
     nu(0) = sum(w % qwts);
-  
+
     pnm1.fill(1.0);
     pn = (xq - ak);
-  
+
     for (int j=1; j < nmax; j++) {
       nu(j) = sum(pn % w % qwts);
       pnp1 = (xq - ak) % pn - b(j) * pnm1;
@@ -167,24 +167,24 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
       pn = pnp1;
     }
 
-    
+
     //chebyshev algorithm with modified moments
-    
+
     alpha(0) = ak + nu(1)/nu(0);
     beta(0) = nu(0);
     c(0) = nu(0);
-    
+
     for (int l=0; l<(2*nz); l++) {
       sigma(0, l) = 0.0;
       sigma(1, l) = nu(l);
     }
-  
+
     for (int k=1; k<nz; k++) {
       for (int l=k; l<(2*nz-k); l++) {
-        sigma(2, l) = sigma(1, l+1) - (alpha(k-1) - ak) * sigma(1, l) - 
+        sigma(2, l) = sigma(1, l+1) - (alpha(k-1) - ak) * sigma(1, l) -
                         beta(k-1) * sigma(0, l) + b(l) * sigma(1, l-1);
       }
-      
+
       alpha(k) = ak + sigma(2, k+1)/sigma(2, k) - sigma(1, k)/sigma(1, k-1);
       beta(k) = sigma(2, k)/sigma(1, k-1);
       c(k) = beta(k) * c(k-1);
@@ -194,7 +194,7 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
       }
     }
   }
-  
+
   RZ.col(0).fill(1.0);
   RZ.col(1) = (u - alpha(0));
   for (int i = 1; i < (nz-1); i++) {
@@ -203,18 +203,18 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
   for (int i=0; i<nz; i++) {
     RZ.col(i) = RZ.col(i) % rm * std::sqrt(e1/(2. * i + m + 1.)/c(i));
   }
-  
+
   return RZ;
 }
 
 
 
 /*****************
- * 
+ *
  * Create matrix of Zernike Annular polynomials
  * in extended Fringe index scheme.
- * 
- * 
+ *
+ *
 ******************/
 
 //' Zernike Annular polynomials
@@ -238,7 +238,7 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
 //'  included in the package documentation.
 //' @examples
 //'   sample_az <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
-//'   
+//'
 //'     ## get coordinates for unobstructed and obstructed apertures
 //'     cpa <- cp.default
 //'     cpa$obstruct <- eps
@@ -248,39 +248,39 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
 //'     theta0 <- prt$theta[!is.na(prt$theta)]
 //'     rhoa <- prta$rho[!is.na(prta$rho)]
 //'     thetaa <- prta$theta[!is.na(prta$theta)]
-//'     
+//'
 //'     ## fill up matrixes of Zernikes and Annular Zernikes
-//'     
+//'
 //'     zm <- zpmC(rho0, theta0, maxorder=maxorder)
 //'     zam <- zapm(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
-//'     
+//'
 //'     ## pick a column at random and look up its index pair
-//'     
+//'
 //'     zlist <- makezlist(0, maxorder)
 //'     i <- sample(2:ncol(zm), 1)
 //'     n <- zlist$n[i]
 //'     m <- zlist$m[i]
-//'     
+//'
 //'     ## fill up the wavefront representations and plot them
-//'     
+//'
 //'     wf0 <- prt$rho
 //'     wf0[!is.na(wf0)] <- zm[,i]
 //'     class(wf0) <- "pupil"
-//'     
+//'
 //'     wfa <- prta$rho
 //'     wfa[!is.na(wfa)] <- zam[,i]
 //'     class(wfa) <- "pupil"
-//'     
+//'
 //'     plot(wf0, cp=cp.default, col=col, addContours=addContours, cscale=cscale)
 //'     mtext(paste("Zernike, n =", n, " m =", m))
-//'     
+//'
 //'     x11()
 //'     plot(wfa, cp=cpa, col=col, addContours=addContours, cscale=cscale)
 //'     mtext(paste("Annular Zernike, n =", n, " m =", m))
-//'     
+//'
 //'     ## return Zernike matrices and wavefronts invisibly
 //'     ## just in case user wants to do something with them
-//'     
+//'
 //'     invisible(list(zm=zm, wf0=wf0, zam=zam, wfa=wfa))
 //'   }
 //'
@@ -288,50 +288,50 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
 //'
 //' @md
 // [[Rcpp::export]]
-mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorder=12, const int& nq=21) {
-  
+mat zapm(const vec& rho, const vec& theta, double eps, int maxorder=12, int nq=21) {
+
   int j, k, nmax, nz, mmax = maxorder/2;
   uword nr = rho.size();
   int ncol = (mmax+1)*(mmax+1);
   mat cosmtheta(nr, mmax), sinmtheta(nr, mmax);
   mat zm(nr, ncol);
-  
+
     //do some rudimentary error checking
-  
+
   if (rho.size() != theta.size()) {
-    stop("Numeric vectors must be same length");
+    stop(QStringLiteral(u"Numeric vectors must be same length"));
   }
   if ((maxorder % 2) != 0) {
-    stop("maxorder must be even");
+    stop(QStringLiteral(u"maxorder must be even"));
   }
-  
+
   //good enough
-  
+
   // get points and weights for quadrature
-  
+
   vec xq(nq), qwts(nq);
   xq = gol_welsch(eps, qwts);
 
   //cache values of cos and sin
-  
+
   cosmtheta.col(0) = cos(theta);
   sinmtheta.col(0) = sin(theta);
   for (int m=1; m<mmax; m++) {
     cosmtheta.col(m) = cosmtheta.col(m-1) % cosmtheta.col(0) - sinmtheta.col(m-1) % sinmtheta.col(0);
     sinmtheta.col(m) = sinmtheta.col(m-1) % cosmtheta.col(0) + cosmtheta.col(m-1) % sinmtheta.col(0);
   }
-  
+
   //n=0 zernikes are just the scaled radial zernikes
-  
+
   nz = maxorder/2 + 1;
   mat RZ(nr, nz);
-  
+
   RZ = rzernike_ann(rho, eps, maxorder, 0, xq, qwts);
   for (int n=0; n<=maxorder; n += 2) {
     k = (n*n)/4 + n;
     zm.col(k) = std::sqrt(n+1.)*RZ.col(n/2);
   }
-  
+
   for (int m=1; m<=mmax; m++) {
     nmax = maxorder - m;
     nz = (nmax - m)/2 + 1;
@@ -346,16 +346,16 @@ mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorde
       j++;
     }
   }
-    
+
   return zm;
 }
 
 /*****************
- * 
+ *
  * Create matrix of Zernike Annular polynomials
  * in ISO/ANSI index scheme.
- * 
- * 
+ *
+ *
 ******************/
 
 //' Zernike Annular polynomials, ISO ordering
@@ -380,7 +380,7 @@ mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorde
 //'
 //' @examples
 //'   sample_az_iso <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
-//'   
+//'
 //'     ## get coordinates for unobstructed and obstructed apertures
 //'     cpa <- cp.default
 //'     cpa$obstruct <- eps
@@ -390,39 +390,39 @@ mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorde
 //'     theta0 <- prt$theta[!is.na(prt$theta)]
 //'     rhoa <- prta$rho[!is.na(prta$rho)]
 //'     thetaa <- prta$theta[!is.na(prta$theta)]
-//'     
+//'
 //'     ## fill up matrixes of Zernikes and Annular Zernikes
-//'     
+//'
 //'     zm <- zpm_cart(x=rho0*cos(theta0), y=rho0*sin(theta0), maxorder=maxorder)
 //'     zam <- zapm_iso(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
-//'     
+//'
 //'     ## pick a column at random and look up its index pair
-//'     
+//'
 //'     zlist <- makezlist.iso(maxorder)
 //'     i <- sample(2:ncol(zm), 1)
 //'     n <- zlist$n[i]
 //'     m <- zlist$m[i]
-//'     
+//'
 //'     ## fill up the wavefront representations and plot them
-//'     
+//'
 //'     wf0 <- prt$rho
 //'     wf0[!is.na(wf0)] <- zm[,i]
 //'     class(wf0) <- "pupil"
-//'     
+//'
 //'     wfa <- prta$rho
 //'     wfa[!is.na(wfa)] <- zam[,i]
 //'     class(wfa) <- "pupil"
-//'     
+//'
 //'     plot(wf0, cp=cp.default, col=col, addContours=addContours, cscale=cscale)
 //'     mtext(paste("Zernike, n =", n, " m =", m))
-//'     
+//'
 //'     x11()
 //'     plot(wfa, cp=cpa, col=col, addContours=addContours, cscale=cscale)
 //'     mtext(paste("Annular Zernike, n =", n, " m =", m))
-//'     
+//'
 //'     ## return Zernike matrices and wavefronts invisibly
 //'     ## just in case user wants to do something with them
-//'     
+//'
 //'     invisible(list(zm=zm, wf0=wf0, zam=zam, wfa=wfa))
 //'   }
 //'
@@ -430,49 +430,49 @@ mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorde
 //'
 //' @md
 // [[Rcpp::export]]
-mat zapm_iso(const vec& rho, const vec& theta, const double& eps, const int& maxorder=14, const int& nq=21) {
-  
+mat zapm_iso(const vec& rho, const vec& theta, double eps, int maxorder=14, int nq=21) {
+
   int j, k, nmax, nz;
   uword nr = rho.size();
   int ncol = (maxorder+1)*(maxorder+2)/2;
   mat cosmtheta(nr, maxorder), sinmtheta(nr, maxorder);
   mat zm(nr, ncol);
-  
+
     //do some rudimentary error checking
-  
+
   if (rho.size() != theta.size()) {
-    stop("Numeric vectors must be same length");
+    stop(QStringLiteral(u"Numeric vectors must be same length"));
   }
   if (maxorder < 1) {
-    stop("maxorder must be >= 1");
+    stop(QStringLiteral(u"maxorder must be >= 1"));
   }
   //good enough
-  
+
   // get points and weights for quadrature
-  
+
   vec xq(nq), qwts(nq);
   xq = gol_welsch(eps, qwts);
 
   //cache values of cos and sin
-  
+
   cosmtheta.col(0) = cos(theta);
   sinmtheta.col(0) = sin(theta);
   for (int m=1; m<maxorder; m++) {
     cosmtheta.col(m) = cosmtheta.col(m-1) % cosmtheta.col(0) - sinmtheta.col(m-1) % sinmtheta.col(0);
     sinmtheta.col(m) = sinmtheta.col(m-1) % cosmtheta.col(0) + cosmtheta.col(m-1) % sinmtheta.col(0);
   }
-  
+
   //n=0 zernikes are just the scaled radial zernikes
-  
+
   nz = maxorder/2 + 1;
   mat RZ(nr, nz);
-  
+
   RZ = rzernike_ann(rho, eps, maxorder, 0, xq, qwts);
   for (int n=0; n<=maxorder; n += 2) {
     k = (n*n+2*n)/2;
     zm.col(k) = std::sqrt(n+1.)*RZ.col(n/2);
   }
-  
+
   for (int m=1; m<=maxorder; m++) {
     nmax = maxorder - m % 2;
     nz = (nmax - m)/2 + 1;
@@ -487,6 +487,6 @@ mat zapm_iso(const vec& rho, const vec& theta, const double& eps, const int& max
       j++;
     }
   }
-    
+
   return zm;
 }
