@@ -37,7 +37,6 @@ vec rzernike(const vec& rho, const int& n, const int& m) {
     
     vec r2(np), rp2(np), rm2(np);
     double a, a2, a4;
-    uword i;
         
     r2 = rho % rho;
     rpoly = pow(rho, m);

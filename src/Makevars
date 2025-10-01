@@ -1,6 +1,6 @@
 PKG_CXXFLAGS += -fPIC -O3 $(SHLIB_OPENMP_CXXFLAGS)
 CXX_STD = CXX14
-PKG_LIBS += -llapack -lblas -lgfortran
+PKG_LIBS += -llapack -lopenblas -lgfortran
 PKG_LIBS += -lraw -lz -ljpeg -lm
 PKG_LIBS += $(shell "${R_HOME}/bin/Rscript" -e "RcppParallel::RcppParallelLibs()")
 PKG_LIBS += $(SHLIB_OPENMP_CXXFLAGS)

@@ -8,7 +8,6 @@
 }
 \usage{
 zpm(rho, theta, phi= 0 , maxorder = 14, nthreads=parallel::detectCores()/2)
-zpmC(rho, theta, maxorder)
 zpmCP(rho, theta, maxorder)
 zpm.arb(rho, theta, phi = 0, zlist = makezlist())
 }
@@ -30,7 +29,7 @@ zpm.arb(rho, theta, phi = 0, zlist = makezlist())
   evaluated at the polar coordinates
   \code{(rho, theta-pi*phi/180)}.
   
-  \code{zpm}, \code{zpmC}, and \code{zpmCP} return a matrix of size
+  \code{zpm}, and \code{zpmCP} return a matrix of size
   \code{length(rho)} x \code{(maxorder/2+1)^2}
   of Zernike polynomial values including a piston term.
   
@@ -39,9 +38,6 @@ zpm.arb(rho, theta, phi = 0, zlist = makezlist())
 \note{
   These are used by various routines to make least squares fits
   of sets of Zernike polynomials to measured wavefront values.
-
-  \code{zpmC} is the C++ routine that does the computations
-  for \code{zpm}. No column names are returned.
     
   Threaded computation of the matrix is now available using
   \code{zpmCP}.
