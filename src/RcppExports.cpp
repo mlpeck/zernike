@@ -210,8 +210,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // zapm
-mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorder, const int& nq);
-RcppExport SEXP _zernike_zapm(SEXP rhoSEXP, SEXP thetaSEXP, SEXP epsSEXP, SEXP maxorderSEXP, SEXP nqSEXP) {
+mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorder, const int& nqplus);
+RcppExport SEXP _zernike_zapm(SEXP rhoSEXP, SEXP thetaSEXP, SEXP epsSEXP, SEXP maxorderSEXP, SEXP nqplusSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -219,14 +219,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const vec& >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< const double& >::type eps(epsSEXP);
     Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nq(nqSEXP);
-    rcpp_result_gen = Rcpp::wrap(zapm(rho, theta, eps, maxorder, nq));
+    Rcpp::traits::input_parameter< const int& >::type nqplus(nqplusSEXP);
+    rcpp_result_gen = Rcpp::wrap(zapm(rho, theta, eps, maxorder, nqplus));
     return rcpp_result_gen;
 END_RCPP
 }
 // zapm_iso
-mat zapm_iso(const vec& rho, const vec& theta, const double& eps, const int& maxorder, const int& nq);
-RcppExport SEXP _zernike_zapm_iso(SEXP rhoSEXP, SEXP thetaSEXP, SEXP epsSEXP, SEXP maxorderSEXP, SEXP nqSEXP) {
+mat zapm_iso(const vec& rho, const vec& theta, const double& eps, const int& maxorder, const int& nqplus);
+RcppExport SEXP _zernike_zapm_iso(SEXP rhoSEXP, SEXP thetaSEXP, SEXP epsSEXP, SEXP maxorderSEXP, SEXP nqplusSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -234,8 +234,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const vec& >::type theta(thetaSEXP);
     Rcpp::traits::input_parameter< const double& >::type eps(epsSEXP);
     Rcpp::traits::input_parameter< const int& >::type maxorder(maxorderSEXP);
-    Rcpp::traits::input_parameter< const int& >::type nq(nqSEXP);
-    rcpp_result_gen = Rcpp::wrap(zapm_iso(rho, theta, eps, maxorder, nq));
+    Rcpp::traits::input_parameter< const int& >::type nqplus(nqplusSEXP);
+    rcpp_result_gen = Rcpp::wrap(zapm_iso(rho, theta, eps, maxorder, nqplus));
     return rcpp_result_gen;
 END_RCPP
 }

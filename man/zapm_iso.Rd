@@ -4,7 +4,7 @@
 \alias{zapm_iso}
 \title{Zernike Annular polynomials, ISO ordering}
 \usage{
-zapm_iso(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L)
+zapm_iso(rho, theta, eps, maxorder = 14L, nqplus = 6L)
 }
 \arguments{
 \item{rho}{a vector of radial coordinates with eps <= rho <= 1.}
@@ -15,7 +15,7 @@ zapm_iso(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L)
 
 \item{maxorder}{the maximum radial and azimuthal polynomial order (defaults to 12).}
 
-\item{nq}{the number of quadrature points for numerical integration}
+\item{nqplus}{the number of \emph{extra} quadrature points for numerical integration}
 }
 \value{
 a matrix of Zernike Annular polynomial values evaluated at the input
@@ -28,9 +28,9 @@ ISO/ANSI sequence for a set of polar coordinates.
 }
 \details{
 The \emph{radial} polynomials are calculated using recurrence relations
-generated numerically using chebyshev's algorithm with modified moments.
-See the documentation for \code{\link[=rzernike_ann]{rzernike_ann()}}. A formal presentation is
-included in the package documentation.
+generated numerically using a method credited to Stieltjes.
+See the documentation for \code{\link[=rzernike_ann]{rzernike_ann()}} for further details and literature references.
+A formal presentation will be published elsewhere.
 }
 \examples{
   sample_az_iso <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {

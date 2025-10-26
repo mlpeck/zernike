@@ -1,6 +1,6 @@
 /**********************
 
-Copyright © 2022 Michael Peck <mlpeck54 -at- gmail.com>
+Copyright © 2022-2026 Michael Peck <mlpeck54 -at- gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -74,8 +74,8 @@ vec gol_welsch(const double& eps, vec& qwts) {
 
 //' Radial Zernike Annular polynomials
 //'
-//' Create a matrix of Zernike Annular polynomial values in
-//' extended Fringe sequence for a set of polar coordinates.
+//' Create a matrix of Radial Zernike annular polynomial values
+//' for a given azimuthal order `m` and all radial orders up to `n`.
 //'
 //' @param rho a vector of radial coordinates.
 //' @param eps the obstruction fraction 0 <= eps < 1.
@@ -89,13 +89,15 @@ vec gol_welsch(const double& eps, vec& qwts) {
 //'
 //' @details To the author's knowledge no recurrence relations for radial Zernike annular polynomials
 //'  have been published, even though several are well known for the closely related Zernike circle polynomials.
-//'  However the m=0 polynomials representing axially symmetric aberrations are just shifted Legendre polynomials
-//'  with an easily derived recurrence relation. This routine makes use of that fact to generate
-//'  recurrence relations for arbitrary polynomial indexes using chebyshev's algorithm with modified moments.
-//'  The modified moments are calculated using Gauss-Legendre quadrature. If enough quadrature nodes
-//'  were chosen the quadrature is nominally exact, as are the resulting annular Zernike values.
+//'  The m=0 polynomials representing axially symmetric aberrations however are just shifted Legendre polynomials
+//'  with an easily derived recurrence relation. For the m>0 polynomials this routine calculates
+//'  the recurrence coefficients iteratively using a method attributed to Stieltjes.
 //'
 //' @seealso This function is called by [zapm()] and [zapm_iso()].
+//'
+//' @references Gautschi, W. 1982, "On Generating Orthogonal Polynomials", SIAM J. Sci. Stat. Comput. vol. 3, no.3, 289-317.
+//'  Mahajan, V.N. 1981, "Zarnike annular polynomials...", JOSA, vol. 71, no. 1, 75-85.
+//'  Mahajan, V.N. 1994, "Zernike annular polynomials...", Suppl. Applied Optics, vol. 5, No. 11, 8125-8128.
 //'
 //' @md
 // [[Rcpp::export]]
@@ -134,11 +136,8 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
 
   // things we need to calculate for the recurrences
   
-  vec c(nz), alpha(nz), beta(nz);
-  vec pn(nq), pnp1(nq), pnm1(nq), w(nq);
-  vec nu(2*nz), b(2*nz);
-  mat sigma(3, 2*nz);
-  
+  vec c(nz), alpha(nz-1), beta(nz);
+
   if (m == 0) {    // know the recursion for this case
     alpha.fill(ak);
     c(0) = e1;
@@ -147,52 +146,31 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
       c(j) = beta(j) * c(j-1);
     }
   } else {
-    for (int j = 1; j < 2*nz; j++) {
-      b(j) = j * j * 0.25 * e1 * e1/(4.*j*j - 1.0);
-    }
-    
-    
-    // calculate modified moments
-    
-    w = pow(xq, m);
-    nu(0) = sum(w % qwts);
-  
-    pnm1.fill(1.0);
-    pn = (xq - ak);
-  
-    for (int j=1; j < nmax; j++) {
-      nu(j) = sum(pn % w % qwts);
-      pnp1 = (xq - ak) % pn - b(j) * pnm1;
-      pnm1 = pn;
-      pn = pnp1;
-    }
+    vec p_k_plus1(nq), p_k(nq), p_k_minus1(nq), w(nq);
+    double inner_product, inner_product_minus1;
 
-    
-    //chebyshev algorithm with modified moments
-    
-    alpha(0) = ak + nu(1)/nu(0);
-    beta(0) = nu(0);
-    c(0) = nu(0);
-    
-    for (int l=0; l<(2*nz); l++) {
-      sigma(0, l) = 0.0;
-      sigma(1, l) = nu(l);
+    w = pow(xq, m);
+    inner_product = sum(w % qwts);
+    inner_product_minus1 = inner_product;
+    alpha(0) = sum(xq % w % qwts) / inner_product;
+    c(0) = (1. - pow(eps2, m+1))/(1.+ m);  //just do the integral for the first inner product
+
+    p_k.ones();
+    p_k_plus1 = (xq - alpha(0));
+
+    int k;
+    for (k=1; k < (nz-1);  k++) {
+      p_k_minus1 = p_k;
+      p_k = p_k_plus1;
+      inner_product = sum(p_k % p_k % w % qwts);
+      alpha(k) = sum(xq % p_k % p_k % w % qwts) / inner_product;
+      beta(k) = inner_product / inner_product_minus1;
+      c(k) = inner_product;
+      inner_product_minus1 = inner_product;
+      p_k_plus1 = (xq - alpha(k)) % p_k - beta(k) * p_k_minus1;
     }
-  
-    for (int k=1; k<nz; k++) {
-      for (int l=k; l<(2*nz-k); l++) {
-        sigma(2, l) = sigma(1, l+1) - (alpha(k-1) - ak) * sigma(1, l) - 
-                        beta(k-1) * sigma(0, l) + b(l) * sigma(1, l-1);
-      }
-      
-      alpha(k) = ak + sigma(2, k+1)/sigma(2, k) - sigma(1, k)/sigma(1, k-1);
-      beta(k) = sigma(2, k)/sigma(1, k-1);
-      c(k) = beta(k) * c(k-1);
-      for (int l=k; l<(2*nz-k); l++) {
-        sigma(0, l) = sigma(1, l);
-        sigma(1, l) = sigma(2, l);
-      }
-    }
+    p_k = p_k_plus1;
+    c(k) = sum(p_k % p_k % w % qwts);
   }
   
   RZ.col(0).fill(1.0);
@@ -226,16 +204,16 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
 //' @param theta a vector of angular coordinates, in radians.
 //' @param eps the obstruction fraction 0 <= eps < 1.
 //' @param maxorder the maximum radial polynomial order (defaults to 12).
-//' @param nq the number of quadrature points for numerical integration
+//' @param nqplus the number of *extra* quadrature points for numerical integration
 //'
 //' @return a matrix of Zernike Annular polynomial values evaluated at the input
 //'  polar coordinates and all radial orders from
 //'  0 through `maxorder` in Fringe sequence, with orthonormal scaling.
 //'
 //' @details The *radial* polynomials are calculated using recurrence relations
-//'  generated numerically using chebyshev's algorithm with modified moments.
-//'  See the documentation for [rzernike_ann()]. A formal presentation is
-//'  included in the package documentation.
+//'  generated numerically using a method credited to Stieltjes.
+//'  See the documentation for [rzernike_ann()] for further details and literature references.
+//'  A formal presentation will be published elsewhere.
 //' @examples
 //'   sample_az <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
 //'   
@@ -251,7 +229,7 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
 //'     
 //'     ## fill up matrixes of Zernikes and Annular Zernikes
 //'     
-//'     zm <- zpmC(rho0, theta0, maxorder=maxorder)
+//'     zm <- zpm(rho0, theta0, maxorder=maxorder)
 //'     zam <- zapm(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
 //'     
 //'     ## pick a column at random and look up its index pair
@@ -288,9 +266,10 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
 //'
 //' @md
 // [[Rcpp::export]]
-mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorder=12, const int& nq=21) {
+mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorder=14, const int& nqplus=6) {
   
-  int j, k, nmax, nz, mmax = maxorder/2;
+  int j, k, nmax, mmax = maxorder/2;
+  int nz = maxorder/2 + 1;
   uword nr = rho.size();
   int ncol = (mmax+1)*(mmax+1);
   mat cosmtheta(nr, mmax), sinmtheta(nr, mmax);
@@ -309,6 +288,7 @@ mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorde
   
   // get points and weights for quadrature
   
+  int nq = nz + nqplus;
   vec xq(nq), qwts(nq);
   xq = gol_welsch(eps, qwts);
 
@@ -323,7 +303,6 @@ mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorde
   
   //n=0 zernikes are just the scaled radial zernikes
   
-  nz = maxorder/2 + 1;
   mat RZ(nr, nz);
   
   RZ = rzernike_ann(rho, eps, maxorder, 0, xq, qwts);
@@ -367,16 +346,16 @@ mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorde
 //' @param theta a vector of angular coordinates, in radians.
 //' @param eps the obstruction fraction 0 <= eps < 1.
 //' @param maxorder the maximum radial and azimuthal polynomial order (defaults to 12).
-//' @param nq the number of quadrature points for numerical integration
+//' @param nqplus the number of *extra* quadrature points for numerical integration
 //'
 //' @return a matrix of Zernike Annular polynomial values evaluated at the input
 //'  polar coordinates and all radial orders from
 //'  0 through `maxorder` in ISO/ANSI sequence, with orthonormal scaling.
 //'
 //' @details The *radial* polynomials are calculated using recurrence relations
-//'  generated numerically using chebyshev's algorithm with modified moments.
-//'  See the documentation for [rzernike_ann()]. A formal presentation is
-//'  included in the package documentation.
+//'  generated numerically using a method credited to Stieltjes.
+//'  See the documentation for [rzernike_ann()] for further details and literature references.
+//'  A formal presentation will be published elsewhere.
 //'
 //' @examples
 //'   sample_az_iso <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
@@ -430,9 +409,10 @@ mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorde
 //'
 //' @md
 // [[Rcpp::export]]
-mat zapm_iso(const vec& rho, const vec& theta, const double& eps, const int& maxorder=14, const int& nq=21) {
+mat zapm_iso(const vec& rho, const vec& theta, const double& eps, const int& maxorder=14, const int& nqplus=6) {
   
-  int j, k, nmax, nz;
+  int j, k, nmax;
+  int nz = maxorder/2+1;
   uword nr = rho.size();
   int ncol = (maxorder+1)*(maxorder+2)/2;
   mat cosmtheta(nr, maxorder), sinmtheta(nr, maxorder);
@@ -449,7 +429,8 @@ mat zapm_iso(const vec& rho, const vec& theta, const double& eps, const int& max
   //good enough
   
   // get points and weights for quadrature
-  
+
+  int nq = nz + nqplus;
   vec xq(nq), qwts(nq);
   xq = gol_welsch(eps, qwts);
 
@@ -464,7 +445,6 @@ mat zapm_iso(const vec& rho, const vec& theta, const double& eps, const int& max
   
   //n=0 zernikes are just the scaled radial zernikes
   
-  nz = maxorder/2 + 1;
   mat RZ(nr, nz);
   
   RZ = rzernike_ann(rho, eps, maxorder, 0, xq, qwts);

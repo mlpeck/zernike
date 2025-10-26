@@ -4,7 +4,7 @@
 \alias{zpm_cart}
 \title{Zernike polynomials}
 \usage{
-zpm_cart(x, y, maxorder = 12L, unit_variance = TRUE)
+zpm_cart(x, y, maxorder = 14L, unit_variance = TRUE)
 }
 \arguments{
 \item{x}{a vector of x coordinates for points on a unit disk.}
@@ -13,7 +13,7 @@ zpm_cart(x, y, maxorder = 12L, unit_variance = TRUE)
 
 \item{maxorder}{the maximum radial polynomial order (defaults to 12).}
 
-\item{unit_variance}{logical: return with orthonormal scaling? (default \code{true})}
+\item{unit_variance}{logical: return with orthonormal scaling? (default \code{false})}
 }
 \value{
 a matrix of Zernike polynomial values evaluated at the input
@@ -25,48 +25,10 @@ Calculate Zernike polynomial values in
 ISO/ANSI sequence for a set of Cartesian coordinates.
 }
 \details{
-This is the same algorithm and essentially the same code as \code{\link[=gradzpm_cart]{gradzpm_cart()}}
+This is the same algorithm and essentially the same code as \code{\link[=gradzpm]{gradzpm()}}
 except directional derivatives aren't calculated.
 }
-\examples{
-  ##illustrates difference in smoothed wavefront from using zpm_cart with ISO sequence of same order
-
-  require(zernike)
-  fpath <- file.path(find.package(package="zernike"), "psidata")
-  files <- scan(file.path(fpath, "files.txt"), what="character")
-  for (i in 1:length(files)) files[i] <- file.path(fpath, files[i])
-  
-  ## load the images into an array
-  
-  images <- load.images(files)
-  
-  ## parameters for this run
-  
-  source(file.path(fpath, "parameters.txt"))
-  
-  ## phase shifts
-  
-  phases <- wrap((0:(dim(images)[3]-1))/frames.per.cycle*2*pi)
-  phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
-  
-  ## target SA coefficients for numerical null.
-  
-  sa.t <- sconic(diam,roc,lambda=wavelength)
-  zopt <- psfit_options()
-  zopt$satarget <- sa.t
-  psfit <- psifit(images, phases, psialg="ls", options=zopt)
-  
-  ## get back the raw wavefront
-  
-  wf.raw <- qpuw(psfit$phi, psfit$mod)
-  
-  ## This will tell wf_net to use zpm_cart instead
-  
-  zopt$isoseq <- TRUE
-  ifit <- wf_net(wf.raw, cp = psfit$cp, options=zopt)
-  
-  ## plotn does a direct comparison
-  
-  plotn(psfit, ifit, wftype="smooth", qt=c(0,1))
-
+\references{
+Anderson, T.B. (2018) Optics Express 26, #5, 18878
+\url{https://doi.org/10.1364/OE.26.018878} (open access)
 }

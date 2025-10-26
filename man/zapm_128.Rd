@@ -4,7 +4,7 @@
 \alias{zapm_128}
 \title{Zernike Annular polynomials, extended precision version}
 \usage{
-zapm_128(rho, theta, eps, maxorder = 12L, nq = maxorder/2L + 5L)
+zapm_128(rho, theta, eps, maxorder = 12L, nq = 21L)
 }
 \arguments{
 \item{rho}{a vector of radial coordinates with eps <= rho <= 1.}

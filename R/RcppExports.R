@@ -123,8 +123,8 @@ gol_welsch <- function(eps, qwts) {
 
 #' Radial Zernike Annular polynomials
 #'
-#' Create a matrix of Zernike Annular polynomial values in
-#' extended Fringe sequence for a set of polar coordinates.
+#' Create a matrix of Radial Zernike annular polynomial values
+#' for a given azimuthal order `m` and all radial orders up to `n`.
 #'
 #' @param rho a vector of radial coordinates.
 #' @param eps the obstruction fraction 0 <= eps < 1.
@@ -138,13 +138,15 @@ gol_welsch <- function(eps, qwts) {
 #'
 #' @details To the author's knowledge no recurrence relations for radial Zernike annular polynomials
 #'  have been published, even though several are well known for the closely related Zernike circle polynomials.
-#'  However the m=0 polynomials representing axially symmetric aberrations are just shifted Legendre polynomials
-#'  with an easily derived recurrence relation. This routine makes use of that fact to generate
-#'  recurrence relations for arbitrary polynomial indexes using chebyshev's algorithm with modified moments.
-#'  The modified moments are calculated using Gauss-Legendre quadrature. If enough quadrature nodes
-#'  were chosen the quadrature is nominally exact, as are the resulting annular Zernike values.
+#'  The m=0 polynomials representing axially symmetric aberrations however are just shifted Legendre polynomials
+#'  with an easily derived recurrence relation. For the m>0 polynomials this routine calculates
+#'  the recurrence coefficients iteratively using a method attributed to Stieltjes.
 #'
 #' @seealso This function is called by [zapm()] and [zapm_iso()].
+#'
+#' @references Gautschi, W. 1982, "On Generating Orthogonal Polynomials", SIAM J. Sci. Stat. Comput. vol. 3, no.3, 289-317.
+#'  Mahajan, V.N. 1981, "Zarnike annular polynomials...", JOSA, vol. 71, no. 1, 75-85.
+#'  Mahajan, V.N. 1994, "Zernike annular polynomials...", Suppl. Applied Optics, vol. 5, No. 11, 8125-8128.
 #'
 #' @md
 rzernike_ann <- function(rho, eps, n, m, xq, qwts) {
@@ -160,16 +162,16 @@ rzernike_ann <- function(rho, eps, n, m, xq, qwts) {
 #' @param theta a vector of angular coordinates, in radians.
 #' @param eps the obstruction fraction 0 <= eps < 1.
 #' @param maxorder the maximum radial polynomial order (defaults to 12).
-#' @param nq the number of quadrature points for numerical integration
+#' @param nqplus the number of *extra* quadrature points for numerical integration
 #'
 #' @return a matrix of Zernike Annular polynomial values evaluated at the input
 #'  polar coordinates and all radial orders from
 #'  0 through `maxorder` in Fringe sequence, with orthonormal scaling.
 #'
 #' @details The *radial* polynomials are calculated using recurrence relations
-#'  generated numerically using chebyshev's algorithm with modified moments.
-#'  See the documentation for [rzernike_ann()]. A formal presentation is
-#'  included in the package documentation.
+#'  generated numerically using a method credited to Stieltjes.
+#'  See the documentation for [rzernike_ann()] for further details and literature references.
+#'  A formal presentation will be published elsewhere.
 #' @examples
 #'   sample_az <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
 #'   
@@ -185,7 +187,7 @@ rzernike_ann <- function(rho, eps, n, m, xq, qwts) {
 #'     
 #'     ## fill up matrixes of Zernikes and Annular Zernikes
 #'     
-#'     zm <- zpmC(rho0, theta0, maxorder=maxorder)
+#'     zm <- zpm(rho0, theta0, maxorder=maxorder)
 #'     zam <- zapm(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
 #'     
 #'     ## pick a column at random and look up its index pair
@@ -221,8 +223,8 @@ rzernike_ann <- function(rho, eps, n, m, xq, qwts) {
 #'   sample_az()
 #'
 #' @md
-zapm <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
-    .Call(`_zernike_zapm`, rho, theta, eps, maxorder, nq)
+zapm <- function(rho, theta, eps, maxorder = 14L, nqplus = 6L) {
+    .Call(`_zernike_zapm`, rho, theta, eps, maxorder, nqplus)
 }
 
 #' Zernike Annular polynomials, ISO ordering
@@ -234,16 +236,16 @@ zapm <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
 #' @param theta a vector of angular coordinates, in radians.
 #' @param eps the obstruction fraction 0 <= eps < 1.
 #' @param maxorder the maximum radial and azimuthal polynomial order (defaults to 12).
-#' @param nq the number of quadrature points for numerical integration
+#' @param nqplus the number of *extra* quadrature points for numerical integration
 #'
 #' @return a matrix of Zernike Annular polynomial values evaluated at the input
 #'  polar coordinates and all radial orders from
 #'  0 through `maxorder` in ISO/ANSI sequence, with orthonormal scaling.
 #'
 #' @details The *radial* polynomials are calculated using recurrence relations
-#'  generated numerically using chebyshev's algorithm with modified moments.
-#'  See the documentation for [rzernike_ann()]. A formal presentation is
-#'  included in the package documentation.
+#'  generated numerically using a method credited to Stieltjes.
+#'  See the documentation for [rzernike_ann()] for further details and literature references.
+#'  A formal presentation will be published elsewhere.
 #'
 #' @examples
 #'   sample_az_iso <- function(maxorder=12, eps=0.33, col=rev(zernike::rygcb(400)), addContours=TRUE, cscale=TRUE) {
@@ -296,8 +298,8 @@ zapm <- function(rho, theta, eps, maxorder = 12L, nq = 21L) {
 #'   sample_az_iso()
 #'
 #' @md
-zapm_iso <- function(rho, theta, eps, maxorder = 14L, nq = 21L) {
-    .Call(`_zernike_zapm_iso`, rho, theta, eps, maxorder, nq)
+zapm_iso <- function(rho, theta, eps, maxorder = 14L, nqplus = 6L) {
+    .Call(`_zernike_zapm_iso`, rho, theta, eps, maxorder, nqplus)
 }
 
 #' Zernike Annular polynomials, extended precision version
@@ -472,7 +474,7 @@ zpmCP <- function(rho, theta, maxorder = 14L) {
 #'  only check performed is that the number of columns in the
 #'  matrix matches the expected number given by the argument
 #'  `maxorder`.
-#'  This is called by [gradzpm_arma()] and [zpm_cart()]
+#'  This is called by [gradzpm()] and [zpm_cart()]
 #'  if `unit_variance` is set to `true` in the respective
 #'  function calls.
 #' @md
@@ -548,7 +550,7 @@ gradzpm <- function(x, y, maxorder = 12L, unit_variance = TRUE, return_zpm = TRU
 #'   Anderson, T.B. (2018) Optics Express 26, #5, 18878
 #'   <https://doi.org/10.1364/OE.26.018878> (open access)
 #'
-#' @details This is the same algorithm and essentially the same code as [gradzpm_arma()]
+#' @details This is the same algorithm and essentially the same code as [gradzpm()]
 #'  except directional derivatives aren't calculated.
 #' @md
 zpm_cart <- function(x, y, maxorder = 14L, unit_variance = TRUE) {

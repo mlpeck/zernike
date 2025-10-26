@@ -4,7 +4,7 @@
 \alias{norm_zpm}
 \title{Normalize matrix of Zernike polynomial values.}
 \usage{
-norm_zpm(uzpm, maxorder = 12L)
+norm_zpm(uzpm, maxorder)
 }
 \arguments{
 \item{uzpm}{matrix of Zernike polynomial values}
@@ -23,7 +23,7 @@ This is intended only for ISO/ANSI ordered matrices. The
 only check performed is that the number of columns in the
 matrix matches the expected number given by the argument
 \code{maxorder}.
-This is called by \code{\link[=gradzpm_cart]{gradzpm_cart()}} and \code{\link[=zpm_cart]{zpm_cart()}}
+This is called by \code{\link[=gradzpm]{gradzpm()}} and \code{\link[=zpm_cart]{zpm_cart()}}
 if \code{unit_variance} is set to \code{true} in the respective
 function calls.
 }

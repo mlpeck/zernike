@@ -24,17 +24,20 @@ A length(rho) x (n-m)/2+1 column matrix of radial Zernike Annular polynomial val
 radial coordinates. The radial indexes are in increasing order from m, m+2, ..., n.
 }
 \description{
-Create a matrix of Zernike Annular polynomial values in
-extended Fringe sequence for a set of polar coordinates.
+Create a matrix of Radial Zernike annular polynomial values
+for a given azimuthal order \code{m} and all radial orders up to \code{n}.
 }
 \details{
 To the author's knowledge no recurrence relations for radial Zernike annular polynomials
 have been published, even though several are well known for the closely related Zernike circle polynomials.
-However the m=0 polynomials representing axially symmetric aberrations are just shifted Legendre polynomials
-with an easily derived recurrence relation. This routine makes use of that fact to generate
-recurrence relations for arbitrary polynomial indexes using chebyshev's algorithm with modified moments.
-The modified moments are calculated using Gauss-Legendre quadrature. If enough quadrature nodes
-were chosen the quadrature is nominally exact, as are the resulting annular Zernike values.
+The m=0 polynomials representing axially symmetric aberrations however are just shifted Legendre polynomials
+with an easily derived recurrence relation. For the m>0 polynomials this routine calculates
+the recurrence coefficients iteratively using a method attributed to Stieltjes.
+}
+\references{
+Gautschi, W. 1982, "On Generating Orthogonal Polynomials", SIAM J. Sci. Stat. Comput. vol. 3, no.3, 289-317.
+Mahajan, V.N. 1981, "Zarnike annular polynomials...", JOSA, vol. 71, no. 1, 75-85.
+Mahajan, V.N. 1994, "Zernike annular polynomials...", Suppl. Applied Optics, vol. 5, No. 11, 8125-8128.
 }
 \seealso{
 This function is called by \code{\link[=zapm]{zapm()}} and \code{\link[=zapm_iso]{zapm_iso()}}.
