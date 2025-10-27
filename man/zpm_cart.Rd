@@ -25,7 +25,7 @@ Calculate Zernike polynomial values in
 ISO/ANSI sequence for a set of Cartesian coordinates.
 }
 \details{
-This is the same algorithm and essentially the same code as \code{\link[=gradzpm]{gradzpm()}}
+This is the same algorithm and essentially the same code as \code{\link[=gradzpm_arma]{gradzpm_arma()}}
 except directional derivatives aren't calculated.
 }
 \references{

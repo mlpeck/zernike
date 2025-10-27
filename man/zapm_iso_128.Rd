@@ -4,7 +4,7 @@
 \alias{zapm_iso_128}
 \title{Zernike Annular polynomials, ISO ordering - extended precision version}
 \usage{
-zapm_iso_128(rho, theta, eps, maxorder = 12L, nq = 21L)
+zapm_iso_128(rho, theta, eps, maxorder = 14L, nqplus = 6L)
 }
 \arguments{
 \item{rho}{a vector of radial coordinates with eps <= rho <= 1.}
@@ -13,9 +13,9 @@ zapm_iso_128(rho, theta, eps, maxorder = 12L, nq = 21L)
 
 \item{eps}{the obstruction fraction 0 <= eps < 1.}
 
-\item{maxorder}{the maximum radial and azimuthal polynomial order (defaults to 12).}
+\item{maxorder}{the maximum radial and azimuthal polynomial order (defaults to 14).}
 
-\item{nq}{the number of quadrature points for numerical integration}
+\item{nqplus}{the number of \emph{extra} quadrature nodes (defaults to 6).}
 }
 \value{
 a matrix of Zernike Annular polynomial values evaluated at the input
@@ -28,7 +28,7 @@ ISO/ANSI sequence for a set of polar coordinates.
 }
 \details{
 The \emph{radial} polynomials are calculated using recurrence relations
-generated numerically using chebyshev's algorithm with modified moments.
+generated numerically using Stieltje's procedure with nominally exact numerical quadrature.
 See the documentation for \code{\link[=rzernike_ann]{rzernike_ann()}}. A formal presentation is
 included in the package documentation.
 }
@@ -48,7 +48,7 @@ included in the package documentation.
     ## fill up matrixes of Zernikes and Annular Zernikes
     
     zm <- zpm_cart(x=rho0*cos(theta0), y=rho0*sin(theta0), maxorder=maxorder)
-    zam <- zapm_iso_128(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
+    zam <- zapm_iso_128(rhoa, thetaa, eps=eps, maxorder=maxorder)
     
     ## pick a column at random and look up its index pair
     

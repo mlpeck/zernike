@@ -1,6 +1,6 @@
 /**********************
 
-Copyright © 2022 Michael Peck <mlpeck54 -at- gmail.com>
+Copyright © 2022-2026 Michael Peck <mlpeck54 -at- gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -15,7 +15,7 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 // [[Rcpp::depends(BH)]]
 
 # include <cmath>
-# include <memory>
+# include <vector>
 # include <RcppArmadillo.h>
 # include <boost/multiprecision/float128.hpp>
 # include "fastgl_128.h"
@@ -23,6 +23,35 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
 using namespace Rcpp;
 using namespace arma;
 namespace mp = boost::multiprecision;
+
+/*****************
+ *
+ * elementwise product of two float128 vectors
+ *
+******************/
+
+std::vector<mp::float128> operator %(const std::vector<mp::float128> x,
+                                     const std::vector<mp::float128> y) {
+  std::size_t nx = x.size();
+  std::vector<mp::float128> prod (nx);
+  for (std::size_t i=0; i<nx; ++i) prod[i] = x[i] * y[i];
+  return prod;
+}
+
+/********************
+ *
+ * sum the elements of an mp::float128 vector
+ *
+*********************/
+
+mp::float128 sum_el(std::vector<mp::float128> x) {
+  std::size_t nx = x.size();
+  mp::float128 sum {0};
+  for (std::size_t i=0; i<nx; ++i) sum += x[i];
+  return sum;
+}
+
+
 
 /****************************
  * 
@@ -37,23 +66,28 @@ namespace mp = boost::multiprecision;
  * 
 ***************************/
 
-int fastgl_xw(const mp::float128& eps, const int& nq, mp::float128 xq[], mp::float128 qwts[]) {
+void fastgl_xw(const mp::float128& eps,
+               std::vector<mp::float128>& xq,
+               std::vector<mp::float128>& qwts) {
   
   mp::float128 e2 = eps*eps;
   mp::float128 c1 = (1-e2)/2.;
+
+  std::size_t nq = xq.size();
   
   for (int k=0; k<nq; k++) {
     fastgl::QuadPair p = fastgl::GLPair(nq, k+1);
     xq[k] = c1*(p.x() + 1.0) + e2;
     qwts[k] = c1 * p.weight;
   }
-  return 0;
+  return;
 }
   
 
 
-mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int& m, const int& nq, const mp::float128 xq[], 
-                     const mp::float128 qwts[]) {
+mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int& m,
+                     const std::vector<mp::float128>& xq,
+                     const std::vector<mp::float128>& qwts) {
 
   if (n < m) {
     stop("n < m");
@@ -65,7 +99,6 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
   
   uword nr = rho.n_elem;
   int nz = (n-m)/2 + 1;
-  int nmax = std::min(2*nz, m+1);
   
   vec u(nr);
   u = rho % rho;
@@ -90,10 +123,7 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
   // things we need to calculate for the recurrences
   
   vec alpha(nz), beta(nz);
-  mp::float128 nu[2*nz], a[2*nz], b[2*nz];
-  mp::float128 alphal[nz], betal[nz], c[nz];
-  mp::float128 sigma[3] [2*nz];
-  mp::float128 pn[nq], pnp1[nq], pnm1[nq], w[nq];
+  std::vector<mp::float128> alphal (nz), betal (nz), c (nz);
     
   if (m == 0) {    // know the recursion for this case
     alphal[0] = ak;
@@ -104,60 +134,47 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
       c[j] = betal[j] * c[j-1];
     }
   } else { // m > 0
-    for (int j = 0; j < 2*nz; j++) {
-      a[j] = ak;
-      nu[j] = 0.0;
-    }
-    for (int j = 1; j < 2*nz; j++) {
-      b[j] = j * j * e1l * e1l/4./(2.*j + 1.0)/(2.*j - 1.0);
-    }
-    
-    
-    // get modified moments
-    
+    std::size_t nq = xq.size();
+    std::vector<mp::float128> p_k (nq), p_k_plus1 (nq), p_k_minus1 (nq), w (nq);
+    mp::float128  inner_product = 0., inner_product_minus1;
+
+    alphal[0] = 0.0;
     for (int i=0; i<nq; i++) {
-      w[i] = pow(xq[i], m);
-      nu[0] += w[i] * qwts[i];
-      pnm1[i] = 1.0;
-      pn[i] = xq[i] - ak;
+      w[i] = mp::pow(xq[i], m);
     }
-    
-    for (int i=1; i<nmax; i++) {
-      for (int j=0; j<nq; j++) {
-        nu[i] += pn[j]*w[j]*qwts[j];
-      }
-      for (int j=0; j<nq; j++) {
-        pnp1[j] = (xq[j]-ak) * pn[j] - b[i] * pnm1[j];
-        pnm1[j] = pn[j];
-        pn[j] = pnp1[j];
-      }
+    inner_product = sum_el(w % qwts);
+    alphal[0] = sum_el(xq % w % qwts);
+    alphal[0] /= inner_product;
+    c[0] = inner_product;
+    inner_product_minus1 = inner_product;
+
+    for (int i=0; i<nq; i++) {
+     p_k[i] = 1.;
+     p_k_plus1[i] = xq[i] - alphal[0];
     }
-    
-    //chebyshev algorithm with modified moments
-    
-    alphal[0] = ak + nu[1]/nu[0];
-    betal[0] = nu[0];
-    c[0] = nu[0];
-    
-    for (int l=0; l<(2*nz); l++) {
-      sigma[0] [l] = 0.0;
-      sigma[1] [l] = nu[l];
-    }
-  
-    for (int k=1; k<nz; k++) {
-      for (int l=k; l<(2*nz-k); l++) {
-        sigma[2][l] = sigma[1][l+1] + (ak - alphal[k-1]) * sigma[1][l] - 
-                        betal[k-1] * sigma[0][l] + b[l] * sigma[1][l-1];
+
+    int k;
+    for (k=1; k < (nz-1) ; k++) {
+      for (int i=0; i<nq; i++) {
+        p_k_minus1[i] = p_k[i];
+        p_k[i] = p_k_plus1[i];
       }
-      alphal[k] = ak + sigma[2][k+1]/sigma[2][k] - sigma[1][k]/sigma[1][k-1];
-      betal[k] = sigma[2][k]/sigma[1][k-1];
-      c[k] = betal[k] * c[k-1];
-      for (int l=k; l<(2*nz-k); l++) {
-        sigma[0][l] = sigma[1][l];
-        sigma[1][l] = sigma[2][l];
+      inner_product = sum_el(p_k % p_k % w % qwts);
+      alphal[k] = sum_el(xq % p_k % p_k % w % qwts);
+      alphal[k] /= inner_product;
+      betal[k] = inner_product / inner_product_minus1;
+      c[k] = inner_product;
+      inner_product_minus1 = inner_product;
+      for (int i=0; i<nq; i++) {
+        p_k_plus1[i] = (xq[i] - alphal[k]) * p_k[i] - betal[k] * p_k_minus1[i];
       }
     }
+    for (int i=0; i<nq; i++) {
+      p_k[i] = p_k_plus1[i];
+    }
+    c[k] = sum_el(p_k % p_k % w % qwts);
   }
+
   for (int i=0; i<nz; i++) {
     alpha(i) = static_cast<double>(alphal[i]);
     beta(i) = static_cast<double>(betal[i]);
@@ -192,15 +209,15 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
 //' @param rho a vector of radial coordinates with eps <= rho <= 1.
 //' @param theta a vector of angular coordinates, in radians.
 //' @param eps the obstruction fraction 0 <= eps < 1.
-//' @param maxorder the maximum radial polynomial order (defaults to 12).
-//' @param nq the number of quadrature points for numerical integration
+//' @param maxorder the maximum radial polynomial order (defaults to 14).
+//' @param nqplus the number of *extra* quadrature nodes (defaults to 6).
 //'
 //' @return a matrix of Zernike Annular polynomial values evaluated at the input
 //'  polar coordinates and all radial orders from
 //'  0 through `maxorder` in Fringe sequence, with orthonormal scaling.
 //'
 //' @details The *radial* polynomials are calculated using recurrence relations
-//'  generated numerically using chebyshev's algorithm with modified moments.
+//'  generated numerically using Stieltje's procedure with nominally exact numerical quadrature.
 //'  See the documentation for [rzernike_ann()]. A formal presentation is
 //'  included in the package documentation.
 //' @examples
@@ -218,8 +235,8 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
 //'     
 //'     ## fill up matrixes of Zernikes and Annular Zernikes
 //'     
-//'     zm <- zpmC(rho0, theta0, maxorder=maxorder)
-//'     zam <- zapm_128(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
+//'     zm <- zpm(rho0, theta0, maxorder=maxorder)
+//'     zam <- zapm_128(rhoa, thetaa, eps=eps, maxorder=maxorder)
 //'     
 //'     ## pick a column at random and look up its index pair
 //'     
@@ -255,9 +272,10 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
 //'
 //' @md
 // [[Rcpp::export]]
-mat zapm_128(const vec& rho, const vec& theta, const double& eps, const int& maxorder=12, const int& nq=21) {
+mat zapm_128(const vec& rho, const vec& theta, const double& eps, const int& maxorder=14, const int& nqplus=6) {
   
-  int j, k, nmax, nz, mmax = maxorder/2;
+  int j, k, nmax, mmax = maxorder/2;
+  int nz = maxorder/2 + 1;
   uword nr = rho.size();
   int ncol = (mmax+1)*(mmax+1);
   mat cosmtheta(nr, mmax), sinmtheta(nr, mmax);
@@ -276,9 +294,10 @@ mat zapm_128(const vec& rho, const vec& theta, const double& eps, const int& max
   
   // get points and weights for quadrature
   
-  mp::float128 xq[nq], qwts[nq];
+  std::size_t nq = nz + nqplus;
+  std::vector<mp::float128> xq (nq), qwts (nq);
   mp::float128 epsl(eps);
-  fastgl_xw(epsl, nq, xq, qwts);
+  fastgl_xw(epsl, xq, qwts);
 
   //cache values of cos and sin
   
@@ -291,10 +310,9 @@ mat zapm_128(const vec& rho, const vec& theta, const double& eps, const int& max
   
   //n=0 zernikes are just the scaled radial zernikes
   
-  nz = maxorder/2 + 1;
   mat RZ(nr, nz);
   
-  RZ = rzernike_ann_128(rho, eps, maxorder, 0, nq, xq, qwts);
+  RZ = rzernike_ann_128(rho, eps, maxorder, 0, xq, qwts);
   for (int n=0; n<=maxorder; n += 2) {
     k = (n*n)/4 + n;
     zm.col(k) = std::sqrt(n+1.)*RZ.col(n/2);
@@ -304,7 +322,7 @@ mat zapm_128(const vec& rho, const vec& theta, const double& eps, const int& max
     nmax = maxorder - m;
     nz = (nmax - m)/2 + 1;
     mat RZ(nr, nz);
-    RZ = rzernike_ann_128(rho, eps, nmax, m, nq, xq, qwts);
+    RZ = rzernike_ann_128(rho, eps, nmax, m, xq, qwts);
     j = 0;
     for (int n=m; n<= nmax; n += 2) {
       k = ((n+m)*(n+m))/4 + n - m;
@@ -334,15 +352,15 @@ mat zapm_128(const vec& rho, const vec& theta, const double& eps, const int& max
 //' @param rho a vector of radial coordinates with eps <= rho <= 1.
 //' @param theta a vector of angular coordinates, in radians.
 //' @param eps the obstruction fraction 0 <= eps < 1.
-//' @param maxorder the maximum radial and azimuthal polynomial order (defaults to 12).
-//' @param nq the number of quadrature points for numerical integration
+//' @param maxorder the maximum radial and azimuthal polynomial order (defaults to 14).
+//' @param nqplus the number of *extra* quadrature nodes (defaults to 6).
 //'
 //' @return a matrix of Zernike Annular polynomial values evaluated at the input
 //'  polar coordinates and all radial orders from
 //'  0 through `maxorder` in ISO/ANSI sequence, with orthonormal scaling.
 //'
 //' @details The *radial* polynomials are calculated using recurrence relations
-//'  generated numerically using chebyshev's algorithm with modified moments.
+//'  generated numerically using Stieltje's procedure with nominally exact numerical quadrature.
 //'  See the documentation for [rzernike_ann()]. A formal presentation is
 //'  included in the package documentation.
 //'
@@ -362,7 +380,7 @@ mat zapm_128(const vec& rho, const vec& theta, const double& eps, const int& max
 //'     ## fill up matrixes of Zernikes and Annular Zernikes
 //'     
 //'     zm <- zpm_cart(x=rho0*cos(theta0), y=rho0*sin(theta0), maxorder=maxorder)
-//'     zam <- zapm_iso_128(rhoa, thetaa, eps=eps, maxorder=maxorder, nq=maxorder/2+5)
+//'     zam <- zapm_iso_128(rhoa, thetaa, eps=eps, maxorder=maxorder)
 //'     
 //'     ## pick a column at random and look up its index pair
 //'     
@@ -398,10 +416,11 @@ mat zapm_128(const vec& rho, const vec& theta, const double& eps, const int& max
 //'
 //' @md
 // [[Rcpp::export]]
-mat zapm_iso_128(const vec& rho, const vec& theta, const double& eps, const int& maxorder=12, const int& nq=21) {
+mat zapm_iso_128(const vec& rho, const vec& theta, const double& eps, const int& maxorder=14, const int& nqplus=6) {
   
   int j, k, nmax, nz;
   uword nr = rho.size();
+  nz = maxorder/2 + 1;
   int ncol = (maxorder+1)*(maxorder+2)/2;
   mat cosmtheta(nr, maxorder), sinmtheta(nr, maxorder);
   mat zm(nr, ncol);
@@ -418,9 +437,10 @@ mat zapm_iso_128(const vec& rho, const vec& theta, const double& eps, const int&
   
   // get points and weights for quadrature
   
-  mp::float128 xq[nq], qwts[nq];
+  int nq = nz + nqplus;
+  std::vector<mp::float128> xq (nq), qwts (nq);
   mp::float128 epsl(eps);
-  fastgl_xw(epsl, nq, xq, qwts);
+  fastgl_xw(epsl, xq, qwts);
 
   //cache values of cos and sin
   
@@ -433,10 +453,9 @@ mat zapm_iso_128(const vec& rho, const vec& theta, const double& eps, const int&
   
   //n=0 zernikes are just the scaled radial zernikes
   
-  nz = maxorder/2 + 1;
   mat RZ(nr, nz);
   
-  RZ = rzernike_ann_128(rho, eps, maxorder, 0, nq, xq, qwts);
+  RZ = rzernike_ann_128(rho, eps, maxorder, 0, xq, qwts);
   for (int n=0; n<=maxorder; n += 2) {
     k = (n*n+2*n)/2;
     zm.col(k) = std::sqrt(n+1.)*RZ.col(n/2);
@@ -446,7 +465,7 @@ mat zapm_iso_128(const vec& rho, const vec& theta, const double& eps, const int&
     nmax = maxorder - m % 2;
     nz = (nmax - m)/2 + 1;
     mat RZ(nr, nz);
-    RZ = rzernike_ann_128(rho, eps, nmax, m, nq, xq, qwts);
+    RZ = rzernike_ann_128(rho, eps, nmax, m, xq, qwts);
     j = 0;
     for (int n=m; n<= nmax; n += 2) {
       k = (n*n + 2*n - m)/2;
