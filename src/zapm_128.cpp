@@ -148,14 +148,14 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
     c[0] = inner_product;
     inner_product_minus1 = inner_product;
 
-    for (int i=0; i<nq; i++) {
+    for (std::size_t i=0; i<nq; i++) {
      p_k[i] = 1.;
      p_k_plus1[i] = xq[i] - alphal[0];
     }
 
     int k;
     for (k=1; k < (nz-1) ; k++) {
-      for (int i=0; i<nq; i++) {
+      for (std::size_t i=0; i<nq; i++) {
         p_k_minus1[i] = p_k[i];
         p_k[i] = p_k_plus1[i];
       }
@@ -169,7 +169,7 @@ mat rzernike_ann_128(const vec& rho, const double& eps, const int& n, const int&
         p_k_plus1[i] = (xq[i] - alphal[k]) * p_k[i] - betal[k] * p_k_minus1[i];
       }
     }
-    for (int i=0; i<nq; i++) {
+    for (std::size_t i=0; i<nq; i++) {
       p_k[i] = p_k_plus1[i];
     }
     c[k] = sum_el(p_k % p_k % w % qwts);
