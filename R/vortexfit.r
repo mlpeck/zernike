@@ -6,7 +6,7 @@
 ##' @param cp list with circle parameters describing interferogram location. Defaults to NULL
 ##' @param filter size of filter to remove background
 ##' @param fw.o size of gaussian blur to smooth orientation estimate
-##' @param options A list with general fitting and display options. See [psfit_options()].
+##' @param options A list with general fitting and display options. See [zernike_options()].
 ##' 
 ##' @return a list with wavefront estimates, wrapped phase, modulation, etc.
 ##'         The return has S3 class 'wf_zfit' with plot, print, summary, and report methods.
@@ -37,7 +37,7 @@
 ##' # target SA coefficients for numerical null.
 ##' 
 ##' sa.t <- sconic(diam,roc,lambda=wavelength)
-##' zopt <- psfit_options()
+##' zopt <- zernike_options()
 ##' zopt$satarget <- sa.t
 ##' 
 ##' # display an interferogram
@@ -56,7 +56,7 @@
 ##' ftfit <- fftfit(img, cp=vfit$cp, sl=c(32, 0), filter=15, options=zopt)
 ##'
 ##' plotn(ftfit, vfit, labels=c("fft", "vortex"))
-vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=psfit_options()) {
+vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=zernike_options()) {
   
   if (require(fftwtools)) {
     fft <- fftwtools::fftw2d

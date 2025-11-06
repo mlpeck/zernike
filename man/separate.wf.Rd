@@ -31,7 +31,7 @@ separate.wf(
 
 \item{ncol}{number of columns in the reconstructed wavefronts.}
 
-\item{cp}{list of values describing the location and size of the wavefront as returned by \link{circle.pars} or \link{pupil.pars}.}
+\item{cp}{list of values describing the location and size of the wavefront as returned by \link{circle.auto} or \link{circle.man}.}
 }
 \value{
 Lists with the following elements
@@ -49,7 +49,7 @@ function \code{separate.wf}
 {wf.mirror} {the estimated derotated wavefront, stored in a matrix of size nrow x ncol with class \code{pupil}.}
 
 {wf.inst} {the estimated instrumental (test stand) contribution to the wavefront.}}
-
+}
 \description{
 Separate a set of wavefronts measured at different orientations into "polished in" and
 instrumental or "test stand" components.

@@ -63,7 +63,7 @@ addfit <- function(..., th=0, zcm=NULL, theta=numeric(0)) {
 #' @param maxorder the maximum Zernike polynomial order of the fits.
 #' @param nrow number of rows in the reconstructed wavefronts.
 #' @param ncol number of columns in the reconstructed wavefronts.
-#' @param cp list of values describing the location and size of the wavefront as returned by [circle.pars] or [pupil.pars].
+#' @param cp list of values describing the location and size of the wavefront as returned by [circle.auto] or [circle.man].
 #'
 #' @returns Lists with the following elements
 #' @returns function `addfit`

@@ -3,7 +3,12 @@
 wf_net <- function(phi, mod, cp, options) {
 
   if (is.null(cp)) {
-    cp <- circle.pars(mod, plot=options$plots)
+    if (!is.null(options$sigma_ed) && !is.null(options$qt_ed)) {
+      cp <- circle.auto(mod, sigma=options$sigma_ed, qt=options$qt_ed,
+                        plot=options$plots)
+    } else {
+      cp <- circle.auto(mod, plot=options$plots)
+    }
   }
   cp.orig <- cp
   if (options$crop) {

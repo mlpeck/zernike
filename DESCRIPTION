@@ -1,6 +1,6 @@
 Package: zernike
 Title: Zernike Polynomials and Fringe Analysis tools
-Version: 3.8.1
+Version: 3.8.5
 Author: M.L. Peck <mpeck1@ix.netcom.com>
 Depends: R (>= 4.1.0)
 Suggests: rgl, robustbase, clue, data.table, dplyr, pixmap, mvtnorm, tinytable, fftwtools,

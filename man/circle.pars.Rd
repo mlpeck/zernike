@@ -1,20 +1,20 @@
-\name{circle.pars}
-\alias{circle.pars}
-\title{Pupil parameters}
+\name{circle.auto}
+\alias{circle.auto}
+\title{Auto circular edge detection}
 \description{
   Automatically determine the center and radius of a circular interferogram image.
 }
 \usage{
-circle.pars(im, fw=2, qt=0.995, excl=5, 
+circle.pars(im, sigma=3, qt=0.995, excl=5,
     plots=TRUE, details=FALSE)
 }
 \arguments{
   \item{im}{A matrix containing an image of a circular disk}
-  \item{fw}{Amount to smooth image}
+  \item{sigma}{Amount to smooth image}
   \item{qt}{Threshold to accept an edge point, expressed as a quantile}
   \item{excl}{number of pixels around border of frame to exclude}
   \item{plots}{Plot edge candidates and fit?}
-  \item{obstructed}{Logical: is there a central obstruction?}
+  \item{details}{Logical: return extra details?}
 }
 \details{
   This routine partially implements the Canny algorithm for
@@ -40,7 +40,7 @@ circle.pars(im, fw=2, qt=0.995, excl=5,
   This routine is only effective on modulation estimates, and will almost
   certainly fail on interferogram images. Since data quality varies widely
   considerable experimentation may be needed on any given image. Increasing
-  the smoothing parameter \code{fw} helps to suppress artifacts. Depending
+  the smoothing parameter \code{sigma} helps to suppress artifacts. Depending
   on how strong the actual edge is compared to artifacts \code{qt} may need
   to be either increased or decreased from the default value.
   
@@ -49,7 +49,7 @@ circle.pars(im, fw=2, qt=0.995, excl=5,
 }
 \seealso{
   Many routines require the pupil parameters in the form returned by
-  \code{circle.pars}. For example \code{\link{psifit}},
+  \code{circle.auto}. For example \code{\link{psifit}},
   \code{\link{fftfit}}, \code{\link{pupil}}, etc.
 }
 \keyword{utilities}

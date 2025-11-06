@@ -9,7 +9,7 @@
 
 
 fftfit <- function(imagedata, cp=NULL, 
-                   sl=c(1,1), filter=NULL, taper=2, options = psfit_options()) {
+                   sl=c(1,1), filter=NULL, taper=2, options = zernike_options()) {
   
   if (require(fftwtools)) {
     fft <- fftwtools::fftw2d

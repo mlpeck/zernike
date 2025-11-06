@@ -7,7 +7,7 @@
 \usage{
 fftfit(imagedata, cp = NULL, 
   sl = c(1, 1), filter = NULL, taper = 2, 
-  options = psfit_options())
+  options = zernike_options())
 }
 \arguments{
   \item{imagedata}{A matrix containing the interferogram}

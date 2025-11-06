@@ -95,7 +95,7 @@ phases <- switch(ps.dir, ccw = -phases, cw = phases, phases)
 # target SA coefficients for numerical null.
 
 sa.t <- sconic(diam,roc,lambda=wavelength)
-zopt <- psfit_options()
+zopt <- zernike_options()
 zopt$satarget <- sa.t
 zopt$ptol <- 0.01
 tfit <- psifit(images, phases, psialg="gpcthentilt", options=zopt)

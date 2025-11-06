@@ -9,7 +9,7 @@ vortexfit(
   cp = NULL,
   filter = NULL,
   fw.o = 10,
-  options = psfit_options()
+  options = zernike_options()
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ vortexfit(
 
 \item{fw.o}{size of gaussian blur to smooth orientation estimate}
 
-\item{options}{A list with general fitting and display options. See \code{\link[=psfit_options]{psfit_options()}}.}
+\item{options}{A list with general fitting and display options. See \code{\link[=zernike_options]{zernike_options()}}.}
 }
 \value{
 a list with wavefront estimates, wrapped phase, modulation, etc.
@@ -55,7 +55,7 @@ source(file.path(fpath, "parameters.txt"))
 # target SA coefficients for numerical null.
 
 sa.t <- sconic(diam,roc,lambda=wavelength)
-zopt <- psfit_options()
+zopt <- zernike_options()
 zopt$satarget <- sa.t
 
 # display an interferogram
