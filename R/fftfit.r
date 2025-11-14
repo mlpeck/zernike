@@ -8,7 +8,7 @@
 ## FFT fit routine
 
 
-fftfit <- function(imagedata, cp=NULL, 
+fftfit <- function(img, cp=NULL,
                    sl=c(1,1), filter=NULL, taper=2, options = zernike_options()) {
   
   if (!is.null(options$use_fftw) && options$use_fftw) {
@@ -16,18 +16,18 @@ fftfit <- function(imagedata, cp=NULL,
     ifft <- zernike::ifft_fftw
   }
   
-  nr <- nrow(imagedata)
-  nc <- ncol(imagedata)
+  nr <- nrow(img)
+  nc <- ncol(img)
   npad <- nextn(max(nr,nc))
   if (!is.null(cp)) {
     prt <- pupil.rhotheta(nr, nc, cp)
-    imagedata[is.na(prt$rho)] <- mean(imagedata)
+    img[is.na(prt$rho)] <- mean(img)
   }
-  imagedata <- imagedata-mean(imagedata)
-  im <- padmatrix(imagedata, npad=npad, fill=0)
+  img <- img-mean(img)
+  im <- padmatrix(img, npad=npad, fill=0)
   im.fft <- fftshift(fft(im))
   if (is.null(filter)) {
-    sldata <- pick.sidelobe(imagedata)
+    sldata <- pick.sidelobe(img)
     sl <- sldata$sl
     filter <- sldata$filter
   }

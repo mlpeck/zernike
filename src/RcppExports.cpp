@@ -173,6 +173,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// fftshift
+cx_mat fftshift(cx_mat& X);
+RcppExport SEXP _zernike_fftshift(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< cx_mat& >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(fftshift(X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ifftshift
+cx_mat ifftshift(cx_mat& X);
+RcppExport SEXP _zernike_ifftshift(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< cx_mat& >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(ifftshift(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 // fitzernikes
 vec fitzernikes(const vec& wf, const vec& rho, const vec& theta, const double& eps, int maxorder, int nthreads, bool isoseq, bool usecirc, bool ext_prec);
 RcppExport SEXP _zernike_fitzernikes(SEXP wfSEXP, SEXP rhoSEXP, SEXP thetaSEXP, SEXP epsSEXP, SEXP maxorderSEXP, SEXP nthreadsSEXP, SEXP isoseqSEXP, SEXP usecircSEXP, SEXP ext_precSEXP) {
@@ -537,6 +559,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_zernike_fft_fftw", (DL_FUNC) &_zernike_fft_fftw, 1},
     {"_zernike_fft_fftw_cx", (DL_FUNC) &_zernike_fft_fftw_cx, 1},
     {"_zernike_ifft_fftw", (DL_FUNC) &_zernike_ifft_fftw, 1},
+    {"_zernike_fftshift", (DL_FUNC) &_zernike_fftshift, 1},
+    {"_zernike_ifftshift", (DL_FUNC) &_zernike_ifftshift, 1},
     {"_zernike_fitzernikes", (DL_FUNC) &_zernike_fitzernikes, 9},
     {"_zernike_gpcapsiC", (DL_FUNC) &_zernike_gpcapsiC, 4},
     {"_zernike_id_dxy_uw", (DL_FUNC) &_zernike_id_dxy_uw, 7},

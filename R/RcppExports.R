@@ -115,6 +115,14 @@ ifft_fftw <- function(XC) {
     .Call(`_zernike_ifft_fftw`, XC)
 }
 
+fftshift <- function(X) {
+    .Call(`_zernike_fftshift`, X)
+}
+
+ifftshift <- function(X) {
+    .Call(`_zernike_ifftshift`, X)
+}
+
 fitzernikes <- function(wf, rho, theta, eps = 0.0, maxorder = 14L, nthreads = -1L, isoseq = FALSE, usecirc = FALSE, ext_prec = FALSE) {
     .Call(`_zernike_fitzernikes`, wf, rho, theta, eps, maxorder, nthreads, isoseq, usecirc, ext_prec)
 }

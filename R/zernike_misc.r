@@ -140,19 +140,6 @@ submatrix <- function(X,size=255) {
     X[((nr-size)/2+1):((nr+size)/2),((nr-size)/2+1):((nr+size)/2)]
 }
 
-## shuffle quadrants of a 2d fft around to display as an image
-
-
-fftshift <- function(X) {
-    nr <- nrow(X)
-    XS <- matrix(0,nr,nr)
-    XS[1:(nr/2),1:(nr/2)] <- X[(nr/2+1):nr,(nr/2+1):nr]
-    XS[(nr/2+1):nr,(nr/2+1):nr] <- X[1:(nr/2),1:(nr/2)]
-    XS[(nr/2+1):nr,1:(nr/2)] <- X[1:(nr/2),(nr/2+1):nr]
-    XS[1:(nr/2),(nr/2+1):nr] <- X[(nr/2+1):nr,1:(nr/2)]
-    XS
-}
-
 ## computes & displays fraunhofer diffraction pattern
 ## & mtf for wavefront described in zernike coefficients zcoef
 
@@ -404,12 +391,14 @@ plot.cmat <- function(X, fn="Mod", col=grey256, cp=NULL, zoom=1, gamma=1, ...) {
 }
 
 
-pick.sidelobe <- function(imagedata, logm=FALSE, gamma=3) {
-	imagedata <- imagedata - mean(imagedata)
-	npad <- nextn(max(nrow(imagedata), ncol(imagedata)))
-	im <- padmatrix(imagedata, npad=npad, fill=0)
+pick.sidelobe <- function(img, logm=FALSE, gamma=3) {
+	img <- img - mean(img)
+  if (nextn(nrow(img)) != nrow(img) || nextn(ncol(img)) != ncol(img)) {
+    npad <- nextn(max(nrow(img), ncol(img)))
+    img <- padmatrix(img, npad=npad, fill=0)
+  }
 	if (logm) fn <- "logMod2" else fn <- "Mod"
-	im.fft <- fftshift(fft(im))
+	im.fft <- fftshift(fft(img))
 	plot.cmat(im.fft, fn=fn, gamma=gamma)
 	cat("Click on the desired sidelobe peak\n")
 	peak <- locator(n=1, type="p", col="red")
