@@ -21,6 +21,100 @@ convolve2d <- function(X, kernel) {
     .Call(`_zernike_convolve2d`, X, kernel)
 }
 
+#'  Wrappers for Armadillo 2D fft's with padding
+#'
+#'  2D ffts with real and complex inputs
+#'
+#'  @param X a real or complex valued metrix
+#'  @param npad size to pad to (should be highly composite)
+#'
+#'  @returns A complex valued transformed matrix of size npad x npad.
+#'
+#'  @details For convenience there are versions for
+#'    real or complex inputs. Armadillo's `fft2` function
+#'    is poorly suited to matrixes of sizes other than
+#'    highly composite. These functions zero pad the input
+#'    and compute the transform of the padded matrix.
+#'    `npad` obviously should be highly composite or a power of two.
+fft_pad <- function(X, npad) {
+    .Call(`_zernike_fft_pad`, X, npad)
+}
+
+#'  @rdname fft_pad
+#'  @export
+fft_cx_pad <- function(X, npad) {
+    .Call(`_zernike_fft_cx_pad`, X, npad)
+}
+
+#'  Wrappers for Armadillo 2D fft's
+#'
+#'  2D ffts with real and complex inputs
+#'
+#'  @param X a real or complex valued metrix
+#'
+#'  @returns A complex valued transformed matrix
+#'
+#'  @details For convenience there are versions for
+#'    both real and complex inputs. These functions
+#'    work well if the input dimensions are highly composite,
+#'    that is have no factors larger than 5. If not,
+#'    use the padded versions [fft_pad], [fft_cx_pad],
+#'    or the FFTW3 based versions [fft_fftw], [fft_fftw_cx].
+#'
+#'  @references [Armadillo home page](https://arma.sourceforge.net/).
+#'    citation: Conrad Sanderson and Ryan Curtin.
+#'    *Armadillo: An Efficient Framework for Numerical Linear Algebra.
+#'    International Conference on Computer and Automation Engineering*, 2025.
+#'  @export
+fft <- function(X) {
+    .Call(`_zernike_fft`, X)
+}
+
+#'  @rdname fft
+#'  @export
+fft_cx <- function(X) {
+    .Call(`_zernike_fft_cx`, X)
+}
+
+#'  Wrappers for Armadillo 2D inverse fft's
+#'
+#'  2D inverse ffts with complex inputs
+#'
+#'  @param X a complex valued metrix
+#'
+#'  @returns A complex or real valued transformed matrix
+#'
+#'  @details For convenience there are versions for
+#'    both real and complex outputs. Note that a round trip
+#'    real FFT -> inverse FFT will produce a numerically
+#'    complex valued output with negligible imaginary component.
+#'    The function [ifft_real()] is intended for this case.
+#'    These functions
+#'    work well if the input dimensions are highly composite,
+#'    that is have no factors larger than 5.
+#'  @export
+ifft <- function(X) {
+    .Call(`_zernike_ifft`, X)
+}
+
+#'  @rdname ifft
+#'  @export
+ifft_real <- function(X) {
+    .Call(`_zernike_ifft_real`, X)
+}
+
+fft_fftw <- function(X) {
+    .Call(`_zernike_fft_fftw`, X)
+}
+
+fft_fftw_cx <- function(XC) {
+    .Call(`_zernike_fft_fftw_cx`, XC)
+}
+
+ifft_fftw <- function(XC) {
+    .Call(`_zernike_ifft_fftw`, XC)
+}
+
 fitzernikes <- function(wf, rho, theta, eps = 0.0, maxorder = 14L, nthreads = -1L, isoseq = FALSE, usecirc = FALSE, ext_prec = FALSE) {
     .Call(`_zernike_fitzernikes`, wf, rho, theta, eps, maxorder, nthreads, isoseq, usecirc, ext_prec)
 }

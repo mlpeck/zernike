@@ -11,8 +11,9 @@
 fftfit <- function(imagedata, cp=NULL, 
                    sl=c(1,1), filter=NULL, taper=2, options = zernike_options()) {
   
-  if (require(fftwtools)) {
-    fft <- fftwtools::fftw2d
+  if (!is.null(options$use_fftw) && options$use_fftw) {
+    fft <- zernike::fft_fftw
+    ifft <- zernike::ifft_fftw
   }
   
   nr <- nrow(imagedata)
@@ -62,7 +63,7 @@ fftfit <- function(imagedata, cp=NULL,
       for (i in 1:npad) sfilter[i, ycut[i]:npad] <- 0
     }
   }
-  im.fft <- im.fft*gblur(sfilter, fw=taper)
+  im.fft <- im.fft*gblur(sfilter, sigma=taper)
   sl.fft <- matrix(0, npad, npad)
   xmin <- max(1-sl[1], 1)
   xmax <- min(npad-sl[1], npad)
@@ -72,7 +73,7 @@ fftfit <- function(imagedata, cp=NULL,
   if (options$plots) {
     plot.cmat(submatrix(sl.fft, size=npad/2))
   }
-  cphi <- fft(fftshift(sl.fft), inverse=TRUE)[1:nr, 1:nc]
+  cphi <- ifft(fftshift(sl.fft))[1:nr, 1:nc]
   phi <- Arg(cphi)
   mod <- Mod(cphi)
   mod <- mod/max(mod)

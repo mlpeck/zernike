@@ -58,10 +58,11 @@
 ##' plotn(ftfit, vfit, labels=c("fft", "vortex"))
 vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=zernike_options()) {
   
-  if (require(fftwtools)) {
-    fft <- fftwtools::fftw2d
+  if (!is.null(options$use_fftw) && options$use_fftw) {
+    fft <- zernike::fft_fftw
+    ifft <- zernike::ifft_fftw
   }
-  
+
   nr <- nrow(imagedata)
   nc <- ncol(imagedata)
   npad <- nextn(max(nr,nc))
@@ -79,13 +80,13 @@ vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=zernike_
   }
   theta <- function(x,y) atan2(y,x)
   phi <- outer(xs, xs, theta)
-  im.nb <- Re(fft(fftshift(im.fft), inverse=TRUE))/(npad^2)
-  D <- fft(fftshift(exp(1i*phi)*im.fft), inverse=TRUE)/(npad^2)
-  D2 <- fft(fftshift(exp(2*1i*phi)*im.fft), inverse=TRUE)/(npad^2)
+  im.nb <- Re(ifft(fftshift(im.fft)))
+  D <- ifft(fftshift(exp(1i*phi)*im.fft))
+  D2 <- ifft(fftshift(exp(2*1i*phi)*im.fft))
   sx <- (D^2-im.nb*D2)[1:nr, 1:nc]
   if (fw.o > 0) {
-    rsx <- gblur(Re(sx), fw=fw.o)
-    isx <- gblur(Im(sx), fw=fw.o)
+    rsx <- gblur(Re(sx), sigma=fw.o)
+    isx <- gblur(Im(sx), sigma=fw.o)
     sx <- rsx + 1i*isx
   }
   orient <- Arg(sx)

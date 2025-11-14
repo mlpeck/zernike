@@ -191,7 +191,7 @@ startest <- function(wf=NULL, zcoef=NULL, maxorder=14L, phi=0,
     up <- Mod(fft(padmatrix(phase,npad)))
     up <- up*up
 
-    otf <- fft(up, inverse=TRUE)/npad^2
+    otf <- ifft(up)
     otf <- otf[1:lx,1:ly]
     mtf <- Re(otf)
     mtf <- mtf/max(mtf)
@@ -298,7 +298,7 @@ foucogram <- function(wf, edgex = 0, phradius = 0, slit=FALSE, pad=4, gamma=1,
             }
         }
     }
-    ike <- Mod(fft(ca,inverse=T)[1:nr,1:nc])^2
+    ike <- Mod(ifft(ca)[1:nr,1:nc])^2
     image(ike^(1/gamma),col=grey256,asp=nc/nr,axes=FALSE, useRaster=TRUE)
     if (map) {
         zmin <- floor(min(wf, na.rm=TRUE))
@@ -378,58 +378,6 @@ crop <- function(img, cp, npad=20, nxy=NULL) {
   list(im=img, cp=cp.new)
 }
 
-## general purpose 2D convolution using FFT's.
-
-## kern is the convolution kernel
-
-convolve2d <- function(im, kern) {
-	nr <- nrow(im)
-	nc <- ncol(im)
-	nrp <- nr + nrow(kern) - 1
-	ncp <- nc + ncol(kern) - 1
-	xs <- nrow(kern) %/% 2 + nrow(kern) %% 2
-	ys <- ncol(kern) %/% 2 + ncol(kern) %% 2
-	npad <- nextn(max(nrp, ncp))
-	kern <- padmatrix(kern, npad=npad)
-	im <- padmatrix(im, npad=npad)
-	im.f <- Re(fft(fft(kern)*fft(im), inv=TRUE))
-	im.f <- im.f[xs:(nr+xs-1),ys:(nc+ys-1)]/(npad^2)
-	im.f
-}
-
-
-## Gaussian blur. fw is the standard deviation
-## of the gaussian convolution kernel, in pixels.
-
-gblur <- function(X, fw = 0, details=FALSE) {
-  if (fw == 0) {
-    return(X)
-  }
-  XP <- X
-  XP[is.na(XP)] <- 0
-  nr <- nrow(X)
-  nc <- ncol(X)
-  ksize <- max(ceiling(4 * fw), 3)
-  if ((ksize %% 2) == 0) ksize <- ksize+1
-  xc <- (ksize %/% 2) + 1
-  xs <- ((1:ksize)-xc)/fw
-  gkern <- outer(xs, xs, function(x,y) (x^2+y^2))
-  gkern <- exp(-gkern/2)
-  gkern <- round(gkern/min(gkern))
-  npad <- nextn(max(nr,nc)+ksize-1)
-  XP <- padmatrix(XP, npad)
-  kernp <- padmatrix(gkern, npad)
-  XP <- Re(fft(fft(XP)*fft(kernp), inv=TRUE))/(npad^2)/sum(gkern)
-  XP <- XP[xc:(nr+xc-1), xc:(nc+xc-1)]
-  XP[is.na(X)] <- NA
-  if (details) {
-	  list(gkern=gkern, X=XP)
-  }
-  else {
-    XP
-  }
-}
- 
 
 
 ## Plot a complex matrix. 

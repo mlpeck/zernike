@@ -9,7 +9,7 @@ zernike_options <- function(colors=topo.colors(256), refine=TRUE, puw_alg = "qua
                           usecirc=FALSE, ext_prec=FALSE,
                           nthreads=parallel::detectCores()/2,
                           plots=TRUE, crop=FALSE,
-                          sigma_ed=3., qt_ed=0.995) {
+                          sigma_ed=3., qt_ed=0.995, use_fftw=FALSE) {
   list(colors=colors,        ## color palette for wavefront plots
   plots=plots,               ## plot results in wavefront summaries?
   refine=refine,             ## do 2nd pass through psi algorithm?
@@ -31,5 +31,6 @@ zernike_options <- function(colors=topo.colors(256), refine=TRUE, puw_alg = "qua
   nthreads=nthreads,         ## no threads to use with zpmCP
   crop=crop,                 ## crop wavefront related matrixes?
   sigma_ed=sigma_ed,         ## smoothing parameter for circle.auto
-  qt_ed=qt_ed)               ## threshold parameter for circle.auto
+  qt_ed=qt_ed,               ## threshold parameter for circle.auto
+  use_fftw=use_fftw)         ## use fftw based 2D FFT routines?
 }
