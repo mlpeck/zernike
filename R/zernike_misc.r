@@ -402,11 +402,12 @@ pick.sidelobe <- function(img, logm=FALSE, gamma=3) {
 	plot.cmat(im.fft, fn=fn, gamma=gamma)
 	cat("Click on the desired sidelobe peak\n")
 	peak <- locator(n=1, type="p", col="red")
-	cat("Click on background filter size\n")
+  sl <- c(round(peak$x), round(peak$y))
+	cat("Click near outer edge of sidelobe\n")
 	edge <- locator(n=1, type="n")
-	hw <- round(sqrt((edge$x)^2+(edge$y)^2))
-	symbols(0, 0, circles=hw, inches=FALSE, add=TRUE, fg="red")
-	list(sl=c(round(peak$x), round(peak$y)), filter=hw)
+	hw <- round(sqrt((edge$x - sl[1])^2+(edge$y - sl[2])^2))
+	symbols(sl[1], sl[2], circles=hw, inches=FALSE, add=TRUE, fg="red")
+	list(sl=sl, filter=hw)
 }
 
 

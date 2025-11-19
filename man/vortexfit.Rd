@@ -5,7 +5,7 @@
 \title{Vortex transform.}
 \usage{
 vortexfit(
-  imagedata,
+  img,
   cp = NULL,
   filter = NULL,
   fw.o = 10,
@@ -13,7 +13,7 @@ vortexfit(
 )
 }
 \arguments{
-\item{imagedata}{matrix containing the interferogram data}
+\item{img}{matrix containing the interferogram data}
 
 \item{cp}{list with circle parameters describing interferogram location. Defaults to NULL}
 
@@ -71,7 +71,7 @@ vfit <- vortexfit(img, filter=15, fw.o=10, options=zopt)
 # do "classical FFT" based fit and compare results
 
 dev.set(dev.next())
-ftfit <- fftfit(img, cp=vfit$cp, sl=c(32, 0), filter=15, options=zopt)
+ftfit <- fftfit(img, cp=vfit$cp, sl=c(32, 0), filter=25, options=zopt)
 
 plotn(ftfit, vfit, labels=c("fft", "vortex"))
 }

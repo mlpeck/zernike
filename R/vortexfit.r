@@ -2,7 +2,7 @@
 ##' 
 ##' Fringe analysis by Vortex aka Spiral Quadrature transform.
 ##' 
-##' @param imagedata matrix containing the interferogram data
+##' @param img matrix containing the interferogram data
 ##' @param cp list with circle parameters describing interferogram location. Defaults to NULL
 ##' @param filter size of filter to remove background
 ##' @param fw.o size of gaussian blur to smooth orientation estimate
@@ -53,37 +53,53 @@
 ##' # do "classical FFT" based fit and compare results
 ##'
 ##' dev.set(dev.next())
-##' ftfit <- fftfit(img, cp=vfit$cp, sl=c(32, 0), filter=15, options=zopt)
+##' ftfit <- fftfit(img, cp=vfit$cp, sl=c(32, 0), filter=25, options=zopt)
 ##'
 ##' plotn(ftfit, vfit, labels=c("fft", "vortex"))
-vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=zernike_options()) {
+vortexfit <- function(img, cp=NULL,
+                      filter=NULL, fw.o=10, options=zernike_options()) {
   
   if (!is.null(options$use_fftw) && options$use_fftw) {
     fft <- zernike::fft_fftw
     ifft <- zernike::ifft_fftw
   }
 
-  nr <- nrow(imagedata)
-  nc <- ncol(imagedata)
-  npad <- nextn(max(nr,nc))
-  xs <- (-npad/2):(npad/2-1)
-  im <- padmatrix(imagedata, npad=npad, fill=mean(imagedata))
-  im.fft <- fftshift(fft(im))
+  nr <- nrow(img)
+  nc <- ncol(img)
+
+  if (!is.null(cp)) {
+    prt <- pupil.rhotheta(nr, nc, cp)
+    img[is.na(prt$rho)] <- mean(img)
+  }
+  img <- img-mean(img)
+
+  if (nextn(nr) != nr || nextn(nc) != nc) {
+    npad <- nextn(max(nr,nc))
+    nr <- nc <- npad
+    img <- padmatrix(img, npad=npad)
+  }
+  im.fft <- fftshift(fft(img))
+
   if (is.null(filter)) {
-    sldata <- pick.sidelobe(imagedata, logm=TRUE)
+    sldata <- pick.sidelobe(img, logm=TRUE)
     filter <- sldata$filter
   }
+
+  xs <- (1:nr) - (nr %/% 2 + 1)
+  ys <- (1:nc) - (nc %/% 2 + 1)
+
   if (filter > 0) {
-    xss <- 2*xs/filter
-    rho2 <- outer(xss, xss, function(x,y) x^2+y^2)
+    rho2 <- outer(2*xs/filter, 2*ys/filter, function(x,y) x^2+y^2)
     im.fft <- im.fft*(1-exp(-rho2/2))
   }
   theta <- function(x,y) atan2(y,x)
-  phi <- outer(xs, xs, theta)
-  im.nb <- Re(ifft(fftshift(im.fft)))
-  D <- ifft(fftshift(exp(1i*phi)*im.fft))
-  D2 <- ifft(fftshift(exp(2*1i*phi)*im.fft))
-  sx <- (D^2-im.nb*D2)[1:nr, 1:nc]
+  phi <- outer(xs, ys, theta)
+
+  im.nb <- Re(ifft(ifftshift(im.fft)))
+  D <- ifft(ifftshift(exp(1i*phi)*im.fft))
+  D2 <- ifft(ifftshift(exp(2*1i*phi)*im.fft))
+
+  sx <- D^2-im.nb*D2
   if (fw.o > 0) {
     rsx <- gblur(Re(sx), sigma=fw.o)
     isx <- gblur(Im(sx), sigma=fw.o)
@@ -97,12 +113,16 @@ vortexfit <- function(imagedata, cp=NULL, filter=NULL, fw.o=10, options=zernike_
   }
   dir <- wrap(pi * qpuw(orient, mod.o))
   if (options$plots) {
+    X11()
     image(1:nr, 1:nc, dir, col=grey256, asp=1, xlab="X", ylab="Y", useRaster=TRUE)
     mtext("Direction")
   }
-  Q <- Re(D[1:nr, 1:nc] * exp(-1i*dir))
-  phi <- atan2(Q, im.nb[1:nr, 1:nc])
-  mod <- sqrt(Q^2+(im.nb[1:nr, 1:nc])^2)
+
+  Q <- Re(D * exp(-1i*dir))
+  nr <- nrow(img)
+  nc <- ncol(img)
+  phi <- atan2(Q, im.nb)[1:nr, 1:nc]
+  mod <- sqrt(Q^2+im.nb^2)[1:nr, 1:nc]
   mod <- (mod-min(mod))/(max(mod)-min(mod))
   wfnets <- wf_net(phi, mod, cp, options)
   outs0 <- list(rundate = date(), algorithm = "Vortex",

@@ -228,7 +228,7 @@ report.wf_zfit <- function(wffit, digits=3, col=rev(rygcb(400)), figheight=30, .
   mtext(paste("RMS =", format(zernike::pupilrms(wf.smooth), digits=3)))
   dev.off()
   
-  img <- c("wf_net.png", "wf_zfit.png")
+  img <- c(fwfnet, fwfz)
   
   df.plot.tt <- tt(df.plot) |>
   plot_tt(i=1, j=1:2, images=img, height=figheight, asp=1)
