@@ -13,7 +13,7 @@ zapm_iso(rho, theta, eps, maxorder = 14L, nqplus = 6L)
 
 \item{eps}{the obstruction fraction 0 <= eps < 1.}
 
-\item{maxorder}{the maximum radial and azimuthal polynomial order (defaults to 12).}
+\item{maxorder}{the maximum radial and azimuthal polynomial order (defaults to 14).}
 
 \item{nqplus}{the number of \emph{extra} quadrature points for numerical integration}
 }

@@ -13,6 +13,10 @@ gblur <- function(X, sigma) {
     .Call(`_zernike_gblur`, X, sigma)
 }
 
+gblur_complex <- function(X, sigma) {
+    .Call(`_zernike_gblur_complex`, X, sigma)
+}
+
 d_of_g <- function(X, sigma) {
     .Call(`_zernike_d_of_g`, X, sigma)
 }
@@ -25,23 +29,23 @@ convolve2d <- function(X, kernel) {
 #'
 #'  2D ffts with real and complex inputs
 #'
-#'  @param X a real or complex valued metrix
-#'  @param npad size to pad to (should be highly composite)
-#'
-#'  @returns A complex valued transformed matrix of size npad x npad.
-#'
-#'  @details For convenience there are versions for
+#'    For convenience there are versions for
 #'    real or complex inputs. Armadillo's `fft2` function
 #'    is poorly suited to matrixes of sizes other than
 #'    highly composite. These functions zero pad the input
 #'    and compute the transform of the padded matrix.
 #'    `npad` obviously should be highly composite or a power of two.
+#'
+#'  @param X a real or complex valued metrix.
+#'  @param npad size to pad to (should be highly composite).
+#'
+#'  @returns A complex valued transformed matrix of size npad x npad.
+#'
+#'  @md
 fft_pad <- function(X, npad) {
     .Call(`_zernike_fft_pad`, X, npad)
 }
 
-#'  @rdname fft_pad
-#'  @export
 fft_cx_pad <- function(X, npad) {
     .Call(`_zernike_fft_cx_pad`, X, npad)
 }
@@ -50,28 +54,28 @@ fft_cx_pad <- function(X, npad) {
 #'
 #'  2D ffts with real and complex inputs
 #'
-#'  @param X a real or complex valued metrix
-#'
-#'  @returns A complex valued transformed matrix
-#'
-#'  @details For convenience there are versions for
+#'    For convenience there are versions for
 #'    both real and complex inputs. These functions
 #'    work well if the input dimensions are highly composite,
 #'    that is have no factors larger than 5. If not,
 #'    use the padded versions [fft_pad], [fft_cx_pad],
 #'    or the FFTW3 based versions [fft_fftw], [fft_fftw_cx].
 #'
-#'  @references [Armadillo home page](https://arma.sourceforge.net/).
+#'  @param X a real or complex valued metrix.
+#'
+#'  @returns A complex valued transformed matrix.
+#'
+#'  @references
+#'    Armadillo home page](https://arma.sourceforge.net/).<br>
 #'    citation: Conrad Sanderson and Ryan Curtin.
 #'    *Armadillo: An Efficient Framework for Numerical Linear Algebra.
 #'    International Conference on Computer and Automation Engineering*, 2025.
-#'  @export
+#'
+#'  @md
 fft <- function(X) {
     .Call(`_zernike_fft`, X)
 }
 
-#'  @rdname fft
-#'  @export
 fft_cx <- function(X) {
     .Call(`_zernike_fft_cx`, X)
 }
@@ -80,25 +84,22 @@ fft_cx <- function(X) {
 #'
 #'  2D inverse ffts with complex inputs
 #'
-#'  @param X a complex valued metrix
+#'  For convenience there are versions for
+#'  both real and complex outputs. Note that a round trip
+#'  real FFT -> inverse FFT will produce a numerically
+#'  complex valued output with negligible imaginary component.
+#'  The function [ifft_real()] is intended for this case.
+#'  These functions
+#'  work well if the input dimensions are highly composite,
+#'  that is have no factors larger than 5.
 #'
-#'  @returns A complex or real valued transformed matrix
+#'  @param X a complex valued metrix.
 #'
-#'  @details For convenience there are versions for
-#'    both real and complex outputs. Note that a round trip
-#'    real FFT -> inverse FFT will produce a numerically
-#'    complex valued output with negligible imaginary component.
-#'    The function [ifft_real()] is intended for this case.
-#'    These functions
-#'    work well if the input dimensions are highly composite,
-#'    that is have no factors larger than 5.
-#'  @export
+#'  @returns A complex or real valued transformed matrix.
 ifft <- function(X) {
     .Call(`_zernike_ifft`, X)
 }
 
-#'  @rdname ifft
-#'  @export
 ifft_real <- function(X) {
     .Call(`_zernike_ifft_real`, X)
 }
@@ -266,9 +267,11 @@ gol_welsch <- function(eps, qwts) {
 #'
 #' @seealso This function is called by [zapm()] and [zapm_iso()].
 #'
-#' @references Gautschi, W. 1982, "On Generating Orthogonal Polynomials", SIAM J. Sci. Stat. Comput. vol. 3, no.3, 289-317.
-#'  Mahajan, V.N. 1981, "Zarnike annular polynomials...", JOSA, vol. 71, no. 1, 75-85.
-#'  Mahajan, V.N. 1994, "Zernike annular polynomials...", Suppl. Applied Optics, vol. 5, No. 11, 8125-8128.
+#' @references Gautschi, W. 1982, "On Generating Orthogonal Polynomials", SIAM J. Sci. Stat. Comput. vol. 3, no.3, 289-317.\
+#'
+#'  Mahajan, V.N. 1981, "Zarnike annular polynomials...", JOSA, vol. 71, no. 1, 75-85.\
+#'
+#'  Mahajan, V.N. 1994, "Zernike annular polynomials...", Suppl. Applied Optics, vol. 5, No. 11, 8125-8128.\
 #'
 #' @md
 rzernike_ann <- function(rho, eps, n, m, xq, qwts) {
@@ -283,7 +286,7 @@ rzernike_ann <- function(rho, eps, n, m, xq, qwts) {
 #' @param rho a vector of radial coordinates with eps <= rho <= 1.
 #' @param theta a vector of angular coordinates, in radians.
 #' @param eps the obstruction fraction 0 <= eps < 1.
-#' @param maxorder the maximum radial polynomial order (defaults to 12).
+#' @param maxorder the maximum radial polynomial order (defaults to 14).
 #' @param nqplus the number of *extra* quadrature points for numerical integration
 #'
 #' @return a matrix of Zernike Annular polynomial values evaluated at the input
@@ -357,7 +360,7 @@ zapm <- function(rho, theta, eps, maxorder = 14L, nqplus = 6L) {
 #' @param rho a vector of radial coordinates with eps <= rho <= 1.
 #' @param theta a vector of angular coordinates, in radians.
 #' @param eps the obstruction fraction 0 <= eps < 1.
-#' @param maxorder the maximum radial and azimuthal polynomial order (defaults to 12).
+#' @param maxorder the maximum radial and azimuthal polynomial order (defaults to 14).
 #' @param nqplus the number of *extra* quadrature points for numerical integration
 #'
 #' @return a matrix of Zernike Annular polynomial values evaluated at the input

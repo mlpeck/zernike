@@ -28,17 +28,19 @@ using namespace arma;
 //'
 //'  2D ffts with real and complex inputs
 //'
-//'  @param X a real or complex valued metrix
-//'  @param npad size to pad to (should be highly composite)
-//'
-//'  @returns A complex valued transformed matrix of size npad x npad.
-//'
-//'  @details For convenience there are versions for
+//'    For convenience there are versions for
 //'    real or complex inputs. Armadillo's `fft2` function
 //'    is poorly suited to matrixes of sizes other than
 //'    highly composite. These functions zero pad the input
 //'    and compute the transform of the padded matrix.
 //'    `npad` obviously should be highly composite or a power of two.
+//'
+//'  @param X a real or complex valued metrix.
+//'  @param npad size to pad to (should be highly composite).
+//'
+//'  @returns A complex valued transformed matrix of size npad x npad.
+//'
+//'  @md
 // [[Rcpp::export]]
 cx_mat fft_pad(const mat& X, const uword npad) {
   if (npad < X.n_rows || npad < X.n_cols) {
@@ -47,8 +49,6 @@ cx_mat fft_pad(const mat& X, const uword npad) {
   return arma::fft2(X, npad, npad);
 }
 
-//'  @rdname fft_pad
-//'  @export
 // [[Rcpp::export]]
 cx_mat fft_cx_pad(const cx_mat& X, const uword npad) {
   if (npad < X.n_rows || npad < X.n_cols) {
@@ -61,29 +61,29 @@ cx_mat fft_cx_pad(const cx_mat& X, const uword npad) {
 //'
 //'  2D ffts with real and complex inputs
 //'
-//'  @param X a real or complex valued metrix
-//'
-//'  @returns A complex valued transformed matrix
-//'
-//'  @details For convenience there are versions for
+//'    For convenience there are versions for
 //'    both real and complex inputs. These functions
 //'    work well if the input dimensions are highly composite,
 //'    that is have no factors larger than 5. If not,
 //'    use the padded versions [fft_pad], [fft_cx_pad],
 //'    or the FFTW3 based versions [fft_fftw], [fft_fftw_cx].
 //'
-//'  @references [Armadillo home page](https://arma.sourceforge.net/).
+//'  @param X a real or complex valued metrix.
+//'
+//'  @returns A complex valued transformed matrix.
+//'
+//'  @references
+//'    Armadillo home page](https://arma.sourceforge.net/).<br>
 //'    citation: Conrad Sanderson and Ryan Curtin.
 //'    *Armadillo: An Efficient Framework for Numerical Linear Algebra.
 //'    International Conference on Computer and Automation Engineering*, 2025.
-//'  @export
+//'
+//'  @md
 // [[Rcpp::export]]
 cx_mat fft(const mat& X) {
   return arma::fft2(X);
 }
 
-//'  @rdname fft
-//'  @export
 // [[Rcpp::export]]
 cx_mat fft_cx(const cx_mat& X) {
   return arma::fft2(X);
@@ -93,19 +93,18 @@ cx_mat fft_cx(const cx_mat& X) {
 //'
 //'  2D inverse ffts with complex inputs
 //'
-//'  @param X a complex valued metrix
+//'  For convenience there are versions for
+//'  both real and complex outputs. Note that a round trip
+//'  real FFT -> inverse FFT will produce a numerically
+//'  complex valued output with negligible imaginary component.
+//'  The function [ifft_real()] is intended for this case.
+//'  These functions
+//'  work well if the input dimensions are highly composite,
+//'  that is have no factors larger than 5.
 //'
-//'  @returns A complex or real valued transformed matrix
+//'  @param X a complex valued metrix.
 //'
-//'  @details For convenience there are versions for
-//'    both real and complex outputs. Note that a round trip
-//'    real FFT -> inverse FFT will produce a numerically
-//'    complex valued output with negligible imaginary component.
-//'    The function [ifft_real()] is intended for this case.
-//'    These functions
-//'    work well if the input dimensions are highly composite,
-//'    that is have no factors larger than 5.
-//'  @export
+//'  @returns A complex or real valued transformed matrix.
 // [[Rcpp::export]]
 cx_mat ifft(const cx_mat& X) {
   uword nr = X.n_rows;
@@ -114,8 +113,6 @@ cx_mat ifft(const cx_mat& X) {
 }
 
 
-//'  @rdname ifft
-//'  @export
 // [[Rcpp::export]]
 mat ifft_real(const cx_mat& X) {
   uword nr = X.n_rows;

@@ -10,9 +10,9 @@ fft(X)
 2D ffts with real and complex inputs
 }
 \details{
-@param X a real or complex valued metrix
+@param X a real or complex valued metrix.
 
-@returns A complex valued transformed matrix
+@returns A complex valued transformed matrix.
 
 @details For convenience there are versions for
 both real and complex inputs. These functions
@@ -21,9 +21,9 @@ that is have no factors larger than 5. If not,
 use the padded versions \link{fft_pad}, \link{fft_cx_pad},
 or the FFTW3 based versions \link{fft_fftw}, \link{fft_fftw_cx}.
 
-@references \href{https://arma.sourceforge.net/}{Armadillo home page}.
+@references
+Armadillo home page](https://arma.sourceforge.net/).\if{html}{\out{<br>}}
 citation: Conrad Sanderson and Ryan Curtin.
 \emph{Armadillo: An Efficient Framework for Numerical Linear Algebra.
 International Conference on Computer and Automation Engineering}, 2025.
-@export
 }

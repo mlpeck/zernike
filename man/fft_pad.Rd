@@ -2,20 +2,21 @@
 % Please edit documentation in R/RcppExports.R
 \name{fft_pad}
 \alias{fft_pad}
-\title{Wrappers for Armadillo 2D fft's with padding}
+\title{Wrappers for Armadillo 2D fft's with padding.}
 \usage{
 fft_pad(X, npad)
 }
 \description{
-2D ffts with real and complex inputs
+2D ffts with real and complex inputs.
 }
 \details{
-@param X a real or complex valued metrix
-@param npad size to pad to (should be highly composite)
+@param X A real or complex matrix
+@param npad The size to pad to
 
-@returns A complex valued transformed matrix of size npad x npad.
+@return A complex valued Fourier transformed matrix
 
-@details For convenience there are versions for
+@details
+or convenience there are versions for
 real or complex inputs. Armadillo's \code{fft2} function
 is poorly suited to matrixes of sizes other than
 highly composite. These functions zero pad the input

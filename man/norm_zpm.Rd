@@ -23,7 +23,7 @@ This is intended only for ISO/ANSI ordered matrices. The
 only check performed is that the number of columns in the
 matrix matches the expected number given by the argument
 \code{maxorder}.
-This is called by \code{\link[=gradzpm_arma]{gradzpm_arma()}} and \code{\link[=zpm_cart]{zpm_cart()}}
+This is called by \code{\link[=gradzpm]{gradzpm()}} and \code{\link[=zpm_cart]{zpm_cart()}}
 if \code{unit_variance} is set to \code{true} in the respective
 function calls.
 }

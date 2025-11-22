@@ -95,9 +95,11 @@ vec gol_welsch(const double& eps, vec& qwts) {
 //'
 //' @seealso This function is called by [zapm()] and [zapm_iso()].
 //'
-//' @references Gautschi, W. 1982, "On Generating Orthogonal Polynomials", SIAM J. Sci. Stat. Comput. vol. 3, no.3, 289-317.
-//'  Mahajan, V.N. 1981, "Zarnike annular polynomials...", JOSA, vol. 71, no. 1, 75-85.
-//'  Mahajan, V.N. 1994, "Zernike annular polynomials...", Suppl. Applied Optics, vol. 5, No. 11, 8125-8128.
+//' @references Gautschi, W. 1982, "On Generating Orthogonal Polynomials", SIAM J. Sci. Stat. Comput. vol. 3, no.3, 289-317.\
+//'
+//'  Mahajan, V.N. 1981, "Zarnike annular polynomials...", JOSA, vol. 71, no. 1, 75-85.\
+//'
+//'  Mahajan, V.N. 1994, "Zernike annular polynomials...", Suppl. Applied Optics, vol. 5, No. 11, 8125-8128.\
 //'
 //' @md
 // [[Rcpp::export]]
@@ -203,7 +205,7 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
 //' @param rho a vector of radial coordinates with eps <= rho <= 1.
 //' @param theta a vector of angular coordinates, in radians.
 //' @param eps the obstruction fraction 0 <= eps < 1.
-//' @param maxorder the maximum radial polynomial order (defaults to 12).
+//' @param maxorder the maximum radial polynomial order (defaults to 14).
 //' @param nqplus the number of *extra* quadrature points for numerical integration
 //'
 //' @return a matrix of Zernike Annular polynomial values evaluated at the input
@@ -345,7 +347,7 @@ mat zapm(const vec& rho, const vec& theta, const double& eps, const int& maxorde
 //' @param rho a vector of radial coordinates with eps <= rho <= 1.
 //' @param theta a vector of angular coordinates, in radians.
 //' @param eps the obstruction fraction 0 <= eps < 1.
-//' @param maxorder the maximum radial and azimuthal polynomial order (defaults to 12).
+//' @param maxorder the maximum radial and azimuthal polynomial order (defaults to 14).
 //' @param nqplus the number of *extra* quadrature points for numerical integration
 //'
 //' @return a matrix of Zernike Annular polynomial values evaluated at the input

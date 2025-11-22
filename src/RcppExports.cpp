@@ -48,6 +48,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// gblur_complex
+cx_mat gblur_complex(const cx_mat& X, const double sigma);
+RcppExport SEXP _zernike_gblur_complex(SEXP XSEXP, SEXP sigmaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const cx_mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const double >::type sigma(sigmaSEXP);
+    rcpp_result_gen = Rcpp::wrap(gblur_complex(X, sigma));
+    return rcpp_result_gen;
+END_RCPP
+}
 // d_of_g
 Rcpp::List d_of_g(const mat& X, const double sigma);
 RcppExport SEXP _zernike_d_of_g(SEXP XSEXP, SEXP sigmaSEXP) {
@@ -548,6 +560,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_zernike_conv2_sep_real", (DL_FUNC) &_zernike_conv2_sep_real, 2},
     {"_zernike_conv2_sep_complex", (DL_FUNC) &_zernike_conv2_sep_complex, 2},
     {"_zernike_gblur", (DL_FUNC) &_zernike_gblur, 2},
+    {"_zernike_gblur_complex", (DL_FUNC) &_zernike_gblur_complex, 2},
     {"_zernike_d_of_g", (DL_FUNC) &_zernike_d_of_g, 2},
     {"_zernike_convolve2d", (DL_FUNC) &_zernike_convolve2d, 2},
     {"_zernike_fft_pad", (DL_FUNC) &_zernike_fft_pad, 2},

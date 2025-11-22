@@ -10,11 +10,7 @@ ifft(X)
 2D inverse ffts with complex inputs
 }
 \details{
-@param X a complex valued metrix
-
-@returns A complex or real valued transformed matrix
-
-@details For convenience there are versions for
+For convenience there are versions for
 both real and complex outputs. Note that a round trip
 real FFT -> inverse FFT will produce a numerically
 complex valued output with negligible imaginary component.
@@ -22,5 +18,8 @@ The function \code{\link[=ifft_real]{ifft_real()}} is intended for this case.
 These functions
 work well if the input dimensions are highly composite,
 that is have no factors larger than 5.
-@export
+
+@param X a complex valued metrix.
+
+@returns A complex or real valued transformed matrix.
 }

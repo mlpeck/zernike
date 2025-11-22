@@ -53,6 +53,19 @@ mat gblur(const mat& X, const double sigma) {
   return conv2_sep(X, kernel);
 }
 
+//[[Rcpp::export]]
+cx_mat gblur_complex(const cx_mat& X, const double sigma) {
+  uword ksize = 5. * sigma;
+  if (ksize % 2 == 0) ++ksize;
+  vec kernel(ksize);
+  cx_vec ckernel(ksize);
+  vec y(ksize);
+  y = arma::linspace(-2.5, 2.5, ksize);
+  kernel = arma::normpdf(y);
+  kernel /= arma::sum(kernel);
+  ckernel.set_real(kernel);
+  return conv2_sep(X, ckernel);
+}
 
 //[[Rcpp::export]]
 Rcpp::List d_of_g(const mat& X, const double sigma) {

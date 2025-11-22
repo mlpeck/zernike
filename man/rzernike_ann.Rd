@@ -35,9 +35,11 @@ with an easily derived recurrence relation. For the m>0 polynomials this routine
 the recurrence coefficients iteratively using a method attributed to Stieltjes.
 }
 \references{
-Gautschi, W. 1982, "On Generating Orthogonal Polynomials", SIAM J. Sci. Stat. Comput. vol. 3, no.3, 289-317.
-Mahajan, V.N. 1981, "Zarnike annular polynomials...", JOSA, vol. 71, no. 1, 75-85.
-Mahajan, V.N. 1994, "Zernike annular polynomials...", Suppl. Applied Optics, vol. 5, No. 11, 8125-8128.
+Gautschi, W. 1982, "On Generating Orthogonal Polynomials", SIAM J. Sci. Stat. Comput. vol. 3, no.3, 289-317.\
+
+Mahajan, V.N. 1981, "Zarnike annular polynomials...", JOSA, vol. 71, no. 1, 75-85.\
+
+Mahajan, V.N. 1994, "Zernike annular polynomials...", Suppl. Applied Optics, vol. 5, No. 11, 8125-8128.\
 }
 \seealso{
 This function is called by \code{\link[=zapm]{zapm()}} and \code{\link[=zapm_iso]{zapm_iso()}}.
