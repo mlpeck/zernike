@@ -2,7 +2,6 @@
 \alias{wftophase}
 \alias{padmatrix}
 \alias{submatrix}
-\alias{fftshift}
 \title{FFT Utilities}
 \description{
   Miscellaneous utilities for working with 
@@ -34,9 +33,6 @@ fftshift(X)
   \code{submatrix} extracts a \code{size} x \code{size} matrix
   from the center of a larger matrix.
   
-  \code{fftshift} shuffles the quadrants of a matrix around to
-  put the DC element (1,1) in the center of the transformed matrix,
-  with spatial frequencies increasing to the right and up.
 }
 \value{
   A matrix transformation of the input matrix \code{X}.
