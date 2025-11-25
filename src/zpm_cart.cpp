@@ -48,7 +48,7 @@ using namespace arma;
 //'  only check performed is that the number of columns in the
 //'  matrix matches the expected number given by the argument
 //'  `maxorder`.
-//'  This is called by [gradzpm_arma()] and [zpm_cart()]
+//'  This is called by [gradzpm()] and [zpm_cart()]
 //'  if `unit_variance` is set to `true` in the respective
 //'  function calls.
 //' @md
@@ -262,7 +262,7 @@ List gradzpm(const vec& x, const vec& y, const int& maxorder = 12,
 //'   Anderson, T.B. (2018) Optics Express 26, #5, 18878
 //'   <https://doi.org/10.1364/OE.26.018878> (open access)
 //'
-//' @details This is the same algorithm and essentially the same code as [gradzpm_arma()]
+//' @details This is the same algorithm and essentially the same code as [gradzpm()]
 //'  except directional derivatives aren't calculated.
 //' @md
 // [[Rcpp::export]]

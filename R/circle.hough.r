@@ -31,7 +31,7 @@
 ##' Experimental feature: find the nn nearest neighbors of the selected trio of parameters
 ##' and calculate a vote weighted mean. This is returned as \code{rxy_alt} if details is TRUE.
 ##' 
-##' @seealso [circle.pars()], [pupil.pars()]
+##' @seealso [circle.auto()], [circle.man()]
 ##' 
 ##' @examples
 ##' example("psifit", package="zernike", ask=FALSE)

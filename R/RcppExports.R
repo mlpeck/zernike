@@ -25,23 +25,6 @@ convolve2d <- function(X, kernel) {
     .Call(`_zernike_convolve2d`, X, kernel)
 }
 
-#'  Wrappers for Armadillo 2D fft's with padding
-#'
-#'  2D ffts with real and complex inputs
-#'
-#'    For convenience there are versions for
-#'    real or complex inputs. Armadillo's `fft2` function
-#'    is poorly suited to matrixes of sizes other than
-#'    highly composite. These functions zero pad the input
-#'    and compute the transform of the padded matrix.
-#'    `npad` obviously should be highly composite or a power of two.
-#'
-#'  @param X a real or complex valued metrix.
-#'  @param npad size to pad to (should be highly composite).
-#'
-#'  @returns A complex valued transformed matrix of size npad x npad.
-#'
-#'  @md
 fft_pad <- function(X, npad) {
     .Call(`_zernike_fft_pad`, X, npad)
 }
@@ -50,28 +33,6 @@ fft_cx_pad <- function(X, npad) {
     .Call(`_zernike_fft_cx_pad`, X, npad)
 }
 
-#'  Wrappers for Armadillo 2D fft's
-#'
-#'  2D ffts with real and complex inputs
-#'
-#'    For convenience there are versions for
-#'    both real and complex inputs. These functions
-#'    work well if the input dimensions are highly composite,
-#'    that is have no factors larger than 5. If not,
-#'    use the padded versions [fft_pad], [fft_cx_pad],
-#'    or the FFTW3 based versions [fft_fftw], [fft_fftw_cx].
-#'
-#'  @param X a real or complex valued metrix.
-#'
-#'  @returns A complex valued transformed matrix.
-#'
-#'  @references
-#'    Armadillo home page](https://arma.sourceforge.net/).<br>
-#'    citation: Conrad Sanderson and Ryan Curtin.
-#'    *Armadillo: An Efficient Framework for Numerical Linear Algebra.
-#'    International Conference on Computer and Automation Engineering*, 2025.
-#'
-#'  @md
 fft <- function(X) {
     .Call(`_zernike_fft`, X)
 }
@@ -80,22 +41,6 @@ fft_cx <- function(X) {
     .Call(`_zernike_fft_cx`, X)
 }
 
-#'  Wrappers for Armadillo 2D inverse fft's
-#'
-#'  2D inverse ffts with complex inputs
-#'
-#'  For convenience there are versions for
-#'  both real and complex outputs. Note that a round trip
-#'  real FFT -> inverse FFT will produce a numerically
-#'  complex valued output with negligible imaginary component.
-#'  The function [ifft_real()] is intended for this case.
-#'  These functions
-#'  work well if the input dimensions are highly composite,
-#'  that is have no factors larger than 5.
-#'
-#'  @param X a complex valued metrix.
-#'
-#'  @returns A complex or real valued transformed matrix.
 ifft <- function(X) {
     .Call(`_zernike_ifft`, X)
 }
@@ -116,8 +61,42 @@ ifft_fftw <- function(XC) {
     .Call(`_zernike_ifft_fftw`, XC)
 }
 
+#' 2D fftshift
+#'
+#' Shift quadrants of a matrix
+#'
+#' This swaps the quadrants of
+#' a matrix to put the (0,0) element
+#' in the center. The most common use is
+#' to center the DC component of a Fourier Transformed matrix
+#' for visualization or to simplify other matrix operations
+#' @param X a real or complex valued matrix.
+#' @return a complex matrix with the same dimension as X.
+#' @examples
+#' X <- matrix(1:16, 4, 4)
+#' XS <- fftshift(X)
+#' XS
+#' ifftshift(XS)
 fftshift <- function(X) {
     .Call(`_zernike_fftshift`, X)
+}
+
+#' 2D ifftshift
+#'
+#' Inverse fftShift
+#'
+#' Inverts the fftshift operation,
+#' swapping quadrants of the input matrix.
+#'
+#' @param X a real or complex valued matrix.
+#' @return a complex matrix with the same dimension as X.
+#' @examples
+#' X <- matrix(1:16, 4, 4)
+#' XS <- fftshift(X)
+#' XS
+#' ifftshift(XS)
+ifftshift <- function(X) {
+    .Call(`_zernike_ifftshift`, X)
 }
 
 ifftshift <- function(X) {
@@ -599,7 +578,7 @@ zpmCP <- function(rho, theta, maxorder = 14L) {
 #'  only check performed is that the number of columns in the
 #'  matrix matches the expected number given by the argument
 #'  `maxorder`.
-#'  This is called by [gradzpm_arma()] and [zpm_cart()]
+#'  This is called by [gradzpm()] and [zpm_cart()]
 #'  if `unit_variance` is set to `true` in the respective
 #'  function calls.
 #' @md
@@ -675,7 +654,7 @@ gradzpm <- function(x, y, maxorder = 12L, unit_variance = TRUE, return_zpm = TRU
 #'   Anderson, T.B. (2018) Optics Express 26, #5, 18878
 #'   <https://doi.org/10.1364/OE.26.018878> (open access)
 #'
-#' @details This is the same algorithm and essentially the same code as [gradzpm_arma()]
+#' @details This is the same algorithm and essentially the same code as [gradzpm()]
 #'  except directional derivatives aren't calculated.
 #' @md
 zpm_cart <- function(x, y, maxorder = 14L, unit_variance = TRUE) {

@@ -6,7 +6,7 @@
   fraction of a circular or annular interferogram image.
 }
 \usage{
-pupil.pars(im = NULL, obstructed = FALSE)
+circle.man(im = NULL, obstructed = FALSE)
 }
 \arguments{
   \item{im}{A matrix containing an interferogram image}
@@ -38,6 +38,6 @@ pupil.pars(im = NULL, obstructed = FALSE)
 \seealso{
   Many routines require the pupil parameters in the form returned by
   \code{circle.man}. For example \code{\link{psifit}},
-  \code{\link{fftfit}}, \code{\link{pupil}}, etc.
+  \code{\link{fftfit}}, \code{\link{vortexfit}}, \code{\link{pupil}}, etc.
 }
 \keyword{utilities}

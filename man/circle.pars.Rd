@@ -5,7 +5,7 @@
   Automatically determine the center and radius of a circular interferogram image.
 }
 \usage{
-circle.pars(im, sigma=3, qt=0.995, excl=5,
+circle.auto(im, sigma=3, qt=0.995, excl=5,
     plots=TRUE, details=FALSE)
 }
 \arguments{
