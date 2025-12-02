@@ -25,6 +25,16 @@ using namespace Rcpp;
 using namespace arma;
 
 // [[Rcpp::export]]
+cx_mat fft(const mat& X) {
+  return arma::fft2(X);
+}
+
+// [[Rcpp::export]]
+cx_mat fft_cx(const cx_mat& X) {
+  return arma::fft2(X);
+}
+
+// [[Rcpp::export]]
 cx_mat fft_pad(const mat& X, const uword npad) {
   if (npad < X.n_rows || npad < X.n_cols) {
     Rcpp::stop("npad must be larger than both matrix dimensions");
@@ -40,15 +50,6 @@ cx_mat fft_cx_pad(const cx_mat& X, const uword npad) {
   return arma::fft2(X, npad, npad);
 }
 
-// [[Rcpp::export]]
-cx_mat fft(const mat& X) {
-  return arma::fft2(X);
-}
-
-// [[Rcpp::export]]
-cx_mat fft_cx(const cx_mat& X) {
-  return arma::fft2(X);
-}
 
 // [[Rcpp::export]]
 cx_mat ifft(const cx_mat& X) {
@@ -66,3 +67,19 @@ mat ifft_real(const cx_mat& X) {
   Y = real(arma::ifft2(X));
   return Y;
 }
+
+// [[Rcpp::export]]
+mat gblur_fft(const mat& X, const double sigma) {
+  uword nr = X.n_rows;
+  uword nc = X.n_cols;
+  uword ksize = 5. * sigma;
+  if (ksize % 2 == 0) ++ksize;
+  vec kernel(ksize);
+  vec y(ksize);
+  y = arma::linspace(-2.5, 2.5, ksize);
+  kernel = arma::normpdf(y);
+  kernel /= arma::sum(kernel);
+  mat kmat = kernel * kernel.t();
+  return ifft_real(arma::fft2(X) % arma::fft2(kmat, nr, nc));
+}
+

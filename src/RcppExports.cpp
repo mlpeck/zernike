@@ -84,6 +84,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// fft
+cx_mat fft(const mat& X);
+RcppExport SEXP _zernike_fft(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const mat& >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(fft(X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fft_cx
+cx_mat fft_cx(const cx_mat& X);
+RcppExport SEXP _zernike_fft_cx(SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const cx_mat& >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(fft_cx(X));
+    return rcpp_result_gen;
+END_RCPP
+}
 // fft_pad
 cx_mat fft_pad(const mat& X, const uword npad);
 RcppExport SEXP _zernike_fft_pad(SEXP XSEXP, SEXP npadSEXP) {
@@ -108,28 +130,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// fft
-cx_mat fft(const mat& X);
-RcppExport SEXP _zernike_fft(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const mat& >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(fft(X));
-    return rcpp_result_gen;
-END_RCPP
-}
-// fft_cx
-cx_mat fft_cx(const cx_mat& X);
-RcppExport SEXP _zernike_fft_cx(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const cx_mat& >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(fft_cx(X));
-    return rcpp_result_gen;
-END_RCPP
-}
 // ifft
 cx_mat ifft(const cx_mat& X);
 RcppExport SEXP _zernike_ifft(SEXP XSEXP) {
@@ -149,6 +149,18 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const cx_mat& >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(ifft_real(X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gblur_fft
+mat gblur_fft(const mat& X, const double sigma);
+RcppExport SEXP _zernike_gblur_fft(SEXP XSEXP, SEXP sigmaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const double >::type sigma(sigmaSEXP);
+    rcpp_result_gen = Rcpp::wrap(gblur_fft(X, sigma));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -193,17 +205,6 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< cx_mat& >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(fftshift(X));
-    return rcpp_result_gen;
-END_RCPP
-}
-// ifftshift
-// [[Rcpp::export]] cx_mat ifftshift(cx_mat& X);
-RcppExport SEXP _zernike_ifftshift(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< cx_mat& >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(ifftshift(X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -574,17 +575,17 @@ static const R_CallMethodDef CallEntries[] = {
     {"_zernike_gblur_complex", (DL_FUNC) &_zernike_gblur_complex, 2},
     {"_zernike_d_of_g", (DL_FUNC) &_zernike_d_of_g, 2},
     {"_zernike_convolve2d", (DL_FUNC) &_zernike_convolve2d, 2},
-    {"_zernike_fft_pad", (DL_FUNC) &_zernike_fft_pad, 2},
-    {"_zernike_fft_cx_pad", (DL_FUNC) &_zernike_fft_cx_pad, 2},
     {"_zernike_fft", (DL_FUNC) &_zernike_fft, 1},
     {"_zernike_fft_cx", (DL_FUNC) &_zernike_fft_cx, 1},
+    {"_zernike_fft_pad", (DL_FUNC) &_zernike_fft_pad, 2},
+    {"_zernike_fft_cx_pad", (DL_FUNC) &_zernike_fft_cx_pad, 2},
     {"_zernike_ifft", (DL_FUNC) &_zernike_ifft, 1},
     {"_zernike_ifft_real", (DL_FUNC) &_zernike_ifft_real, 1},
+    {"_zernike_gblur_fft", (DL_FUNC) &_zernike_gblur_fft, 2},
     {"_zernike_fft_fftw", (DL_FUNC) &_zernike_fft_fftw, 1},
     {"_zernike_fft_fftw_cx", (DL_FUNC) &_zernike_fft_fftw_cx, 1},
     {"_zernike_ifft_fftw", (DL_FUNC) &_zernike_ifft_fftw, 1},
     {"_zernike_fftshift", (DL_FUNC) &_zernike_fftshift, 1},
-    {"_zernike_ifftshift", (DL_FUNC) &_zernike_ifftshift, 1},
     {"_zernike_ifftshift", (DL_FUNC) &_zernike_ifftshift, 1},
     {"_zernike_fitzernikes", (DL_FUNC) &_zernike_fitzernikes, 9},
     {"_zernike_gpcapsiC", (DL_FUNC) &_zernike_gpcapsiC, 4},

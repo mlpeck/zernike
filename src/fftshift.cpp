@@ -22,6 +22,7 @@ using namespace arma;
 //' for visualization or to simplify other matrix operations
 //' @param X a real or complex valued matrix.
 //' @return a complex matrix with the same dimension as X.
+//' @seealso [ifftshift()] is the inverse operation.
 //' @examples
 //' X <- matrix(1:16, 4, 4)
 //' XS <- fftshift(X)
@@ -64,13 +65,12 @@ cx_mat fftshift(cx_mat& X) {
 //'
 //' @param X a real or complex valued matrix.
 //' @return a complex matrix with the same dimension as X.
+//' @seealso [fftshfit()].
 //' @examples
 //' X <- matrix(1:16, 4, 4)
 //' XS <- fftshift(X)
 //' XS
 //' ifftshift(XS)
-// [[Rcpp::export]]
-
 // [[Rcpp::export]]
 cx_mat ifftshift(cx_mat& X) {
   uword nr = X.n_rows;

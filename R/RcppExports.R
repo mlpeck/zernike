@@ -25,14 +25,6 @@ convolve2d <- function(X, kernel) {
     .Call(`_zernike_convolve2d`, X, kernel)
 }
 
-fft_pad <- function(X, npad) {
-    .Call(`_zernike_fft_pad`, X, npad)
-}
-
-fft_cx_pad <- function(X, npad) {
-    .Call(`_zernike_fft_cx_pad`, X, npad)
-}
-
 fft <- function(X) {
     .Call(`_zernike_fft`, X)
 }
@@ -41,12 +33,24 @@ fft_cx <- function(X) {
     .Call(`_zernike_fft_cx`, X)
 }
 
+fft_pad <- function(X, npad) {
+    .Call(`_zernike_fft_pad`, X, npad)
+}
+
+fft_cx_pad <- function(X, npad) {
+    .Call(`_zernike_fft_cx_pad`, X, npad)
+}
+
 ifft <- function(X) {
     .Call(`_zernike_ifft`, X)
 }
 
 ifft_real <- function(X) {
     .Call(`_zernike_ifft_real`, X)
+}
+
+gblur_fft <- function(X, sigma) {
+    .Call(`_zernike_gblur_fft`, X, sigma)
 }
 
 fft_fftw <- function(X) {
@@ -72,6 +76,7 @@ ifft_fftw <- function(XC) {
 #' for visualization or to simplify other matrix operations
 #' @param X a real or complex valued matrix.
 #' @return a complex matrix with the same dimension as X.
+#' @seealso [ifftshift()] is the inverse operation.
 #' @examples
 #' X <- matrix(1:16, 4, 4)
 #' XS <- fftshift(X)
@@ -90,15 +95,12 @@ fftshift <- function(X) {
 #'
 #' @param X a real or complex valued matrix.
 #' @return a complex matrix with the same dimension as X.
+#' @seealso [fftshfit()].
 #' @examples
 #' X <- matrix(1:16, 4, 4)
 #' XS <- fftshift(X)
 #' XS
 #' ifftshift(XS)
-ifftshift <- function(X) {
-    .Call(`_zernike_ifftshift`, X)
-}
-
 ifftshift <- function(X) {
     .Call(`_zernike_ifftshift`, X)
 }
