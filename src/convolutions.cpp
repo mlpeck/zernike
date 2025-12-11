@@ -27,12 +27,47 @@ Tmat conv2_sep(const Tmat& X, const Tvec& kernel) {
   return X_out;
 }
 
-
+//' 2D separable convolution - real matrix
+//'
+//' 2D convolution with a separable kernel
+//'
+//' Having a separable kernel implies that a
+//' direct 2D convolution can be executed as a series
+//' of 1D column- and row-wise convolutions.
+//' This *may* be faster a direct 2D convlution or
+//' using FFT's, and certainly benefits from multithreading.
+//' The input matrix is implicitly zero padded, which differs
+//' from an fft based convolution, where the input is implicitly
+//' extended to infinity in all directions, therefore the outputs
+//' will in general differ
+//'
+//' @param X a real valued matrix.
+//' @param kernel
+//'
+//' @return a real matrix with the same dimension as X.
 //[[Rcpp::export]]
 mat conv2_sep_real(const mat& X, const vec& kernel){
   return conv2_sep(X, kernel);
 }
 
+//' 2D separable convolution - complex matrix
+//'
+//' 2D convolution with a separable kernel
+//'
+//' Having a separable kernel implies that a
+//' direct 2D convolution can be executed as a series
+//' of 1D column- and row-wise convolutions.
+//' This *may* be faster a direct 2D convlution or
+//' using FFT's, and certainly benefits from multithreading.
+//' The input matrix is implicitly zero padded, which differs
+//' from an fft based convolution, where the input is implicitly
+//' extended to infinity in all directions, therefore the outputs
+//' will in general differ
+//'
+//' @param X a complex valued matrix.
+//' @param kernel
+//'
+//' @return a complex valued  matrix with the same dimension as X.
 //[[Rcpp::export]]
 cx_mat conv2_sep_complex(const cx_mat& X, const vec& kernel) {
   uword ksize = kernel.n_elem;
@@ -41,6 +76,17 @@ cx_mat conv2_sep_complex(const cx_mat& X, const vec& kernel) {
   return conv2_sep(X, ckernel);
 }
 
+//' 2D Gaussian blur
+//'
+//' 2D Gaussian blur of a real matrix
+//'
+//' @param X a matrix
+//' @param sigma standard deviation in pixels of the Gaussian kernel
+//'
+//' @return A matrix with the same dimensions as the input
+//'
+//' Performs direct convolution using [conv2_sep()] with a Gaussian kernel
+//' sized to span 5 standard deviations.
 //[[Rcpp::export]]
 mat gblur(const mat& X, const double sigma) {
   uword ksize = 5. * sigma;
@@ -53,6 +99,19 @@ mat gblur(const mat& X, const double sigma) {
   return conv2_sep(X, kernel);
 }
 
+//' 2D Gaussian blur of a complex valued matrix
+//'
+//' 2D Gaussian blur of a complex matrix
+//'
+//' @param X a complex valued matrix
+//' @param sigma standard deviation in pixels of the Gaussian kernel
+//'
+//' @return A complex valued matrix with the same dimensions as the input
+//'
+//' Performs direct convolution using [conv2_sep_complex()] with a Gaussian kernel
+//' sized to span 5 standard deviations. Preliminary benchmarking indicates this
+//' is no faster than performing separate convolutions of the real and imaginary
+//' components and combining the results.
 //[[Rcpp::export]]
 cx_mat gblur_complex(const cx_mat& X, const double sigma) {
   uword ksize = 5. * sigma;
@@ -67,6 +126,16 @@ cx_mat gblur_complex(const cx_mat& X, const double sigma) {
   return conv2_sep(X, ckernel);
 }
 
+//' Derivative of Gaussian filter
+//'
+//' 2D filter that combines smoothing and (central) differencing.
+//'
+//' @param X a matrix
+//' @param sigma standard deviation in pixels of the Gaussian kernel
+//'
+//' @return A named list with components Dx, Dy, Dxy, and the calculated kernel
+//'
+//' Calls arma::conv2(). Called by [circle.auto()].
 //[[Rcpp::export]]
 Rcpp::List d_of_g(const mat& X, const double sigma) {
   uword nr, nc;
@@ -97,7 +166,17 @@ Rcpp::List d_of_g(const mat& X, const double sigma) {
                             Rcpp::Named("kernel") = kernel);
 }
 
-
+//' 2D convolution - real matrix
+//'
+//' General 2D dircet convolution
+//'
+//' General 2D direct convolution with an arbitrary matrix kernel.
+//' This is a wrapper for the Armadillo function `conv1`.
+//'
+//' @param X a real valued matrix.
+//' @param kernel a real valued matrix
+//'
+//' @return a real matrix with the same dimension as X.
 //[[Rcpp::export]]
 mat convolve2d(const mat& X, const mat& kernel) {
   return arma::conv2(X, kernel, "same");

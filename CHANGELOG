@@ -685,3 +685,19 @@
 ## removed R shell for zpm()
 #@ added openmp directives various to zpm() and tiltpsiC()
 ## winfit demo runs from scratch (no longer checks if images in workspace)
+
+## 202511-12
+## chamged function names --
+## psfit_options() -> zernike_options()
+## pupil.pars -> circle.man
+## circle.pars <- circle.auto
+##
+## circle.man only returns circles
+## internal changes to circle.auto (uses derivative of gaussian instead of sobel+gauss blur)
+##
+## added several separable 2D convolutions written in C++ with Armadillo
+## added C++ general 2D convolution and derivative of gaussian
+## added wrapper for Armadillo's 2D fft in inverse FFT
+## added wrapper for FFTW's 2D fft
+## added C++ version of fftshift, and new ifftwhift
+
