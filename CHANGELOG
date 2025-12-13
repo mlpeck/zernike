@@ -690,10 +690,12 @@
 ## chamged function names --
 ## psfit_options() -> zernike_options()
 ## pupil.pars -> circle.man
-## circle.pars <- circle.auto
+## circle.pars -> circle.auto
 ##
 ## circle.man only returns circles
 ## internal changes to circle.auto (uses derivative of gaussian instead of sobel+gauss blur)
+##
+## improved algorithm for Zernike annular polynomials
 ##
 ## added several separable 2D convolutions written in C++ with Armadillo
 ## added C++ general 2D convolution and derivative of gaussian

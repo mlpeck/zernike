@@ -24,16 +24,60 @@
 using namespace Rcpp;
 using namespace arma;
 
+//' 2D FFT
+//'
+//' 2D FFT wrapping Armadillo's `fft2`
+//'
+//' @param X a real valued matrix
+//'
+//' @returns A complex valued matrix with the discrete Fourier transformed input.
+//'
+//' This is just a wrapper for Armadillo's `fft2`
+//' function. It works well for dimensions that are
+//' *highly composite*, not just powers of 2 as
+//' implied by the online documentation. `X` need not
+//' be a square matrix.
+//' @references Conrad Sanderson and Ryan Curtin.
+//' Armadillo: An Efficient Framework for Numerical Linear Algebra.
+//' International Conference on Computer and Automation Engineering, 2025.
+//' <br>
+//' Conrad Sanderson and Ryan Curtin.
+//' Practical Sparse Matrices in C++ with Hybrid Storage and Template-Based Expression Optimisation.
+//' Mathematical and Computational Applications, Vol.24, No.3, 2019.
 // [[Rcpp::export]]
 cx_mat fft(const mat& X) {
   return arma::fft2(X);
 }
 
+//' 2D FFT - complex valued input
+//'
+//' 2D FFT wrapping Armadillo's `fft2`
+//'
+//' @param X a complex valued matrix
+//'
+//' @returns A complex valued matrix with the discrete Fourier transformed input.
+//'
+//' @seealso [fft()]
 // [[Rcpp::export]]
 cx_mat fft_cx(const cx_mat& X) {
   return arma::fft2(X);
 }
 
+//' 2D FFT with padding
+//'
+//' 2D FFT wrapping Armadillo's `fft2`
+//'
+//' @param X a real valued matrix
+//' @param npad size to pad to
+//'
+//' @returns A complex valued matrix with the discrete Fourier transformed input.
+//'
+//' This is provided for cases where the input matrix has one or both dimensions
+//' that are *not* highly composite (that is, have prime factors that are larger than 5).
+//' `npad` itself should be highly composite. This isn't checked. The R function [nextn()]
+//' can be used to find a suitable size.
+//'
+//' @seealso [fft()]
 // [[Rcpp::export]]
 cx_mat fft_pad(const mat& X, const uword npad) {
   if (npad < X.n_rows || npad < X.n_cols) {
@@ -42,6 +86,21 @@ cx_mat fft_pad(const mat& X, const uword npad) {
   return arma::fft2(X, npad, npad);
 }
 
+//' 2D FFT with padding - complex valued input
+//'
+//' 2D FFT wrapping Armadillo's `fft2`
+//'
+//' @param X a complex valued matrix
+//' @param npad size to pad to
+//'
+//' @returns A complex valued matrix with the discrete Fourier transformed input.
+//'
+//' This is provided for cases where the input matrix has one or both dimensions
+//' that are *not* highly composite (that is, have prime factors that are larger than 5).
+//' `npad` itself should be highly composite. This isn't checked. The R function [nextn()]
+//' can be used to find a suitable size.
+//'
+//' @seealso [fft()]
 // [[Rcpp::export]]
 cx_mat fft_cx_pad(const cx_mat& X, const uword npad) {
   if (npad < X.n_rows || npad < X.n_cols) {
@@ -50,15 +109,36 @@ cx_mat fft_cx_pad(const cx_mat& X, const uword npad) {
   return arma::fft2(X, npad, npad);
 }
 
-
+//' 2D Inverse FFT - complex valued input
+//'
+//' 2D Inverse FFT wrapping Armadillo's `ifft2`
+//'
+//' @param X a complex valued matrix
+//'
+//' @returns A complex valued matrix with the inverse discrete Fourier transformed input.
+//'
+//' In contrast to some implementations this returns the *scaled* inverse transform.
+//'
+//' @seealso [fft()]
 // [[Rcpp::export]]
 cx_mat ifft(const cx_mat& X) {
-  uword nr = X.n_rows;
-  uword nc = X.n_cols;
   return arma::ifft2(X);
 }
 
-
+//' 2D Inverse FFT - real valued output
+//'
+//' 2D Inverse FFT wrapping Armadillo's `ifft2`
+//'
+//' @param X a complex valued matrix
+//'
+//' @returns A real valued matrix with the real component of the inverse discrete Fourier transformed input.
+//'
+//' In many cases where a real valued matrix is transformed, some operations performed in the Fourier domain,
+//' and then inverse transformed the output will be real but with a small imaginary component.
+//' This function simply discards the imaginary component. No check is made that this is
+//' actually appropriate.
+//'
+//' @seealso [fft()]
 // [[Rcpp::export]]
 mat ifft_real(const cx_mat& X) {
   uword nr = X.n_rows;
@@ -68,6 +148,17 @@ mat ifft_real(const cx_mat& X) {
   return Y;
 }
 
+//' 2D Gaussian blur
+//'
+//' 2D Gaussian blur -- FFT based version
+//'
+//' @param X a real valued matrix
+//' @param sigma standard deviation in pixels of the Gaussian kernel
+//'
+//' @returns the smoothed input matrix
+//'
+//' Numerical experiments suggest that it's almost always faster to use
+//' the direct convolution based Gaussian blur in [gblur()].
 // [[Rcpp::export]]
 mat gblur_fft(const mat& X, const double sigma) {
   uword nr = X.n_rows;

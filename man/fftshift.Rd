@@ -28,3 +28,6 @@ XS <- fftshift(X)
 XS
 ifftshift(XS)
 }
+\seealso{
+\code{\link[=ifftshift]{ifftshift()}} is the inverse operation.
+}

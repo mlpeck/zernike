@@ -25,3 +25,6 @@ XS <- fftshift(X)
 XS
 ifftshift(XS)
 }
+\seealso{
+\code{\link[=fftshift]{fftshift()}}.
+}

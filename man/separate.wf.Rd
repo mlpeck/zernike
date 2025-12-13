@@ -49,7 +49,7 @@ function \code{separate.wf}
 {wf.mirror} {the estimated derotated wavefront, stored in a matrix of size nrow x ncol with class \code{pupil}.}
 
 {wf.inst} {the estimated instrumental (test stand) contribution to the wavefront.}}
-
+}
 \description{
 Separate a set of wavefronts measured at different orientations into "polished in" and
 instrumental or "test stand" components.

@@ -65,7 +65,7 @@ cx_mat fftshift(cx_mat& X) {
 //'
 //' @param X a real or complex valued matrix.
 //' @return a complex matrix with the same dimension as X.
-//' @seealso [fftshfit()].
+//' @seealso [fftshift()].
 //' @examples
 //' X <- matrix(1:16, 4, 4)
 //' XS <- fftshift(X)

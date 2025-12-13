@@ -34,7 +34,7 @@ Tmat conv2_sep(const Tmat& X, const Tvec& kernel) {
 //' Having a separable kernel implies that a
 //' direct 2D convolution can be executed as a series
 //' of 1D column- and row-wise convolutions.
-//' This *may* be faster a direct 2D convlution or
+//' This *may* be faster than a direct 2D convlution or
 //' using FFT's, and certainly benefits from multithreading.
 //' The input matrix is implicitly zero padded, which differs
 //' from an fft based convolution, where the input is implicitly
@@ -45,6 +45,8 @@ Tmat conv2_sep(const Tmat& X, const Tvec& kernel) {
 //' @param kernel
 //'
 //' @return a real matrix with the same dimension as X.
+//'
+//' @seealso [conv2_sep_complex()]
 //[[Rcpp::export]]
 mat conv2_sep_real(const mat& X, const vec& kernel){
   return conv2_sep(X, kernel);
@@ -57,7 +59,7 @@ mat conv2_sep_real(const mat& X, const vec& kernel){
 //' Having a separable kernel implies that a
 //' direct 2D convolution can be executed as a series
 //' of 1D column- and row-wise convolutions.
-//' This *may* be faster a direct 2D convlution or
+//' This *may* be faster than a direct 2D convlution or
 //' using FFT's, and certainly benefits from multithreading.
 //' The input matrix is implicitly zero padded, which differs
 //' from an fft based convolution, where the input is implicitly
@@ -68,6 +70,8 @@ mat conv2_sep_real(const mat& X, const vec& kernel){
 //' @param kernel
 //'
 //' @return a complex valued  matrix with the same dimension as X.
+//'
+//' @seealso [conv2_sep_real()]
 //[[Rcpp::export]]
 cx_mat conv2_sep_complex(const cx_mat& X, const vec& kernel) {
   uword ksize = kernel.n_elem;
@@ -85,7 +89,7 @@ cx_mat conv2_sep_complex(const cx_mat& X, const vec& kernel) {
 //'
 //' @return A matrix with the same dimensions as the input
 //'
-//' Performs direct convolution using [conv2_sep()] with a Gaussian kernel
+//' Performs direct convolution using [conv2_sep_real()] with a Gaussian kernel
 //' sized to span 5 standard deviations.
 //[[Rcpp::export]]
 mat gblur(const mat& X, const double sigma) {
@@ -171,7 +175,7 @@ Rcpp::List d_of_g(const mat& X, const double sigma) {
 //' General 2D dircet convolution
 //'
 //' General 2D direct convolution with an arbitrary matrix kernel.
-//' This is a wrapper for the Armadillo function `conv1`.
+//' This is a wrapper for the Armadillo function `conv2`.
 //'
 //' @param X a real valued matrix.
 //' @param kernel a real valued matrix
