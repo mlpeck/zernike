@@ -1,3 +1,38 @@
+## Version 3.8.2
+This is an interim release, but with several additions and changes.
+### User visible changes
+* `psfit_options() ` renamed to `zernike_options`.
+* `pupile.pars()` renamed to `circle.man()`. This will now always return circle parameters.
+* `circle.pars()` renamed to `circle.auto()`.
+* Added several functions for direct 2D convolution using Armadillo routines:
+  * `conv2_sep_real()`
+  * `conv2_sep_conplex()`
+  * `gblur()` (replaces previous version written in R)
+  * `gblur_complex()`
+  * `d_of_g()` Derivative of Gaussian
+  * `convolve2d()` (replaces previous version written in R)
+* Added wrappers for Armadillo's 2D FFT routines
+  * `fft()` (direct replacement for R`s function with the same name)
+  * `fft_cx()`
+  * `fft_pad()`
+  * ` fft_cx_pad()`
+  * `ifft()` inverse, scaled, FFT
+  * `ifft_real()` for cases where the inverse transform is known to be real valued
+  * `gblur_fft()`
+  * `fftshift()` rewritten in C++ and (I hope) made more general
+  * `ifftshift()` new, written in C++
+* Added 2D FFT functions wrapping `FFTW3`
+  * `fft_fftw()`
+  * `fft_fftw_cx()` Complex input, complex output
+  * `ifft_fftw()`
+### Other changes, mostly behind the scenes
+* The algorithm for the "classical" FFT fringe analysis in `fftfit()` has been extensively rewritten to
+  approximately recenter the selected sidelobe by multiplying by the inverse of the carrier
+  and then low pass filtering. This will have a visible impact on the estimated phase as can be seen in the example.
+* Functions that do low pass filtering use the new direct convolutions routines. This includes `vortexfit()` and `circle.auto()`.
+* The functions `zapm()`, `zapm_128()`, etc. for generating Zernike annular polynomial values use a new algorithm with
+  much improved numerical precision. To be documented soon (I hope).
+
 ## Version 3.8.1
 * renamed `zpmC.cpp` to `zpm.cpp` and similarly renamed the function call. The R wrapper function of the same name has been removed.
 * The R function `fitzernikes()` has been replaced with a C++ function of the same name. Least squares fitting of Zernike
