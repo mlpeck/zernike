@@ -36,6 +36,26 @@ static uword nc_last {0};
  *
  * **********/
 
+//' 2D FFT - FFTW3 based version
+//'
+//' 2D FFT wrapping routines in fftw3
+//'
+//' @param X a real valued matrix
+//'
+//' @returns A complex valued matrix with the discrete Fourier transformed input.
+//'
+//' This is mostly an Armadillo based C++ wrapper to functions in fftw3 On first
+//' call or if matrix dimensions change calls `fftw_plan_dft_2d` with the planning flag
+//' `FFTW_MEASURE` (currently hard coded in the source), then `fftw_execute_dft` to perform the transform.
+//' This gives a reasonable balance between overhead of the first call and performance
+//' improvement in subsequent calls compared to the Armadillo based fft routine.
+//' Nevertheless this is probably only useful if dozens to hundreds (or more) frames are
+//' to be processed.
+//'
+//' @seealso [fft()], [fft_fftw_cx()], [ifft_fftw()]
+//'
+//' @references Matteo Frigo and Steven G. Johnson, "The Design and Implementation of FFTW3,"
+//' roceedings of the IEEE 93 (2), 216–231 (2005). Invited paper, Special Issue on Program Generation, Optimization, and Platform Adaptation.
 // [[Rcpp::export]]
 cx_mat fft_fftw(const mat& X) {
   uword nr = X.n_rows;
@@ -70,6 +90,16 @@ cx_mat fft_fftw(const mat& X) {
  *
  * **********/
 
+//' 2D FFT - complex valued input -FFTW3 based version
+//'
+//' 2D FFT wrapping routines in fftw3
+//'
+//' @param X a complex valued matrix
+//'
+//' @returns A complex valued matrix with the discrete Fourier transformed input.
+//'
+//'
+//' @seealso [fft_cx()], [fft_fftw()], [ifft_fftw()]
 // [[Rcpp::export]]
 cx_mat fft_fftw_cx(const cx_mat& XC) {
   uword nr = XC.n_rows;
@@ -97,6 +127,16 @@ cx_mat fft_fftw_cx(const cx_mat& XC) {
   return XCT;
 }
 
+//' 2D Inverse FFT - FFTW3 based version
+//'
+//' 2D Inverse FFT wrapping routines in fftw3
+//'
+//' @param X a complex valued matrix
+//'
+//' @returns A complex valued matrix with the scaled inverse Fourier transformed input.
+//'
+//'
+//' @seealso [ifft()], fft_fftw()]
 // [[Rcpp::export]]
 cx_mat ifft_fftw(const cx_mat& XC) {
   uword nr = XC.n_rows;
