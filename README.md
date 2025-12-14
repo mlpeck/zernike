@@ -1,6 +1,6 @@
 Welcome to my R package for interferogram analysis and manipulation of Zernike polynomials. If you are new to R this README gives installation and basic usage instructions for Windows users. There are a number of required and optional packages to be installed, so please follow these instructions carefully. You need:
 
-* A recent version of R itself (v4.1.0 or later is required). The current version at this writing is 4.4.2. If you're making a fresh installation just go with the current release. The windows binary installer can be downloaded from https://cran.r-project.org. Installation works like any Windows program -- I like to have the installer create desktop shortcuts and edit its properties to have it start up in the directory where I've stored data. The only customization I make at install time is to select "SDI" windowing mode. This will display graphs in separate windows on the desktop.
+* A recent version of R itself (v4.1.0 or later is required). The current version at this writing is 4.5.2. If you're making a fresh installation just go with the current release. The windows binary installer can be downloaded from https://cran.r-project.org. Installation works like any Windows program -- I like to have the installer create desktop shortcuts and edit its properties to have it start up in the directory where I've stored data. The only customization I make at install time is to select "SDI" windowing mode. This will display graphs in separate windows on the desktop.
 
 * Download the Windows binary of this package from the [releases](../releases) section. Do not unzip it!
 
@@ -25,8 +25,6 @@ Welcome to my R package for interferogram analysis and manipulation of Zernike p
     + robustbase. The function `nlsrob` is used as the new default parameter estimation routine by the automated edgefinding function `circle.pars`.
     
     + tinytable. Used to produce html formatted reports for the fringe analysis routines.
-    
-    + fftwtools. If installed the FFT based fringe analysis routines `vortexfit` and `fftfit` will use `fftw` for FFTs instead of the base R function. This may slightly improve the execution time of these functions.
     
 * You need not install these initially but they may be useful for certain tasks.
     
