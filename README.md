@@ -22,7 +22,7 @@ Welcome to my R package for interferogram analysis and manipulation of Zernike p
     
     + rgl. This package provides interactive 3D graphics.
     
-    + robustbase. The function `nlsrob` is used as the new default parameter estimation routine by the automated edgefinding function `circle.pars`.
+    + robustbase. The function `nlsrob` is used as the new default parameter estimation routine by the automated edgefinding function `circle.auto`.
     
     + tinytable. Used to produce html formatted reports for the fringe analysis routines.
     

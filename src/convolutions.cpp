@@ -11,7 +11,6 @@ template<typename Tmat, typename Tvec>
 Tmat conv2_sep(const Tmat& X, const Tvec& kernel) {
   uword nr = X.n_rows;
   uword nc = X.n_cols;
-  uword nk = kernel.size();
 
   Tmat X_int(nr, nc), X_out(nr, nc);
   #pragma omp parallel for

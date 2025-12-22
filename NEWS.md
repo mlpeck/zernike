@@ -2,7 +2,7 @@
 This is an interim release, but with several additions and changes.
 ### User visible changes
 * `psfit_options() ` renamed to `zernike_options`.
-* `pupile.pars()` renamed to `circle.man()`. This will now always return circle parameters.
+* `pupil.pars()` renamed to `circle.man()`. This will now always return circle parameters.
 * `circle.pars()` renamed to `circle.auto()`.
 * Added several functions for direct 2D convolution using Armadillo routines:
   * `conv2_sep_real()`
@@ -15,7 +15,7 @@ This is an interim release, but with several additions and changes.
   * `fft()` (direct replacement for R`s function with the same name)
   * `fft_cx()`
   * `fft_pad()`
-  * ` fft_cx_pad()`
+  * `fft_cx_pad()`
   * `ifft()` inverse, scaled, FFT
   * `ifft_real()` for cases where the inverse transform is known to be real valued
   * `gblur_fft()`
