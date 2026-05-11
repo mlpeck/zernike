@@ -155,7 +155,7 @@ mat rzernike_ann(const vec& rho, const double& eps, const int& n, const int& m, 
     inner_product = sum(w % qwts);
     inner_product_minus1 = inner_product;
     alpha(0) = sum(xq % w % qwts) / inner_product;
-    c(0) = (1. - pow(eps2, m+1))/(1.+ m);  //just do the integral for the first inner product
+    c(0) = inner_product;
 
     p_k.ones();
     p_k_plus1 = (xq - alpha(0));
